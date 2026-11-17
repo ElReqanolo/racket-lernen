@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Übungen · Racket lernen</title>
+<meta name="description" content="Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css"><link rel="stylesheet" href="assets/katex/katex.min.css">
+<script>try{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body>
+<header class="top"><div class="inner">
+<a class="brand" href="index.html"><span class="lam">λ</span><span>Racket lernen</span></a>
+<nav class="main"><a href="index.html">Start</a><a href="lernen.html">Lernübersicht</a><a href="befehle.html">Befehle</a><a href="glossar.html">Glossar</a><a href="fehler.html">Fehler</a><a href="uebungen.html" class=active>Übungen</a></nav>
+<button class="themebtn" type="button" title="Hell/Dunkel umschalten" aria-label="Hell/Dunkel umschalten">☾</button>
+</div></header>
+<main>
+
+<h1 class="page-title">Übungen mit Lösungen</h1>
+<p class="lead">125 Aufgaben zu allen 15 Kapiteln. Erst selbst lösen, dann die Lösung aufklappen.</p>
+<details class="loesung" style="border-left-color:var(--accent)"><summary style="color:var(--accent)">So benutzt du die Aufgaben</summary>
+<table><thead><tr><th>Zeichen</th><th>Bedeutung</th></tr></thead><tbody><tr><td>★</td><td>leicht – wendet direkt an, was im Kapitel erklärt wird</td></tr><tr><td>★★</td><td>mittel – mehrere Schritte oder ein kleiner eigener Gedanke</td></tr><tr><td>★★★</td><td>knifflig – zum Knobeln, gut für Klausurvorbereitung</td></tr></tbody></table>
+<p><strong>Vorgehen bei jeder Aufgabe</strong></p>
+<ol><li><p>Lies im passenden Kapitel der Übersicht nach, was du brauchst.</p></li><li><p>Arbeite nach der <strong>Konstruktionsanleitung</strong>: Kurzbeschreibung, Datenanalyse, Signatur, Tests, Gerüst, Schablone, Rumpf. (In den Abschnitten 1.1–1.5 gibt es Signaturen und Tests noch nicht – dort reicht das Ausprobieren in der REPL.)</p></li><li><p>Schreibe deine Lösung in DrRacket und drücke <strong>Start</strong>. Erst wenn alle Tests grün sind und nichts farbig hinterlegt ist, schau in die Lösung.</p></li><li><p>Vergleiche: Oft gibt es mehrere richtige Lösungen. Wichtig ist, dass deine Tests sinnvoll sind und bestehen.</p></li></ol>
+<p>Erledigte Aufgaben kannst du abhaken – die Häkchen merkt sich dein Browser.</p>
+<p><strong>Sprachebene:</strong> Kapitel 1–5 laufen in <strong>„Schreibe Dein Programm! – Anfänger“</strong>. Ab Kapitel 6 (eingebaute Listen) brauchst du <strong>„Schreibe Dein Programm!“</strong>. Für Bilder und Animationen müssen die Teachpacks <code>image.rkt</code> und <code>universe.rkt</code> geladen sein.</p>
+</details>
+<div class="filters" data-filter data-one="Aufgabe" data-many="Aufgaben">
+<input type="search" placeholder="Aufgabe suchen …" aria-label="Aufgabe suchen">
+<select class="kap" aria-label="Kapitel"><option value="0">Alle Kapitel</option><option value="1">1: Elemente des Programmierens</option><option value="2">2: Fallunterscheidungen und Verzweigungen</option><option value="3">3: Zusammengesetzte Daten</option><option value="4">4: Gemischte Daten</option><option value="5">5: Programmieren mit Selbstbezügen und Kombinatoren</option><option value="6">6: Programmieren mit Listen</option><option value="7">7: Natürliche Zahlen</option><option value="8">8: Exkurs – Induktive Beweise und Definitionen</option><option value="9">9: Higher-Order-Programmierung</option><option value="10">10: Programmieren mit Akkumulatoren</option><option value="11">11: Videospiele programmieren</option><option value="12">12: Bäume</option><option value="13">13: Eigenschaften von Funktionen</option><option value="14">14: Exkurs – Der λ-Kalkül</option><option value="15">15: Exkurs – Die SECD-Maschine</option></select>
+<div class="seg stars"><button type="button" data-v="">alle</button><button type="button" data-v="1">★</button><button type="button" data-v="2">★★</button><button type="button" data-v="3">★★★</button></div>
+<label style="font-size:14px"><input type="checkbox" class="openonly"> nur offene</label>
+<button type="button" class="chip togglesol">Alle Lösungen aufklappen</button>
+<div class="progress" title="Fortschritt"><div></div></div><span class="progtxt" style="font-size:13px;color:var(--muted)"></span>
+<span class="count"></span>
+</div>
+<div class="filterscope"><section class="fg" id="kapitel-1"><h2>Kapitel 1: Elemente des Programmierens</h2><p><a href="lernen.html#kapitel-1">→ Erklärung zu Kapitel 1</a> · <a href="fehler.html?kap=1">typische Fehler</a></p>
+<h3 id="abschnitte-1115-ausdrücke-zeichenketten-bilder-lambda">Abschnitte 1.1–1.5: Ausdrücke, Zeichenketten, Bilder, <code>lambda</code></h3>
+<p>Diese Aufgaben brauchen nur Ausdrücke, Zeichenketten, <code>define</code>, Bilder und <code>lambda</code>. Für Teil C und D müssen diese drei Beispielbilder im Definitionsfenster stehen:</p>
+<pre><code class="language-racket">(define s1 (square 40 &quot;solid&quot; &quot;red&quot;))               ; rotes Quadrat
+(define c1 (circle 40 &quot;solid&quot; &quot;green&quot;))             ; grüner Kreis
+(define p1 (star-polygon 20 10 3 &quot;solid&quot; &quot;blue&quot;))   ; blauer Stern
+(define tile
+  (lambda (a b)
+    (above (beside a b)
+           (beside b a))))</code></pre>
+<p><strong>Teil A – Rechnen</strong></p>
+<ul class="fg"><li class="task fi" id="k1-A1" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>A1 ★</strong> Übersetze in Racket: a) 55 · 27; b) 23 · (44 + 27); c) 23/44 + 44/23; d) (23 + 42) · (12 + 14 · 2)</p></li><li class="task fi" id="k1-A2" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>A2 ★</strong> Was liefert <code>(- 10 (- 5 2))</code>? Erst im Kopf, dann in der REPL.</p></li><li class="task fi" id="k1-A3" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>A3 ★★</strong> Ein Rechteck ist 7 cm breit und 4 cm hoch. Definiere <code>breite</code> und <code>höhe</code> und berechne Fläche und Umfang.</p></li></ul>
+<p><strong>Teil B – Zeichenketten</strong></p>
+<ul class="fg"><li class="task fi" id="k1-B1" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>B1 ★</strong> Baue mit <code>string-append</code> deinen vollen Namen aus Vor- und Nachname (mit Leerzeichen).</p></li><li class="task fi" id="k1-B2" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>B2 ★★</strong> Wie viele Zeichen hat <code>&quot;Schreibe Dein Programm!&quot;</code>? Erst zählen, dann <code>string-length</code>.</p></li><li class="task fi" id="k1-B3" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>B3 ★★</strong> Erzeuge den Text <code>&quot;Ich bin 17 Jahre alt&quot;</code>, wobei die 17 aus <code>(define alter 17)</code> kommt.</p></li><li class="task fi" id="k1-B4" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>B4 ★★</strong> Was passiert bei <code>(+ &quot;23&quot; 42)</code>, <code>(string-append 23 &quot;42&quot;)</code> und <code>(number-&gt;string &quot;23&quot;)</code>? Erkläre jeweils, warum.</p></li></ul>
+<p><strong>Teil C – Bilder</strong></p>
+<ul class="fg"><li class="task fi" id="k1-C1" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>C1 ★</strong> Finde heraus, was die Zahlen bei <code>square</code> und <code>circle</code> bewirken (verschiedene Werte ausprobieren). Probiere auch <code>rectangle</code> und <code>ellipse</code>.</p></li><li class="task fi" id="k1-C2" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>C2 ★</strong> Ein Haus: Dreieck als Dach auf einem Quadrat.</p></li><li class="task fi" id="k1-C3" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>C3 ★★</strong> Eine Ampel: drei Kreise (rot, gelb, grün) untereinander.</p></li><li class="task fi" id="k1-C4" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>C4 ★★</strong> Eine Schneemann-Figur aus drei Kreisen mit Umriss (verschiedene Größen).</p></li><li class="task fi" id="k1-C5" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>C5 ★★</strong> Probiere <code>star-polygon</code> mit 7 Ecken und den Schrittweiten 1, 2 und 3. Was fällt dir auf?</p></li><li class="task fi" id="k1-C6" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>C6 ★</strong> Was liefern <code>s1</code> und <code>(s1)</code> in der REPL? Erkläre den Unterschied.</p></li></ul>
+<p><strong>Teil D – Abstraktion mit <code>lambda</code></strong></p>
+<ul class="fg"><li class="task fi" id="k1-D1" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>D1 ★</strong> Wende <code>tile</code> im Stepper an und klicke bis zum Ende durch.</p></li><li class="task fi" id="k1-D2" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>D2 ★</strong> Kann man das Ergebnis von <code>tile</code> wieder an <code>tile</code> übergeben? Probier es aus.</p></li><li class="task fi" id="k1-D3" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>D3 ★★</strong> Schreibe <code>nebeneinander-drei</code>: bekommt ein Bild und setzt es dreimal nebeneinander.</p></li><li class="task fi" id="k1-D4" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>D4 ★★</strong> Schreibe <code>haus</code>: bekommt eine Größe und eine Farbe und baut das Haus aus C2 in dieser Größe und Farbe.</p></li><li class="task fi" id="k1-D5" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>D5 ★★</strong> Schreibe <code>gruß</code>: bekommt einen Namen und liefert <code>&quot;Hallo, …!&quot;</code>.</p></li><li class="task fi" id="k1-D6" data-kap="1" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>D6 ★★★</strong> Schreibe <code>tile-gespiegelt</code>, das unten die Bilder in derselben Reihenfolge wie oben hat, und vergleiche mit <code>tile</code>. Schreibe danach <code>vier-kacheln</code>, das <code>tile</code> dreimal zu einem großen Muster zusammensetzt.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; A1
+(* 55 27)                         ; 1485
+(* 23 (+ 44 27))                  ; 1633
+(+ (/ 23 44) (/ 44 23))           ; ca. 2.436
+(* (+ 23 42) (+ 12 (* 14 2)))     ; 2600
+
+; A2: erst (- 5 2) = 3, dann (- 10 3) = 7
+
+; A3
+(define breite 7)
+(define höhe 4)
+(* breite höhe)                   ; Fläche 28
+(* 2 (+ breite höhe))             ; Umfang 22
+
+; B1
+(string-append &quot;Anna&quot; &quot; &quot; &quot;Beispiel&quot;)
+
+; B2
+(string-length &quot;Schreibe Dein Programm!&quot;)   ; 23
+
+; B3
+(define alter 17)
+(string-append &quot;Ich bin &quot; (number-&gt;string alter) &quot; Jahre alt&quot;)
+
+; B4: alle drei sind Fehler.
+;  (+ &quot;23&quot; 42)            -&gt; + braucht Zahlen, &quot;23&quot; ist Text
+;  (string-append 23 &quot;42&quot;) -&gt; string-append braucht Text, 23 ist eine Zahl
+;  (number-&gt;string &quot;23&quot;)  -&gt; &quot;23&quot; ist schon Text, keine Zahl
+
+; C1: square: Seitenlänge in Pixeln; circle: Radius (Durchmesser = 2 x Radius)
+(rectangle 80 30 &quot;solid&quot; &quot;orange&quot;)
+(ellipse 80 30 &quot;solid&quot; &quot;orange&quot;)
+
+; C2
+(above (triangle 100 &quot;solid&quot; &quot;red&quot;)
+       (square 100 &quot;solid&quot; &quot;blue&quot;))
+
+; C3
+(above (circle 20 &quot;solid&quot; &quot;red&quot;)
+       (circle 20 &quot;solid&quot; &quot;yellow&quot;)
+       (circle 20 &quot;solid&quot; &quot;green&quot;))
+
+; C4
+(above (circle 15 &quot;outline&quot; &quot;black&quot;)
+       (circle 25 &quot;outline&quot; &quot;black&quot;)
+       (circle 35 &quot;outline&quot; &quot;black&quot;))
+
+; C5: Schrittweite 1 = Siebeneck, 2 und 3 = verschieden &quot;spitze&quot; Sterne
+(star-polygon 30 7 1 &quot;outline&quot; &quot;blue&quot;)
+(star-polygon 30 7 2 &quot;outline&quot; &quot;blue&quot;)
+(star-polygon 30 7 3 &quot;outline&quot; &quot;blue&quot;)
+
+; C6: s1 liefert das Bild. (s1) ist ein Fehler: Die Klammern
+;     bedeuten &quot;wende s1 als Funktion an&quot; - s1 ist aber ein Bild.
+
+; D2: Ja, weil tile ein Bild liefert
+(tile (tile s1 p1) (tile p1 c1))
+
+; D3
+(define nebeneinander-drei
+  (lambda (bild)
+    (beside bild bild bild)))
+
+; D4
+(define haus
+  (lambda (größe farbe)
+    (above (triangle größe &quot;solid&quot; &quot;red&quot;)
+           (square größe &quot;solid&quot; farbe))))
+; Aufruf: (haus 80 &quot;blue&quot;)
+
+; D5
+(define gruß
+  (lambda (name)
+    (string-append &quot;Hallo, &quot; name &quot;!&quot;)))
+; Aufruf: (gruß &quot;Mike&quot;)  =&gt;  &quot;Hallo, Mike!&quot;
+
+; D6
+(define tile-gespiegelt
+  (lambda (a b)
+    (above (beside a b)
+           (beside a b))))
+
+(define vier-kacheln
+  (lambda (a b)
+    (tile (tile a b) (tile b a))))</code></pre>
+<p><strong>Zu C4:</strong> Mit <code>&quot;solid&quot; &quot;white&quot;</code> sähest du auf dem weißen Hintergrund nichts – deshalb der schwarze Umriss. Variante mit <code>overlay</code>: <code>(overlay (circle 15 &quot;outline&quot; &quot;black&quot;) (circle 15 &quot;solid&quot; &quot;white&quot;))</code> ergibt einen weißen Kreis mit Rand.</p>
+</details><h3 id="abschnitte-16113-signatur-tests-konstruktionsanleitung">Abschnitte 1.6–1.13: Signatur, Tests, Konstruktionsanleitung</h3>
+<p>Ab hier jede Funktion nach der Konstruktionsanleitung: Kurzbeschreibung, Signatur, Tests, Gerüst, Rumpf.</p>
+<ul class="fg"><li class="task fi" id="k1-E1" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>E1 ★</strong> Schreibe für diese Aufgaben nur Kurzbeschreibung und Signatur (noch keinen Code): a) Fläche eines Kreises aus dem Radius, b) Anzahl der Buchstaben eines Namens, c) Grußtext für einen Namen, d) Bild eines Quadrats mit gegebener Seitenlänge.</p></li><li class="task fi" id="k1-E2" data-kap="1" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>E2 ★</strong> <code>celsius-&gt;fahrenheit</code> komplett nach Konstruktionsanleitung: F = C · 9/5 + 32. Tests für 0, 100 und −40.</p></li><li class="task fi" id="k1-E3" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>E3 ★★</strong> Schreibe zwei sinnvolle <code>check-expect</code>-Tests für <code>tile</code>.</p></li><li class="task fi" id="k1-E4" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>E4 ★★</strong> <code>brutto</code>: Nettopreis und Mehrwertsteuersatz in Prozent rein, Bruttopreis raus. Tests für 100 € / 19 % und 50 € / 7 %.</p></li><li class="task fi" id="k1-E5" data-kap="1" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>E5 ★★</strong> Zwei Handytarife: Tarif A kostet 5 € im Monat plus 0,09 € pro Minute, Tarif B 10 € plus 0,05 € pro Minute. Schreibe <code>tarif-a</code> und <code>tarif-b</code>, abstrahiere sie dann zu <code>handy-rechnung</code> und schreibe beide Tarife damit neu.</p></li><li class="task fi" id="k1-E6" data-kap="1" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>E6 ★★★</strong> Welche Signatur ist jeweils am genauesten? a) Anzahl der Schüler einer Klasse, b) Kontostand in Euro mit Cent, c) Temperatur in °C, d) Wurzel aus 2. Begründe kurz.</p></li><li class="task fi" id="k1-E7" data-kap="1" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>E7 ★★★</strong> Baue absichtlich einen Fehler in <code>celsius-&gt;fahrenheit</code> ein (z. B. <code>+ 23</code> statt <code>+ 32</code>). Lies die Check-Fehler-Meldung genau und erkläre, was sie sagt.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; E1
+; a) Fläche eines Kreises aus dem Radius berechnen
+(: kreisfläche (real -&gt; real))
+; b) Anzahl der Buchstaben eines Namens berechnen
+(: buchstaben-anzahl (string -&gt; natural))
+; c) Grußtext für einen Namen erzeugen
+(: gruß (string -&gt; string))
+; d) Quadrat mit gegebener Seitenlänge zeichnen
+(: quadrat-bild (natural -&gt; image))
+
+; E2
+; Temperatur von Celsius in Fahrenheit umrechnen
+(: celsius-&gt;fahrenheit (rational -&gt; rational))
+
+(check-expect (celsius-&gt;fahrenheit 0) 32)
+(check-expect (celsius-&gt;fahrenheit 100) 212)
+(check-expect (celsius-&gt;fahrenheit -40) -40)
+
+(define celsius-&gt;fahrenheit
+  (lambda (c)
+    (+ (* c 9/5) 32)))
+
+; E3 (s1, c1, p1 und tile wie in Abschnitt 1.1–1.5)
+(check-expect (tile s1 p1) (above (beside s1 p1) (beside p1 s1)))
+(check-expect (tile c1 c1) (above (beside c1 c1) (beside c1 c1)))
+
+; E4
+; Bruttopreis aus Nettopreis und Steuersatz (in %) berechnen
+(: brutto (rational rational -&gt; rational))
+
+(check-expect (brutto 100 19) 119)
+(check-expect (brutto 50 7) 53.5)
+
+(define brutto
+  (lambda (netto satz)
+    (+ netto (* netto (/ satz 100)))))
+
+; E5
+; Rechnungsbetrag für einen Handytarif berechnen
+(: handy-rechnung (rational rational natural -&gt; rational))
+
+(check-expect (handy-rechnung 5 0.09 100) 14)
+(check-expect (handy-rechnung 10 0.05 100) 15)
+
+(define handy-rechnung
+  (lambda (grundgebühr pro-minute minuten)
+    (+ grundgebühr (* pro-minute minuten))))
+
+(define tarif-a
+  (lambda (minuten) (handy-rechnung 5 0.09 minuten)))
+(define tarif-b
+  (lambda (minuten) (handy-rechnung 10 0.05 minuten)))</code></pre>
+<p><strong>E6:</strong> a) <code>natural</code> (keine negativen oder halben Schüler); b) <code>rational</code> (Cent-Beträge exakt, auch negativ); c) <code>rational</code> oder <code>real</code> (kann negativ und eine Kommazahl sein); d) <code>real</code> (√2 ist kein Bruch).</p>
+<p><strong>E7:</strong> DrRacket meldet z. B. <em>„Der tatsächliche Wert 23 ist nicht der erwartete Wert 32.“</em> Gelesen: Der Test <code>(celsius-&gt;fahrenheit 0)</code> hat 23 geliefert, erwartet war 32. Der tatsächliche Wert kommt von der Funktion, der erwartete aus dem Test – also steckt der Fehler im Rumpf.</p>
+</details></section><section class="fg" id="kapitel-2"><h2>Kapitel 2: Fallunterscheidungen und Verzweigungen</h2><p><a href="lernen.html#kapitel-2">→ Erklärung zu Kapitel 2</a> · <a href="fehler.html?kap=2">typische Fehler</a></p>
+<ul class="fg"><li class="task fi" id="k2-F1" data-kap="2" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>F1 ★</strong> <code>xor</code> (exklusives Oder): <code>#t</code>, wenn genau einer der beiden Wahrheitswerte <code>#t</code> ist.</p></li><li class="task fi" id="k2-F2" data-kap="2" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>F2 ★</strong> <code>vorzeichen</code>: liefert <code>&quot;positiv&quot;</code>, <code>&quot;negativ&quot;</code> oder <code>&quot;null&quot;</code>.</p></li><li class="task fi" id="k2-F3" data-kap="2" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>F3 ★</strong> <code>betrag</code>: Absolutbetrag einer Zahl mit <code>if</code> (ohne das eingebaute <code>abs</code>).</p></li><li class="task fi" id="k2-F4" data-kap="2" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>F4 ★★</strong> <code>wochenende?</code>: Definiere eine Aufzählung <code>wochentag</code> (Montag bis Sonntag) und eine Funktion, die für Samstag und Sonntag <code>#t</code> liefert.</p></li><li class="task fi" id="k2-F5" data-kap="2" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>F5 ★★</strong> <code>schulnote</code>: Punkte 0–100 in Note 1–6. Grenzen: ab 92 → 1, ab 81 → 2, ab 67 → 3, ab 50 → 4, ab 30 → 5, sonst 6. Teste jede Grenze.</p></li><li class="task fi" id="k2-F6" data-kap="2" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>F6 ★★</strong> <code>kartentyp</code>: Kreditkartenkategorie aus dem Jahresumsatz: unter 5.000 € „Weiß“, unter 25.000 € „Gold“, unter 100.000 € „Platin“, sonst „Schwarz“.</p></li><li class="task fi" id="k2-F7" data-kap="2" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>F7 ★★★</strong> <code>schaltjahr?</code>: durch 4 teilbar, aber nicht durch 100 – außer durch 400.</p></li><li class="task fi" id="k2-F8" data-kap="2" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>F8 ★★★</strong> <code>versandkosten</code>: bis 1 kg 4,50 €, bis 5 kg 6,99 €, bis 20 kg 9,99 €; schwerer → <code>violation</code>. Teste den Fehlerfall mit <code>check-error</code>.</p></li><li class="task fi" id="k2-F9" data-kap="2" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>F9 ★★</strong> Schreibe <code>cute?</code> aus der Übersicht nur mit <code>if</code> und <code>or</code> (ohne <code>cond</code>).</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; F1
+(: xor (boolean boolean -&gt; boolean))
+(check-expect (xor #t #f) #t)
+(check-expect (xor #t #t) #f)
+(check-expect (xor #f #f) #f)
+(define xor
+  (lambda (a b)
+    (and (or a b) (not (and a b)))))
+
+; F2
+(: vorzeichen (real -&gt; string))
+(check-expect (vorzeichen 5) &quot;positiv&quot;)
+(check-expect (vorzeichen -2) &quot;negativ&quot;)
+(check-expect (vorzeichen 0) &quot;null&quot;)
+(define vorzeichen
+  (lambda (x)
+    (cond
+      ((&gt; x 0) &quot;positiv&quot;)
+      ((&lt; x 0) &quot;negativ&quot;)
+      (else &quot;null&quot;))))
+
+; F3
+(: betrag (real -&gt; real))
+(check-expect (betrag -7) 7)
+(check-expect (betrag 3) 3)
+(define betrag
+  (lambda (x)
+    (if (&lt; x 0) (- x) x)))
+
+; F4
+(define wochentag
+  (signature (enum &quot;Montag&quot; &quot;Dienstag&quot; &quot;Mittwoch&quot; &quot;Donnerstag&quot;
+                   &quot;Freitag&quot; &quot;Samstag&quot; &quot;Sonntag&quot;)))
+(: wochenende? (wochentag -&gt; boolean))
+(check-expect (wochenende? &quot;Samstag&quot;) #t)
+(check-expect (wochenende? &quot;Montag&quot;) #f)
+(define wochenende?
+  (lambda (t)
+    (or (string=? t &quot;Samstag&quot;) (string=? t &quot;Sonntag&quot;))))
+
+; F5
+(: schulnote ((integer-from-to 0 100) -&gt; (integer-from-to 1 6)))
+(check-expect (schulnote 100) 1)
+(check-expect (schulnote 92) 1)
+(check-expect (schulnote 91) 2)
+(check-expect (schulnote 81) 2)
+(check-expect (schulnote 67) 3)
+(check-expect (schulnote 50) 4)
+(check-expect (schulnote 49) 5)
+(check-expect (schulnote 30) 5)
+(check-expect (schulnote 29) 6)
+(define schulnote
+  (lambda (p)
+    (cond
+      ((&gt;= p 92) 1)
+      ((&gt;= p 81) 2)
+      ((&gt;= p 67) 3)
+      ((&gt;= p 50) 4)
+      ((&gt;= p 30) 5)
+      (else 6))))
+
+; F6
+(: kartentyp (rational -&gt; string))
+(check-expect (kartentyp 4999) &quot;Weiß&quot;)
+(check-expect (kartentyp 5000) &quot;Gold&quot;)
+(check-expect (kartentyp 99999) &quot;Platin&quot;)
+(check-expect (kartentyp 100000) &quot;Schwarz&quot;)
+(define kartentyp
+  (lambda (umsatz)
+    (cond
+      ((&lt; umsatz 5000) &quot;Weiß&quot;)
+      ((&lt; umsatz 25000) &quot;Gold&quot;)
+      ((&lt; umsatz 100000) &quot;Platin&quot;)
+      (else &quot;Schwarz&quot;))))
+
+; F7
+(: schaltjahr? (natural -&gt; boolean))
+(check-expect (schaltjahr? 2024) #t)
+(check-expect (schaltjahr? 2023) #f)
+(check-expect (schaltjahr? 1900) #f)
+(check-expect (schaltjahr? 2000) #t)
+(define schaltjahr?
+  (lambda (j)
+    (or (= (remainder j 400) 0)
+        (and (= (remainder j 4) 0)
+             (not (= (remainder j 100) 0))))))
+
+; F8
+(: versandkosten (rational -&gt; rational))
+(check-expect (versandkosten 1) 4.50)
+(check-expect (versandkosten 3) 6.99)
+(check-expect (versandkosten 20) 9.99)
+(check-error (versandkosten 21))
+(define versandkosten
+  (lambda (kg)
+    (cond
+      ((&lt;= kg 1) 4.50)
+      ((&lt;= kg 5) 6.99)
+      ((&lt;= kg 20) 9.99)
+      (else (violation &quot;Paket zu schwer&quot;)))))
+
+; F9
+(define cute?
+  (lambda (p)
+    (if (or (string=? p &quot;Katze&quot;) (string=? p &quot;Hund&quot;))
+        #t
+        #f)))
+; noch kürzer: (or (string=? p &quot;Katze&quot;) (string=? p &quot;Hund&quot;))</code></pre>
+</details></section><section class="fg" id="kapitel-3"><h2>Kapitel 3: Zusammengesetzte Daten</h2><p><a href="lernen.html#kapitel-3">→ Erklärung zu Kapitel 3</a> · <a href="fehler.html?kap=3">typische Fehler</a></p>
+<p>Für Z3, Z4 brauchst du <code>wallclock-time</code> und <code>minutes-since-midnight</code> aus der Übersicht (Kapitel 3.2).</p>
+<ul class="fg"><li class="task fi" id="k3-Z1" data-kap="3" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>Z1 ★</strong> Record <code>punkt</code> (x, y). Schreibe <code>punkt-verschieben</code>, die einen Punkt um dx und dy verschiebt.</p></li><li class="task fi" id="k3-Z2" data-kap="3" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>Z2 ★</strong> Record <code>rechteck</code> (Breite, Höhe). Schreibe <code>rechteck-fläche</code> und <code>quadrat?</code>.</p></li><li class="task fi" id="k3-Z3" data-kap="3" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>Z3 ★★</strong> <code>wallclock-time-later?</code>: Ist die erste Uhrzeit später als die zweite?</p></li><li class="task fi" id="k3-Z4" data-kap="3" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>Z4 ★★</strong> <code>wallclock-time-add-minutes</code>: Uhrzeit plus n Minuten, mit Überlauf nach Mitternacht (23:50 + 20 Min = 0:10).</p></li><li class="task fi" id="k3-Z5" data-kap="3" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>Z5 ★★</strong> <code>computer-klasse</code>: „fett“ bei mindestens 16 GB RAM und 1000 GB Festplatte, „Durchschnitt“ bei mindestens 8 GB RAM, sonst „müde“ (Record <code>computer</code> aus der Übersicht).</p></li><li class="task fi" id="k3-Z6" data-kap="3" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>Z6 ★★</strong> <code>feed-dillo</code> und <code>run-over-dillo</code> kennst du. Schreibe <code>dillo-diät</code>: Lebendige Gürteltiere verlieren 1000 g, aber nie unter 20000 g.</p></li><li class="task fi" id="k3-Z7" data-kap="3" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>Z7 ★★★</strong> Record <code>bruch</code> (Zähler, Nenner). Schreibe <code>bruch-mal</code> und <code>bruch-plus</code> (ohne zu kürzen).</p></li><li class="task fi" id="k3-Z8" data-kap="3" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>Z8 ★★★</strong> Ein Termin hat Anfang und Ende (beides Uhrzeiten). Schreibe <code>termine-überschneiden?</code>.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; Z1
+(define-record punkt make-punkt punkt?
+  (punkt-x real) (punkt-y real))
+(: punkt-verschieben (punkt real real -&gt; punkt))
+(check-expect (punkt-verschieben (make-punkt 1 2) 3 -1) (make-punkt 4 1))
+(define punkt-verschieben
+  (lambda (p dx dy)
+    (make-punkt (+ (punkt-x p) dx)
+                (+ (punkt-y p) dy))))
+
+; Z2
+(define-record rechteck make-rechteck rechteck?
+  (rechteck-breite real) (rechteck-höhe real))
+(: rechteck-fläche (rechteck -&gt; real))
+(check-expect (rechteck-fläche (make-rechteck 3 4)) 12)
+(define rechteck-fläche
+  (lambda (r) (* (rechteck-breite r) (rechteck-höhe r))))
+(: quadrat? (rechteck -&gt; boolean))
+(check-expect (quadrat? (make-rechteck 3 3)) #t)
+(check-expect (quadrat? (make-rechteck 3 4)) #f)
+(define quadrat?
+  (lambda (r) (= (rechteck-breite r) (rechteck-höhe r))))
+
+; Z3
+(: wallclock-time-later? (wallclock-time wallclock-time -&gt; boolean))
+(check-expect (wallclock-time-later? (make-wallclock-time 12 0)
+                                     (make-wallclock-time 11 59)) #t)
+(check-expect (wallclock-time-later? (make-wallclock-time 8 0)
+                                     (make-wallclock-time 8 0)) #f)
+(define wallclock-time-later?
+  (lambda (a b)
+    (&gt; (minutes-since-midnight a) (minutes-since-midnight b))))
+
+; Z4
+(: wallclock-time-add-minutes (wallclock-time natural -&gt; wallclock-time))
+(check-expect (wallclock-time-add-minutes (make-wallclock-time 23 50) 20)
+              (make-wallclock-time 0 10))
+(check-expect (wallclock-time-add-minutes (make-wallclock-time 9 15) 30)
+              (make-wallclock-time 9 45))
+(define wallclock-time-add-minutes
+  (lambda (wt n)
+    (minutes-since-midnight-&gt;wallclock-time
+     (remainder (+ (minutes-since-midnight wt) n) 1440))))   ; 1440 Minuten = 1 Tag
+
+; Z5
+(: computer-klasse (computer -&gt; string))
+(check-expect (computer-klasse (make-computer &quot;Quad&quot; 16 2000)) &quot;fett&quot;)
+(check-expect (computer-klasse (make-computer &quot;Xeon&quot; 8 500)) &quot;Durchschnitt&quot;)
+(check-expect (computer-klasse (make-computer &quot;Cell&quot; 4 1000)) &quot;müde&quot;)
+(define computer-klasse
+  (lambda (c)
+    (cond
+      ((and (&gt;= (computer-ram c) 16) (&gt;= (computer-hard-drive c) 1000)) &quot;fett&quot;)
+      ((&gt;= (computer-ram c) 8) &quot;Durchschnitt&quot;)
+      (else &quot;müde&quot;))))
+
+; Z6
+(: dillo-diät (dillo -&gt; dillo))
+(check-expect (dillo-diät (make-dillo 55000 #t)) (make-dillo 54000 #t))
+(check-expect (dillo-diät (make-dillo 20500 #t)) (make-dillo 20000 #t))
+(check-expect (dillo-diät (make-dillo 55000 #f)) (make-dillo 55000 #f))
+(define dillo-diät
+  (lambda (d)
+    (if (dillo-alive? d)
+        (make-dillo (max 20000 (- (dillo-weight d) 1000)) #t)
+        d)))
+
+; Z7
+(define-record bruch make-bruch bruch?
+  (bruch-zähler integer) (bruch-nenner natural))
+(: bruch-mal (bruch bruch -&gt; bruch))
+(check-expect (bruch-mal (make-bruch 1 2) (make-bruch 2 3)) (make-bruch 2 6))
+(define bruch-mal
+  (lambda (a b)
+    (make-bruch (* (bruch-zähler a) (bruch-zähler b))
+                (* (bruch-nenner a) (bruch-nenner b)))))
+(: bruch-plus (bruch bruch -&gt; bruch))
+(check-expect (bruch-plus (make-bruch 1 2) (make-bruch 1 3)) (make-bruch 5 6))
+(define bruch-plus
+  (lambda (a b)
+    (make-bruch (+ (* (bruch-zähler a) (bruch-nenner b))
+                   (* (bruch-zähler b) (bruch-nenner a)))
+                (* (bruch-nenner a) (bruch-nenner b)))))
+
+; Z8
+(define-record termin make-termin termin?
+  (termin-anfang wallclock-time) (termin-ende wallclock-time))
+(: termine-überschneiden? (termin termin -&gt; boolean))
+(check-expect (termine-überschneiden?
+               (make-termin (make-wallclock-time 9 0) (make-wallclock-time 10 0))
+               (make-termin (make-wallclock-time 9 30) (make-wallclock-time 11 0))) #t)
+(check-expect (termine-überschneiden?
+               (make-termin (make-wallclock-time 9 0) (make-wallclock-time 10 0))
+               (make-termin (make-wallclock-time 10 0) (make-wallclock-time 11 0))) #f)
+; Überschneidung: a beginnt vor dem Ende von b UND b beginnt vor dem Ende von a
+(define termine-überschneiden?
+  (lambda (a b)
+    (and (&lt; (minutes-since-midnight (termin-anfang a))
+            (minutes-since-midnight (termin-ende b)))
+         (&lt; (minutes-since-midnight (termin-anfang b))
+            (minutes-since-midnight (termin-ende a))))))</code></pre>
+<p>Hinweis zu Z6: Der Record <code>dillo</code> ist hier wie in der Übersicht definiert; <code>max</code> liefert den größeren Wert und verhindert, dass das Gewicht unter 20000 fällt.</p>
+</details></section><section class="fg" id="kapitel-4"><h2>Kapitel 4: Gemischte Daten</h2><p><a href="lernen.html#kapitel-4">→ Erklärung zu Kapitel 4</a> · <a href="fehler.html?kap=4">typische Fehler</a></p>
+<p>Für G1–G3 brauchst du <code>dillo</code>, <code>parrot</code> und <code>animal</code> aus der Übersicht (Kapitel 4.1).</p>
+<ul class="fg"><li class="task fi" id="k4-G1" data-kap="4" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>G1 ★</strong> <code>animal?</code>: ein Prädikat, das für Gürteltiere und Papageien <code>#t</code> liefert, sonst <code>#f</code>.</p></li><li class="task fi" id="k4-G2" data-kap="4" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>G2 ★</strong> <code>run-over-animal</code>: Gürteltiere sind danach tot, Papageien sagen danach nichts mehr (leerer Satz).</p></li><li class="task fi" id="k4-G3" data-kap="4" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>G3 ★★</strong> <code>animal-sentence</code>: Papageien liefern ihren Satz, Gürteltiere <code>&quot;...&quot;</code>.</p></li><li class="task fi" id="k4-G4" data-kap="4" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>G4 ★★</strong> Formen: Records <code>kreis</code> (Radius), <code>rechteck</code> (Breite, Höhe), <code>dreieck</code> (Grundseite, Höhe) und gemischte Signatur <code>form</code>. Schreibe <code>fläche</code>.</p></li><li class="task fi" id="k4-G5" data-kap="4" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>G5 ★★</strong> <code>form-vergleichen</code>: Zwei Formen rein, <code>&quot;equal&quot;</code>, <code>&quot;smaller&quot;</code> oder <code>&quot;bigger&quot;</code> raus (bezogen auf die Fläche der ersten).</p></li><li class="task fi" id="k4-G6" data-kap="4" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>G6 ★★★</strong> <code>sicher-teilen</code>: liefert den Quotienten oder einen Record <code>fehler</code> mit Nachricht. Schreibe dazu <code>ergebnis-&gt;string</code>, das beide Fälle in Text umwandelt.</p></li><li class="task fi" id="k4-G7" data-kap="4" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>G7 ★★★</strong> Verkehrsverstöße: <code>falschparken</code> (Minuten), <code>rote-ampel</code> (Sekunden rot) und <code>zu-schnell</code> (km/h drüber) als Records, gemischt zu <code>verstoß</code>. Schreibe <code>bußgeld</code>: Falschparken bis 60 Min 20 €, sonst 35 €; rote Ampel unter 1 s 90 €, sonst 200 €; zu schnell 10 € pro km/h.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; G1
+(: animal? (any -&gt; boolean))
+(check-expect (animal? (make-dillo 50000 #t)) #t)
+(check-expect (animal? 42) #f)
+(define animal?
+  (lambda (x)
+    (or (dillo? x) (parrot? x))))
+
+; G2
+(: run-over-animal (animal -&gt; animal))
+(check-expect (run-over-animal (make-parrot 5000 &quot;Hallo&quot;)) (make-parrot 5000 &quot;&quot;))
+(check-expect (run-over-animal (make-dillo 50000 #t)) (make-dillo 50000 #f))
+(define run-over-animal
+  (lambda (a)
+    (cond
+      ((dillo? a) (make-dillo (dillo-weight a) #f))
+      ((parrot? a) (make-parrot (parrot-weight a) &quot;&quot;)))))
+
+; G3
+(: animal-sentence (animal -&gt; string))
+(check-expect (animal-sentence (make-parrot 5000 &quot;Hallo&quot;)) &quot;Hallo&quot;)
+(check-expect (animal-sentence (make-dillo 50000 #t)) &quot;...&quot;)
+(define animal-sentence
+  (lambda (a)
+    (cond
+      ((dillo? a) &quot;...&quot;)
+      ((parrot? a) (parrot-sentence a)))))
+
+; G4
+(define-record kreis make-kreis kreis? (kreis-radius real))
+(define-record rechteck make-rechteck rechteck?
+  (rechteck-breite real) (rechteck-höhe real))
+(define-record dreieck make-dreieck dreieck?
+  (dreieck-grundseite real) (dreieck-höhe real))
+(define form (signature (mixed kreis rechteck dreieck)))
+
+(: fläche (form -&gt; real))
+(check-within (fläche (make-kreis 1)) 3.14159 0.001)
+(check-expect (fläche (make-rechteck 2 3)) 6)
+(check-expect (fläche (make-dreieck 4 3)) 6)
+(define fläche
+  (lambda (f)
+    (cond
+      ((kreis? f) (* 3.14159 (kreis-radius f) (kreis-radius f)))
+      ((rechteck? f) (* (rechteck-breite f) (rechteck-höhe f)))
+      ((dreieck? f) (/ (* (dreieck-grundseite f) (dreieck-höhe f)) 2)))))
+
+; G5
+(: form-vergleichen (form form -&gt; string))
+(check-expect (form-vergleichen (make-rechteck 2 3) (make-dreieck 4 3)) &quot;equal&quot;)
+(check-expect (form-vergleichen (make-rechteck 1 1) (make-rechteck 2 2)) &quot;smaller&quot;)
+(define form-vergleichen
+  (lambda (a b)
+    (define fa (fläche a))
+    (define fb (fläche b))
+    (cond
+      ((= fa fb) &quot;equal&quot;)
+      ((&lt; fa fb) &quot;smaller&quot;)
+      (else &quot;bigger&quot;))))
+
+; G6
+(define-record fehler make-fehler fehler? (fehler-nachricht string))
+(define ergebnis (signature (mixed rational fehler)))
+
+(: sicher-teilen (rational rational -&gt; ergebnis))
+(check-expect (sicher-teilen 6 3) 2)
+(check-expect (fehler? (sicher-teilen 1 0)) #t)
+(define sicher-teilen
+  (lambda (a b)
+    (if (= b 0)
+        (make-fehler &quot;Division durch 0&quot;)
+        (/ a b))))
+
+(: ergebnis-&gt;string (ergebnis -&gt; string))
+(check-expect (ergebnis-&gt;string 2) &quot;Ergebnis: 2&quot;)
+(check-expect (ergebnis-&gt;string (make-fehler &quot;Division durch 0&quot;))
+              &quot;Fehler: Division durch 0&quot;)
+(define ergebnis-&gt;string
+  (lambda (e)
+    (cond
+      ((rational? e) (string-append &quot;Ergebnis: &quot; (number-&gt;string e)))
+      ((fehler? e) (string-append &quot;Fehler: &quot; (fehler-nachricht e))))))
+
+; G7
+(define-record falschparken make-falschparken falschparken?
+  (falschparken-minuten natural))
+(define-record rote-ampel make-rote-ampel rote-ampel?
+  (rote-ampel-sekunden rational))
+(define-record zu-schnell make-zu-schnell zu-schnell?
+  (zu-schnell-kmh natural))
+(define verstoß (signature (mixed falschparken rote-ampel zu-schnell)))
+
+(: bußgeld (verstoß -&gt; natural))
+(check-expect (bußgeld (make-falschparken 30)) 20)
+(check-expect (bußgeld (make-falschparken 61)) 35)
+(check-expect (bußgeld (make-rote-ampel 0.5)) 90)
+(check-expect (bußgeld (make-rote-ampel 2)) 200)
+(check-expect (bußgeld (make-zu-schnell 12)) 120)
+(define bußgeld
+  (lambda (v)
+    (cond
+      ((falschparken? v)
+       (if (&lt;= (falschparken-minuten v) 60) 20 35))
+      ((rote-ampel? v)
+       (if (&lt; (rote-ampel-sekunden v) 1) 90 200))
+      ((zu-schnell? v)
+       (* 10 (zu-schnell-kmh v))))))</code></pre>
+<p>Zu G7: Die Bußgeldbeträge in G7 sind ausgedacht und entsprechen nicht dem echten Bußgeldkatalog.</p>
+</details></section><section class="fg" id="kapitel-5"><h2>Kapitel 5: Selbstbezüge und Kombinatoren</h2><p><a href="lernen.html#kapitel-5">→ Erklärung zu Kapitel 5</a> · <a href="fehler.html?kap=5">typische Fehler</a></p>
+<p>Für S1–S3 brauchst du <code>river</code>, <code>creek</code>, <code>confluence</code> und die Neckar-Beispiele (<code>eschach</code>, <code>prim</code>, <code>neckar-1</code>, <code>schlichem</code>, <code>neckar-2</code>) aus der Übersicht (Kapitel 5.1); für S4–S5 die Verträge aus Kapitel 5.3.</p>
+<ul class="fg"><li class="task fi" id="k5-S1" data-kap="5" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>S1 ★</strong> <code>anzahl-zusammenflüsse</code>: Wie viele Zusammenflüsse hat ein Fluss?</p></li><li class="task fi" id="k5-S2" data-kap="5" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>S2 ★★</strong> <code>quellen-namen</code>: alle Quellorte als ein String, durch Komma und Leerzeichen getrennt.</p></li><li class="task fi" id="k5-S3" data-kap="5" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>S3 ★★</strong> <code>fluss-tiefe</code>: längster Weg von der Mündung zu einer Quelle, gezählt in Abschnitten (ein Bach hat Tiefe 1).</p></li><li class="task fi" id="k5-S4" data-kap="5" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>S4 ★★</strong> Erweitere die Verträge um <code>give</code>: „Die andere Seite bekommt diesen Vertrag“ – Zahlungen werden negativ. Passe <code>contract</code> und <code>contract-payment</code> an.</p></li><li class="task fi" id="k5-S5" data-kap="5" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>S5 ★★★</strong> Smart Constructor <code>make-multiple*</code>: liefert <code>(make-nothing)</code>, wenn die Anzahl 0 oder der innere Vertrag <code>nothing</code> ist, sonst einen normalen <code>multiple</code>-Vertrag.</p></li><li class="task fi" id="k5-S6" data-kap="5" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>S6 ★★★</strong> Duschprodukte: Ein Produkt ist Seife, Shampoo oder eine Mischung aus zwei Produkten (je zur Hälfte). Schreibe die Datendefinition und <code>seifen-anteil</code> (Seife = 1, Shampoo = 0).</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; S1
+(: anzahl-zusammenflüsse (river -&gt; natural))
+(check-expect (anzahl-zusammenflüsse eschach) 0)
+(check-expect (anzahl-zusammenflüsse neckar-2) 2)
+(define anzahl-zusammenflüsse
+  (lambda (r)
+    (cond
+      ((creek? r) 0)
+      ((confluence? r)
+       (+ 1
+          (anzahl-zusammenflüsse (confluence-main-stem r))
+          (anzahl-zusammenflüsse (confluence-tributary r)))))))
+
+; S2
+(: quellen-namen (river -&gt; string))
+(check-expect (quellen-namen neckar-2)
+              &quot;Heimliswald, Dreifaltigkeitsberg, Tieringen&quot;)
+(define quellen-namen
+  (lambda (r)
+    (cond
+      ((creek? r) (creek-origin r))
+      ((confluence? r)
+       (string-append (quellen-namen (confluence-main-stem r))
+                      &quot;, &quot;
+                      (quellen-namen (confluence-tributary r)))))))
+
+; S3
+(: fluss-tiefe (river -&gt; natural))
+(check-expect (fluss-tiefe eschach) 1)
+(check-expect (fluss-tiefe neckar-2) 3)
+(define fluss-tiefe
+  (lambda (r)
+    (cond
+      ((creek? r) 1)
+      ((confluence? r)
+       (+ 1 (max (fluss-tiefe (confluence-main-stem r))
+                 (fluss-tiefe (confluence-tributary r))))))))
+
+; S4
+(define contract (signature (mixed one-euro multiple later both nothing give)))
+(define-record give make-give give? (give-contract contract))
+
+(check-expect (contract-payment (make-give (make-euros 100))) -100)
+(define contract-payment
+  (lambda (c)
+    (cond
+      ((nothing? c) 0)
+      ((one-euro? c) 1)
+      ((multiple? c)
+       (* (multiple-number c) (contract-payment (multiple-of c))))
+      ((later? c) (contract-payment (later-contract c)))
+      ((both? c)
+       (+ (contract-payment (both-contract-1 c))
+          (contract-payment (both-contract-2 c))))
+      ((give? c) (- (contract-payment (give-contract c)))))))
+
+; S5
+(: make-multiple* (rational contract -&gt; contract))
+(check-expect (make-multiple* 0 (make-one-euro)) (make-nothing))
+(check-expect (make-multiple* 5 (make-nothing)) (make-nothing))
+(check-expect (make-multiple* 5 (make-one-euro)) (make-multiple 5 (make-one-euro)))
+(define make-multiple*
+  (lambda (n c)
+    (if (or (= n 0) (nothing? c))
+        (make-nothing)
+        (make-multiple n c))))
+
+; S6
+; Ein Produkt ist eins der folgenden: Seife, Shampoo, Mischung
+(define produkt (signature (mixed seife shampoo mischung)))
+(define-record seife make-seife seife?)
+(define-record shampoo make-shampoo shampoo?)
+; Eine Mischung besteht zu gleichen Teilen aus zwei Produkten
+(define-record mischung make-mischung mischung?
+  (mischung-produkt-1 produkt)
+  (mischung-produkt-2 produkt))
+
+(: seifen-anteil (produkt -&gt; rational))
+(check-expect (seifen-anteil (make-seife)) 1)
+(check-expect (seifen-anteil (make-mischung (make-seife) (make-shampoo))) 1/2)
+(check-expect (seifen-anteil
+               (make-mischung (make-seife)
+                              (make-mischung (make-seife) (make-shampoo))))
+              3/4)
+(define seifen-anteil
+  (lambda (p)
+    (cond
+      ((seife? p) 1)
+      ((shampoo? p) 0)
+      ((mischung? p)
+       (/ (+ (seifen-anteil (mischung-produkt-1 p))
+             (seifen-anteil (mischung-produkt-2 p)))
+          2)))))</code></pre>
+</details></section><section class="fg" id="kapitel-6"><h2>Kapitel 6: Listen</h2><p><a href="lernen.html#kapitel-6">→ Erklärung zu Kapitel 6</a> · <a href="fehler.html?kap=6">typische Fehler</a></p>
+<p>Sprachebene: <strong>„Schreibe Dein Programm!“</strong> (eingebaute Listen). Benutze für alle Aufgaben die Listenschablone – noch ohne <code>map</code>, <code>filter</code>, <code>fold</code> (die kommen in Kapitel 9).</p>
+<ul class="fg"><li class="task fi" id="k6-L1" data-kap="6" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>L1 ★</strong> <code>list-product</code>: Produkt aller Zahlen einer Liste. Welcher Wert gehört in den <code>empty</code>-Fall?</p></li><li class="task fi" id="k6-L2" data-kap="6" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>L2 ★</strong> <code>count-zeroes</code>: Wie viele Nullen enthält eine Zahlenliste?</p></li><li class="task fi" id="k6-L3" data-kap="6" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>L3 ★</strong> <code>contains&gt;10?</code>: Enthält die Liste eine Zahl größer als 10?</p></li><li class="task fi" id="k6-L4" data-kap="6" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>L4 ★★</strong> <code>double-all</code>: jede Zahl der Liste verdoppeln (Liste rein, Liste raus).</p></li><li class="task fi" id="k6-L5" data-kap="6" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>L5 ★★</strong> <code>longest-string</code>: längster String einer <strong>nichtleeren</strong> Liste von Strings.</p></li><li class="task fi" id="k6-L6" data-kap="6" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>L6 ★★</strong> <code>last-element</code>: letztes Element einer nichtleeren Liste.</p></li><li class="task fi" id="k6-L7" data-kap="6" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>L7 ★★★</strong> Sortieren durch Auswahl: Schreibe <code>delete-once</code> (entfernt das erste Vorkommen einer Zahl) und damit <code>sort-numbers</code>: kleinstes Element nach vorne, Rest rekursiv sortieren. Benutze <code>list-min-nonempty</code> aus der Übersicht.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; L1 – neutrales Element der Multiplikation ist 1
+(: list-product ((list-of number) -&gt; number))
+(check-expect (list-product empty) 1)
+(check-expect (list-product (list 2 3 4)) 24)
+(define list-product
+  (lambda (list)
+    (cond
+      ((empty? list) 1)
+      ((cons? list) (* (first list) (list-product (rest list)))))))
+
+; L2
+(: count-zeroes ((list-of number) -&gt; natural))
+(check-expect (count-zeroes (list 0 1 0 2)) 2)
+(check-expect (count-zeroes empty) 0)
+(define count-zeroes
+  (lambda (list)
+    (cond
+      ((empty? list) 0)
+      ((cons? list)
+       (if (= (first list) 0)
+           (+ 1 (count-zeroes (rest list)))
+           (count-zeroes (rest list)))))))
+
+; L3
+(: contains&gt;10? ((list-of real) -&gt; boolean))
+(check-expect (contains&gt;10? (list 1 5 11)) #t)
+(check-expect (contains&gt;10? (list 1 10)) #f)
+(define contains&gt;10?
+  (lambda (list)
+    (cond
+      ((empty? list) #f)
+      ((cons? list)
+       (or (&gt; (first list) 10)
+           (contains&gt;10? (rest list)))))))
+
+; L4
+(: double-all ((list-of number) -&gt; (list-of number)))
+(check-expect (double-all (list 1 2 3)) (list 2 4 6))
+(check-expect (double-all empty) empty)
+(define double-all
+  (lambda (list)
+    (cond
+      ((empty? list) empty)
+      ((cons? list)
+       (cons (* 2 (first list)) (double-all (rest list)))))))
+
+; L5
+(: longest-string ((nonempty-list-of string) -&gt; string))
+(check-expect (longest-string (list &quot;a&quot; &quot;abc&quot; &quot;ab&quot;)) &quot;abc&quot;)
+(check-expect (longest-string (list &quot;x&quot;)) &quot;x&quot;)
+(define longest-string
+  (lambda (list)
+    (cond
+      ((empty? (rest list)) (first list))
+      ((cons? (rest list))
+       (define longest-rest (longest-string (rest list)))
+       (if (&gt;= (string-length (first list)) (string-length longest-rest))
+           (first list)
+           longest-rest)))))
+
+; L6
+(: last-element ((nonempty-list-of %a) -&gt; %a))
+(check-expect (last-element (list 1 2 3)) 3)
+(define last-element
+  (lambda (list)
+    (cond
+      ((empty? (rest list)) (first list))
+      ((cons? (rest list)) (last-element (rest list))))))
+
+; L7
+(: delete-once (number (list-of number) -&gt; (list-of number)))
+(check-expect (delete-once 2 (list 1 2 3 2)) (list 1 3 2))
+(define delete-once
+  (lambda (x list)
+    (cond
+      ((empty? list) empty)
+      ((cons? list)
+       (if (= x (first list))
+           (rest list)
+           (cons (first list) (delete-once x (rest list))))))))
+
+(: sort-numbers ((list-of real) -&gt; (list-of real)))
+(check-expect (sort-numbers (list 3 1 2)) (list 1 2 3))
+(check-expect (sort-numbers empty) empty)
+(define sort-numbers
+  (lambda (list)
+    (cond
+      ((empty? list) empty)
+      ((cons? list)
+       (define smallest (list-min-nonempty list))
+       (cons smallest (sort-numbers (delete-once smallest list)))))))</code></pre>
+</details></section><section class="fg" id="kapitel-7"><h2>Kapitel 7: Natürliche Zahlen</h2><p><a href="lernen.html#kapitel-7">→ Erklärung zu Kapitel 7</a> · <a href="fehler.html?kap=7">typische Fehler</a></p>
+<p>Benutze die Schablone mit <code>zero?</code> und <code>positive?</code>.</p>
+<ul class="fg"><li class="task fi" id="k7-N1" data-kap="7" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>N1 ★</strong> <code>factorial</code>: n! = 1 · 2 · … · n, mit 0! = 1.</p></li><li class="task fi" id="k7-N2" data-kap="7" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>N2 ★</strong> <code>sum-up-to</code>: 0 + 1 + … + n. Prüfe mit der Gauß-Formel n(n+1)/2.</p></li><li class="task fi" id="k7-N3" data-kap="7" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>N3 ★★</strong> <code>repeat-string</code>: <code>(repeat-string &quot;ab&quot; 3)</code> → <code>&quot;ababab&quot;</code>.</p></li><li class="task fi" id="k7-N4" data-kap="7" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>N4 ★★</strong> <code>take</code> und <code>drop</code>: die ersten n Elemente einer Liste bzw. die Liste ohne die ersten n Elemente (die Liste hat mindestens n Elemente).</p></li><li class="task fi" id="k7-N5" data-kap="7" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>N5 ★★</strong> <code>between-down</code>: alle ganzen Zahlen von <code>to</code> abwärts bis <code>from</code>, z. B. <code>(between-down 2 5)</code> → 5 4 3 2.</p></li><li class="task fi" id="k7-N6" data-kap="7" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>N6 ★★</strong> <code>evens-between</code>: alle geraden Zahlen von a bis b (benutze <code>between</code> aus der Übersicht und <code>even?</code>).</p></li><li class="task fi" id="k7-N7" data-kap="7" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>N7 ★★★</strong> <code>fibonacci</code>: f(0) = 0, f(1) = 1, f(n) = f(n−1) + f(n−2). Probiere <code>(fibonacci 30)</code> – warum dauert das so lange?</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; N1
+(: factorial (natural -&gt; natural))
+(check-expect (factorial 0) 1)
+(check-expect (factorial 5) 120)
+(define factorial
+  (lambda (n)
+    (cond
+      ((zero? n) 1)
+      ((positive? n) (* n (factorial (- n 1)))))))
+
+; N2
+(: sum-up-to (natural -&gt; natural))
+(check-expect (sum-up-to 0) 0)
+(check-expect (sum-up-to 10) 55)          ; 10 · 11 / 2 = 55
+(define sum-up-to
+  (lambda (n)
+    (cond
+      ((zero? n) 0)
+      ((positive? n) (+ n (sum-up-to (- n 1)))))))
+
+; N3
+(: repeat-string (string natural -&gt; string))
+(check-expect (repeat-string &quot;ab&quot; 3) &quot;ababab&quot;)
+(check-expect (repeat-string &quot;ab&quot; 0) &quot;&quot;)
+(define repeat-string
+  (lambda (s n)
+    (cond
+      ((zero? n) &quot;&quot;)
+      ((positive? n) (string-append s (repeat-string s (- n 1)))))))
+
+; N4
+(: take ((list-of %a) natural -&gt; (list-of %a)))
+(check-expect (take (list 1 2 3 4) 2) (list 1 2))
+(define take
+  (lambda (list n)
+    (cond
+      ((zero? n) empty)
+      ((positive? n)
+       (cons (first list) (take (rest list) (- n 1)))))))
+
+(: drop ((list-of %a) natural -&gt; (list-of %a)))
+(check-expect (drop (list 1 2 3 4) 2) (list 3 4))
+(define drop
+  (lambda (list n)
+    (cond
+      ((zero? n) list)
+      ((positive? n) (drop (rest list) (- n 1))))))
+
+; N5
+(: between-down (integer integer -&gt; (list-of integer)))
+(check-expect (between-down 2 5) (list 5 4 3 2))
+(check-expect (between-down 3 3) (list 3))
+(define between-down
+  (lambda (from to)
+    (cond
+      ((= from to) (list from))
+      ((&lt; from to) (cons to (between-down from (- to 1)))))))
+
+; N6 – Rekursion über die Liste aus between
+(: evens-between (integer integer -&gt; (list-of integer)))
+(check-expect (evens-between 1 7) (list 2 4 6))
+(define evens-only
+  (lambda (list)
+    (cond
+      ((empty? list) empty)
+      ((cons? list)
+       (if (even? (first list))
+           (cons (first list) (evens-only (rest list)))
+           (evens-only (rest list)))))))
+(define evens-between
+  (lambda (a b)
+    (evens-only (between a b))))
+
+; N7
+(: fibonacci (natural -&gt; natural))
+(check-expect (fibonacci 0) 0)
+(check-expect (fibonacci 1) 1)
+(check-expect (fibonacci 10) 55)
+(define fibonacci
+  (lambda (n)
+    (cond
+      ((zero? n) 0)
+      ((= n 1) 1)
+      (else (+ (fibonacci (- n 1)) (fibonacci (- n 2)))))))</code></pre>
+<p><strong>Zu N7:</strong> Jeder Aufruf startet zwei neue Aufrufe, und dieselben Werte werden immer wieder berechnet (f(28) zweimal, f(27) dreimal …). Die Anzahl der Aufrufe wächst exponentiell – für n = 30 sind es über eine Million. Mit Akkumulatoren (Kapitel 10) geht es in n Schritten.</p>
+<p><strong>Zu N4:</strong> Falls DrRacket meldet, dass <code>take</code> oder <code>drop</code> schon definiert sind, nenne deine Funktionen <code>my-take</code> und <code>my-drop</code>.</p>
+</details></section><section class="fg" id="kapitel-8"><h2>Kapitel 8: Exkurs – Induktive Beweise und Definitionen</h2><p><a href="lernen.html#kapitel-8">→ Erklärung zu Kapitel 8</a> · <a href="fehler.html?kap=8">typische Fehler</a></p>
+<p>Hier wird nicht programmiert, sondern bewiesen (außer I6). Schreibe jeden Beweis nach dem Rezept: Behauptung, Induktionsanfang, Induktionsvoraussetzung, Induktionsschluss.</p>
+<ul class="fg"><li class="task fi" id="k8-I1" data-kap="8" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>I1 ★</strong> Rechne die Gauß-Formel 0 + 1 + … + n = n(n+1)/2 für n = 0 bis 4 nach.</p></li><li class="task fi" id="k8-I2" data-kap="8" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>I2 ★★</strong> Beweise per Induktion: Die Summe der ersten n ungeraden Zahlen ist n², also 1 + 3 + … + (2n − 1) = n².</p></li><li class="task fi" id="k8-I3" data-kap="8" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>I3 ★★</strong> Beweise per Induktion: 1² + 2² + … + n² = n(n+1)(2n+1)/6.</p></li><li class="task fi" id="k8-I4" data-kap="8" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>I4 ★★</strong> Wo steckt der Fehler? „Behauptung: In jeder Gruppe von n Pferden haben alle dieselbe Farbe. Anfang n = 1: klar. Schluss: Nimm n + 1 Pferde. Ohne das erste sind es n Pferde – gleiche Farbe. Ohne das letzte auch. Also haben alle dieselbe Farbe.“</p></li><li class="task fi" id="k8-I5" data-kap="8" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>I5 ★★★</strong> Beweise per Folgeninduktion über u: Länge(cat(u, v)) = Länge(u) + Länge(v).</p></li><li class="task fi" id="k8-I6" data-kap="8" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>I6 ★★★</strong> Schreibe in Racket <code>vertauschen</code>: In einem booleschen Ausdruck (Datendefinition aus der Übersicht, Kapitel 8.7) werden <code>#t</code>/<code>#f</code> und <code>und</code>/<code>oder</code> vertauscht, <code>nicht</code> bleibt. Prüfe mit Tests, dass <code>(auswerten (vertauschen e))</code> immer das Gegenteil von <code>(auswerten e)</code> ist.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<p><strong>I1:</strong> n = 0: 0 = 0·1/2 = 0. n = 1: 1 = 1·2/2. n = 2: 3 = 2·3/2. n = 3: 6 = 3·4/2. n = 4: 10 = 4·5/2. ✓</p>
+<p><strong>I2:</strong></p>
+<ul><li><p>Anfang (n = 0): leere Summe = 0 = 0². ✓</p></li><li><p>Voraussetzung: 1 + 3 + … + (2n − 1) = n².</p></li><li><p>Schluss: 1 + 3 + … + (2n − 1) + (2(n+1) − 1) = n² + 2n + 1 = (n + 1)². ✓</p></li></ul>
+<p><strong>I3:</strong></p>
+<ul><li><p>Anfang (n = 0): 0 = 0·1·1/6 = 0. ✓</p></li><li><p>Voraussetzung: 1² + … + n² = n(n+1)(2n+1)/6.</p></li><li><p>Schluss:</p></li></ul>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mfrac><mrow><mi>n</mi><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo></mrow><mn>6</mn></mfrac><mo>+</mo><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><msup><mo stretchy="false">)</mo><mn>2</mn></msup><mo>=</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mtext> </mtext><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">(</mo><mi>n</mi><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>+</mo><mn>6</mn><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo fence="false" stretchy="true" minsize="1.2em" maxsize="1.2em">)</mo></mrow><mn>6</mn></mfrac><mo>=</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>2</mn><msup><mi>n</mi><mn>2</mn></msup><mo>+</mo><mn>7</mn><mi>n</mi><mo>+</mo><mn>6</mn><mo stretchy="false">)</mo></mrow><mn>6</mn></mfrac><mo>=</mo><mfrac><mrow><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>n</mi><mo>+</mo><mn>2</mn><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mn>2</mn><mi>n</mi><mo>+</mo><mn>3</mn><mo stretchy="false">)</mo></mrow><mn>6</mn></mfrac></mrow><annotation encoding="application/x-tex">\frac{n(n+1)(2n+1)}{6} + (n+1)^2
+= \frac{(n+1)\,\big(n(2n+1) + 6(n+1)\big)}{6}
+= \frac{(n+1)(2n^2 + 7n + 6)}{6}
+= \frac{(n+1)(n+2)(2n+3)}{6}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:2.113em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">6</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord mathnormal">n</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:1.1141em;vertical-align:-0.25em;"></span><span class="mord">1</span><span class="mclose"><span class="mclose">)</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8641em;"><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.276em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.59em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">6</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.74em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="delimsizing size1">(</span></span><span class="mord mathnormal">n</span><span class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">6</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mord"><span class="delimsizing size1">)</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1771em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.4911em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">6</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord">2</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">7</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">6</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.113em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">6</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">2</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord">2</span><span class="mord mathnormal">n</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">3</span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span>
+<p>Das ist die Formel für n + 1, denn 2(n+1) + 1 = 2n + 3. ✓</p>
+<p><strong>I4:</strong> Der Induktionsschluss funktioniert nicht für den Schritt von 1 auf 2 Pferde: „Ohne das erste“ und „ohne das letzte“ ergeben zwei Gruppen mit je einem Pferd, die sich <strong>nicht überschneiden</strong>. Es gibt kein Pferd, das in beiden Gruppen ist und die Farben „verbindet“. Der Schluss muss für <strong>jedes</strong> n gelten – hier gilt er erst ab n ≥ 2.</p>
+<p><strong>I5:</strong> Mit den Definitionen cat(ε, v) = v, cat(m u&#39;, v) = m cat(u&#39;, v), Länge(ε) = 0, Länge(m f) = 1 + Länge(f):</p>
+<ul><li><p>Anfang (u = ε): Länge(cat(ε, v)) = Länge(v) = 0 + Länge(v) = Länge(ε) + Länge(v). ✓</p></li><li><p>Voraussetzung: Für u&#39; gilt Länge(cat(u&#39;, v)) = Länge(u&#39;) + Länge(v).</p></li><li><p>Schluss (u = m u&#39;): Länge(cat(m u&#39;, v)) = Länge(m cat(u&#39;, v)) = 1 + Länge(cat(u&#39;, v)) = 1 + Länge(u&#39;) + Länge(v) = Länge(m u&#39;) + Länge(v). ✓</p></li></ul>
+<p><strong>I6:</strong></p>
+<pre><code class="language-racket">(: vertauschen (bool-expr -&gt; bool-expr))
+(check-expect (vertauschen (make-und #t #f)) (make-oder #f #t))
+(define vertauschen
+  (lambda (e)
+    (cond
+      ((boolean? e) (not e))
+      ((und? e)  (make-oder (vertauschen (und-links e)) (vertauschen (und-rechts e))))
+      ((oder? e) (make-und  (vertauschen (oder-links e)) (vertauschen (oder-rechts e))))
+      ((nicht? e) (make-nicht (vertauschen (nicht-ausdruck e)))))))
+
+(define e1 (make-und #t (make-nicht (make-oder #f #t))))
+(check-expect (auswerten (vertauschen e1)) (not (auswerten e1)))
+
+; Extra: als Eigenschaft (Kapitel 13) – für einfache Ausdrücke aus zwei Wahrheitswerten
+(check-property
+ (for-all ((a boolean) (b boolean))
+   (expect (auswerten (vertauschen (make-und a b)))
+           (not (auswerten (make-und a b))))))</code></pre>
+</details></section><section class="fg" id="kapitel-9"><h2>Kapitel 9: Higher-Order-Programmierung</h2><p><a href="lernen.html#kapitel-9">→ Erklärung zu Kapitel 9</a> · <a href="fehler.html?kap=9">typische Fehler</a></p>
+<p>Benutze die eingebauten Funktionen <code>filter</code> (Prädikat, Liste), <code>map</code> (Funktion, Liste) und <code>fold</code> (Basiswert, Verknüpfung, Liste).</p>
+<ul class="fg"><li class="task fi" id="k9-H1" data-kap="9" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>H1 ★</strong> <code>evens</code>: alle geraden Zahlen einer Liste – als Einzeiler mit <code>filter</code>.</p></li><li class="task fi" id="k9-H2" data-kap="9" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>H2 ★</strong> <code>squares</code>: jede Zahl quadrieren – mit <code>map</code> und einem <code>lambda</code>.</p></li><li class="task fi" id="k9-H3" data-kap="9" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>H3 ★</strong> Alle Strings einer Liste, die länger als 3 Zeichen sind.</p></li><li class="task fi" id="k9-H4" data-kap="9" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>H4 ★★</strong> Schreibe <code>list-sum</code>, <code>list-product</code> und <code>list-length</code> jeweils als Einzeiler mit <code>fold</code>.</p></li><li class="task fi" id="k9-H5" data-kap="9" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>H5 ★★</strong> <code>every?</code> und <code>any?</code>: Gilt ein Prädikat für alle bzw. mindestens ein Element? (mit <code>fold</code>)</p></li><li class="task fi" id="k9-H6" data-kap="9" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>H6 ★★</strong> <code>compose</code>: zwei Funktionen f und g rein, die Funktion x ↦ f(g(x)) raus. Teste mit <code>((compose sqrt abs) -16)</code>.</p></li><li class="task fi" id="k9-H7" data-kap="9" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>H7 ★★★</strong> Schreibe <code>my-map</code> selbst – einmal mit der Listenschablone und einmal nur mit <code>fold</code>.</p></li><li class="task fi" id="k9-H8" data-kap="9" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>H8 ★★★</strong> <code>curry3</code> und <code>uncurry3</code> für Funktionen mit drei Parametern.</p></li><li class="task fi" id="k9-H9" data-kap="9" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>H9 ★★★</strong> Was liefert <code>((f 10) 1)</code> und warum?</p></li></ul>
+<pre><code class="language-racket">(define f
+  (lambda (x)
+    (define y (* x 2))
+    (lambda (y) (+ x y))))</code></pre>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; H1
+(define evens (lambda (l) (filter even? l)))
+(check-expect (evens (list 1 2 3 4)) (list 2 4))
+
+; H2
+(define squares (lambda (l) (map (lambda (x) (* x x)) l)))
+(check-expect (squares (list 1 2 3)) (list 1 4 9))
+
+; H3
+(define long-strings
+  (lambda (l) (filter (lambda (s) (&gt; (string-length s) 3)) l)))
+(check-expect (long-strings (list &quot;ab&quot; &quot;Haus&quot; &quot;Racket&quot;)) (list &quot;Haus&quot; &quot;Racket&quot;))
+
+; H4
+(define list-sum     (lambda (l) (fold 0 + l)))
+(define list-product (lambda (l) (fold 1 * l)))
+(define list-length  (lambda (l) (fold 0 (lambda (x acc) (+ 1 acc)) l)))
+(check-expect (list-sum (list 1 2 3)) 6)
+(check-expect (list-product (list 1 2 3 4)) 24)
+(check-expect (list-length (list &quot;a&quot; &quot;b&quot;)) 2)
+
+; H5
+(: every? ((%a -&gt; boolean) (list-of %a) -&gt; boolean))
+(define every?
+  (lambda (p? l) (fold #t (lambda (x acc) (and (p? x) acc)) l)))
+(: any? ((%a -&gt; boolean) (list-of %a) -&gt; boolean))
+(define any?
+  (lambda (p? l) (fold #f (lambda (x acc) (or (p? x) acc)) l)))
+(check-expect (every? even? (list 2 4)) #t)
+(check-expect (every? even? empty) #t)     ; neutrales Element von and
+(check-expect (any? even? (list 1 3)) #f)
+(check-expect (any? even? empty) #f)       ; neutrales Element von or
+
+; H6
+(: compose ((%b -&gt; %c) (%a -&gt; %b) -&gt; (%a -&gt; %c)))
+(define compose
+  (lambda (f g)
+    (lambda (x) (f (g x)))))
+(check-expect ((compose sqrt abs) -16) 4)
+
+; H7
+(define my-map
+  (lambda (f l)
+    (cond
+      ((empty? l) empty)
+      ((cons? l) (cons (f (first l)) (my-map f (rest l)))))))
+(define my-map-fold
+  (lambda (f l)
+    (fold empty (lambda (x acc) (cons (f x) acc)) l)))
+(check-expect (my-map-fold (lambda (x) (+ x 1)) (list 1 2)) (list 2 3))
+
+; H8
+(define curry3
+  (lambda (f) (lambda (a) (lambda (b) (lambda (c) (f a b c))))))
+(define uncurry3
+  (lambda (f) (lambda (a b c) (((f a) b) c))))
+(check-expect ((((curry3 +) 1) 2) 3) 6)
+(check-expect ((uncurry3 (curry3 +)) 1 2 3) 6)</code></pre>
+<p><strong>H9:</strong> Ergebnis <code>11</code>. <code>(f 10)</code> liefert die innere Funktion; in ihr ist <code>x</code> = 10. Der Parameter <code>y</code> der inneren Funktion <strong>verdeckt</strong> die lokale Definition <code>y</code> = 20. Also <code>(+ 10 1)</code> = 11. Die lokale Definition wird gar nicht benutzt.</p>
+</details></section><section class="fg" id="kapitel-10"><h2>Kapitel 10: Akkumulatoren</h2><p><a href="lernen.html#kapitel-10">→ Erklärung zu Kapitel 10</a> · <a href="fehler.html?kap=10">typische Fehler</a></p>
+<p>Schreibe zu jedem Akkumulator eine <strong>Invariante</strong> als Kommentar. Benutze die Schablone mit lokalem <code>accumulate</code>.</p>
+<ul class="fg"><li class="task fi" id="k10-A1" data-kap="10" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>A1 ★</strong> <code>list-product</code> mit Akkumulator.</p></li><li class="task fi" id="k10-A2" data-kap="10" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>A2 ★★</strong> <code>list-length</code> mit Akkumulator (iterativ).</p></li><li class="task fi" id="k10-A3" data-kap="10" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>A3 ★★</strong> <code>factorial</code> mit Akkumulator über natürliche Zahlen.</p></li><li class="task fi" id="k10-A4" data-kap="10" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>A4 ★★</strong> <code>list-max-nonempty</code>: größtes Element einer nichtleeren Liste mit Akkumulator (Startwert = erstes Element).</p></li><li class="task fi" id="k10-A5" data-kap="10" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>A5 ★★</strong> <code>invert</code> mit Akkumulator. Vergleiche im Stepper mit der langsamen Version.</p></li><li class="task fi" id="k10-A6" data-kap="10" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>A6 ★★★</strong> <code>running-sums</code>: <code>(list 1 2 3 4)</code> → <code>(list 1 3 6 10)</code> (jede Stelle: Summe bis dahin).</p></li><li class="task fi" id="k10-A7" data-kap="10" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>A7 ★★★</strong> <code>fibonacci</code> mit zwei Akkumulatoren – so schnell, dass <code>(fibonacci 100)</code> sofort fertig ist.</p></li><li class="task fi" id="k10-A8" data-kap="10" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>A8 ★★★</strong> Welche Aufrufe von <code>p</code> sind Endaufrufe? a) <code>(p (+ x 1))</code>, b) <code>(+ 1 (p x))</code>, c) <code>(if (= x 0) 0 (p (- x 1)))</code>, d) <code>(cons x (p (rest l)))</code></p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; A1
+(define list-product
+  (lambda (list0)
+    (define accumulate
+      ; product ist das Produkt der Elemente zwischen list0 und list
+      (lambda (list product)
+        (cond
+          ((empty? list) product)
+          ((cons? list) (accumulate (rest list) (* (first list) product))))))
+    (accumulate list0 1)))
+(check-expect (list-product (list 2 3 4)) 24)
+
+; A2
+(define list-length
+  (lambda (list0)
+    (define accumulate
+      ; count ist die Anzahl der Elemente zwischen list0 und list
+      (lambda (list count)
+        (cond
+          ((empty? list) count)
+          ((cons? list) (accumulate (rest list) (+ count 1))))))
+    (accumulate list0 0)))
+(check-expect (list-length (list &quot;a&quot; &quot;b&quot; &quot;c&quot;)) 3)
+
+; A3
+(define factorial
+  (lambda (n0)
+    (define accumulate
+      ; acc ist das Produkt der Zahlen von n+1 bis n0
+      (lambda (n acc)
+        (cond
+          ((zero? n) acc)
+          ((positive? n) (accumulate (- n 1) (* n acc))))))
+    (accumulate n0 1)))
+(check-expect (factorial 5) 120)
+(check-expect (factorial 0) 1)
+
+; A4
+(define list-max-nonempty
+  (lambda (list0)
+    (define accumulate
+      ; m ist das Maximum der Elemente zwischen list0 und list
+      (lambda (list m)
+        (cond
+          ((empty? list) m)
+          ((cons? list) (accumulate (rest list) (max (first list) m))))))
+    (accumulate (rest list0) (first list0))))
+(check-expect (list-max-nonempty (list 3 9 2)) 9)
+
+; A5
+(define invert
+  (lambda (list0)
+    (define accumulate
+      ; inverted sind die Elemente zwischen list0 und list in umgekehrter Reihenfolge
+      (lambda (list inverted)
+        (cond
+          ((empty? list) inverted)
+          ((cons? list) (accumulate (rest list) (cons (first list) inverted))))))
+    (accumulate list0 empty)))
+(check-expect (invert (list 1 2 3)) (list 3 2 1))
+
+; A6 – zwei Akkumulatoren: bisherige Summe und Ergebnisliste (umgekehrt)
+(define running-sums
+  (lambda (list0)
+    (define accumulate
+      ; sum ist die Summe der Elemente zwischen list0 und list,
+      ; sums sind die laufenden Summen bis dahin, in umgekehrter Reihenfolge
+      (lambda (list sum sums)
+        (cond
+          ((empty? list) (reverse sums))
+          ((cons? list)
+           (define new-sum (+ sum (first list)))
+           (accumulate (rest list) new-sum (cons new-sum sums))))))
+    (accumulate list0 0 empty)))
+(check-expect (running-sums (list 1 2 3 4)) (list 1 3 6 10))
+
+; A7 – aufwärts zählen: a = f(i), b = f(i+1)
+(define fibonacci
+  (lambda (n0)
+    (define accumulate
+      ; a ist f(n0 - n), b ist f(n0 - n + 1)
+      (lambda (n a b)
+        (cond
+          ((zero? n) a)
+          ((positive? n) (accumulate (- n 1) b (+ a b))))))
+    (accumulate n0 0 1)))
+(check-expect (fibonacci 10) 55)
+(check-expect (fibonacci 0) 0)</code></pre>
+<p><strong>A8:</strong> a) Endaufruf (danach ist nichts mehr zu tun). b) kein Endaufruf (danach muss noch 1 addiert werden). c) Endaufruf (<code>if</code> gibt das Ergebnis direkt weiter). d) kein Endaufruf (danach muss noch <code>cons</code> ausgeführt werden).</p>
+</details></section><section class="fg" id="kapitel-11"><h2>Kapitel 11: Videospiele</h2><p><a href="lernen.html#kapitel-11">→ Erklärung zu Kapitel 11</a> · <a href="fehler.html?kap=11">typische Fehler</a></p>
+<p>Teachpacks <code>image.rkt</code> und <code>universe.rkt</code> laden. Teste <code>next-world</code>, <code>react-to-key</code> usw. mit <code>check-expect</code>, bevor du <code>big-bang</code> startest.</p>
+<ul class="fg"><li class="task fi" id="k11-V1" data-kap="11" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>V1 ★</strong> Ein Ball fällt von oben nach unten und bleibt unten liegen. Welt = y-Position.</p></li><li class="task fi" id="k11-V2" data-kap="11" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>V2 ★★</strong> Ein Ball prallt zwischen linkem und rechtem Rand hin und her. Welt = Record aus Position und Geschwindigkeit.</p></li><li class="task fi" id="k11-V3" data-kap="11" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>V3 ★★</strong> Eine Ampel wechselt bei jedem Druck auf die Leertaste zur nächsten Farbe (rot → grün → gelb → rot).</p></li><li class="task fi" id="k11-V4" data-kap="11" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>V4 ★★</strong> Ein Kreis springt an die Stelle, an die man klickt.</p></li><li class="task fi" id="k11-V5" data-kap="11" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>V5 ★★★</strong> Mini-Spiel: Eine Figur unten wird mit Pfeiltasten bewegt, von oben fällt ein Stein. Berührt der Stein die Figur, ist das Spiel vorbei (<code>stop-when</code>). Erreicht er den Boden, fällt ein neuer von oben.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; V1
+(define HÖHE 300)
+(: fall (natural -&gt; natural))
+(check-expect (fall 10) 13)
+(check-expect (fall 289) 290)
+(define fall
+  (lambda (y) (min (- HÖHE 10) (+ y 3))))
+(define zeichne-ball
+  (lambda (y)
+    (place-image (circle 10 &quot;solid&quot; &quot;red&quot;) 100 y (empty-scene 200 HÖHE))))
+(big-bang 10 (to-draw zeichne-ball) (on-tick fall))
+
+; V2
+(define BREITE 400)
+(define-record ball make-ball ball?
+  (ball-x real) (ball-dx real))
+(: bewege (ball -&gt; ball))
+(check-expect (bewege (make-ball 100 5)) (make-ball 105 5))
+(check-expect (bewege (make-ball 398 5)) (make-ball 393 -5))   ; prallt rechts ab
+(define bewege
+  (lambda (b)
+    (define neu-x (+ (ball-x b) (ball-dx b)))
+    (if (or (&gt; neu-x BREITE) (&lt; neu-x 0))
+        (make-ball (- (ball-x b) (ball-dx b)) (- (ball-dx b)))   ; Richtung umdrehen
+        (make-ball neu-x (ball-dx b)))))
+(define zeichne-b
+  (lambda (b)
+    (place-image (circle 10 &quot;solid&quot; &quot;blue&quot;) (ball-x b) 50 (empty-scene BREITE 100))))
+(big-bang (make-ball 20 4) (to-draw zeichne-b) (on-tick bewege))
+
+; V3
+(define ampelfarbe (signature (enum &quot;rot&quot; &quot;grün&quot; &quot;gelb&quot;)))
+(: nächste-farbe (ampelfarbe -&gt; ampelfarbe))
+(define nächste-farbe
+  (lambda (f)
+    (cond
+      ((string=? f &quot;rot&quot;) &quot;grün&quot;)
+      ((string=? f &quot;grün&quot;) &quot;gelb&quot;)
+      ((string=? f &quot;gelb&quot;) &quot;rot&quot;))))
+(: taste (ampelfarbe string -&gt; ampelfarbe))
+(check-expect (taste &quot;rot&quot; &quot; &quot;) &quot;grün&quot;)
+(check-expect (taste &quot;rot&quot; &quot;a&quot;) &quot;rot&quot;)
+(define taste
+  (lambda (f k)
+    (if (string=? k &quot; &quot;) (nächste-farbe f) f)))
+(define farbe-&gt;englisch
+  (lambda (f)
+    (cond ((string=? f &quot;rot&quot;) &quot;red&quot;) ((string=? f &quot;grün&quot;) &quot;green&quot;) (else &quot;yellow&quot;))))
+(define zeichne-ampel
+  (lambda (f) (circle 40 &quot;solid&quot; (farbe-&gt;englisch f))))
+(big-bang &quot;rot&quot; (to-draw zeichne-ampel) (on-key taste))
+
+; V4
+(define-record punkt make-punkt punkt? (punkt-x real) (punkt-y real))
+(: maus (punkt integer integer string -&gt; punkt))
+(check-expect (maus (make-punkt 0 0) 30 40 &quot;button-down&quot;) (make-punkt 30 40))
+(check-expect (maus (make-punkt 0 0) 30 40 &quot;move&quot;) (make-punkt 0 0))
+(define maus
+  (lambda (p x y ereignis)
+    (if (string=? ereignis &quot;button-down&quot;) (make-punkt x y) p)))
+(define zeichne-punkt
+  (lambda (p)
+    (place-image (circle 15 &quot;solid&quot; &quot;purple&quot;) (punkt-x p) (punkt-y p)
+                 (empty-scene 300 300))))
+(big-bang (make-punkt 150 150) (to-draw zeichne-punkt) (on-mouse maus))
+
+; V5
+(define-record spiel make-spiel spiel?
+  (spiel-figur-x real)          ; Figur steht unten (y = 280)
+  (spiel-stein-x real)
+  (spiel-stein-y real))
+(define tick
+  (lambda (s)
+    (if (&gt; (spiel-stein-y s) 300)
+        (make-spiel (spiel-figur-x s)                     ; neuer Stein oben,
+                    (remainder (+ (spiel-stein-x s) 137) 300)  ; an anderer Stelle
+                    0)
+        (make-spiel (spiel-figur-x s) (spiel-stein-x s) (+ (spiel-stein-y s) 5)))))
+(define steuern
+  (lambda (s k)
+    (cond
+      ((string=? k &quot;left&quot;)  (make-spiel (- (spiel-figur-x s) 15) (spiel-stein-x s) (spiel-stein-y s)))
+      ((string=? k &quot;right&quot;) (make-spiel (+ (spiel-figur-x s) 15) (spiel-stein-x s) (spiel-stein-y s)))
+      (else s))))
+(: getroffen? (spiel -&gt; boolean))
+(check-expect (getroffen? (make-spiel 100 105 275)) #t)
+(check-expect (getroffen? (make-spiel 100 200 275)) #f)
+(define getroffen?
+  (lambda (s)
+    (and (&lt; (abs (- (spiel-figur-x s) (spiel-stein-x s))) 20)
+         (&lt; (abs (- 280 (spiel-stein-y s))) 20))))
+(define zeichne-spiel
+  (lambda (s)
+    (place-image (square 20 &quot;solid&quot; &quot;gray&quot;) (spiel-stein-x s) (spiel-stein-y s)
+                 (place-image (circle 10 &quot;solid&quot; &quot;green&quot;) (spiel-figur-x s) 280
+                              (empty-scene 300 300)))))
+(big-bang (make-spiel 150 50 0)
+  (to-draw zeichne-spiel) (on-tick tick) (on-key steuern) (stop-when getroffen?))</code></pre>
+<p>In V2 bleibt der Ball beim Abprallen an der alten Stelle und dreht nur die Richtung um – so kann er nie aus dem Bild laufen.</p>
+</details></section><section class="fg" id="kapitel-12"><h2>Kapitel 12: Bäume</h2><p><a href="lernen.html#kapitel-12">→ Erklärung zu Kapitel 12</a> · <a href="fehler.html?kap=12">typische Fehler</a></p>
+<p>Benutze <code>node-of</code>, <code>tree-of</code>, <code>make-node</code> und den Beispielbaum <code>tree4</code> (5, 3, 17, 10, 12) aus der Übersicht (Kapitel 12.2); Blätter sind <code>#f</code>. Für B5 brauchst du <code>person</code> und <code>parent</code> aus Kapitel 12.1.</p>
+<ul class="fg"><li class="task fi" id="k12-B1" data-kap="12" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>B1 ★</strong> <code>tree-sum</code>: Summe aller Markierungen eines Zahlenbaums.</p></li><li class="task fi" id="k12-B2" data-kap="12" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>B2 ★</strong> <code>node-count</code>: Anzahl der Knoten.</p></li><li class="task fi" id="k12-B3" data-kap="12" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>B3 ★★</strong> <code>tree-&gt;list</code>: alle Markierungen in der Reihenfolge links – Wurzel – rechts. Was fällt bei einem sortierten Baum auf?</p></li><li class="task fi" id="k12-B4" data-kap="12" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>B4 ★★</strong> <code>list-&gt;tree</code>: aus einer Zahlenliste mit <code>tree-insert</code> (Übersicht 12.4) einen sortierten Baum bauen. Tipp: <code>fold</code>.</p></li><li class="task fi" id="k12-B5" data-kap="12" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>B5 ★★</strong> Ändere <code>ancestor?</code> so, dass eine Person <strong>nicht</strong> ihr eigener Vorfahr ist.</p></li><li class="task fi" id="k12-B6" data-kap="12" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>B6 ★★★</strong> <code>search-tree?</code>: Prüft, ob ein beliebiger Zahlenbaum sortiert ist (links kleiner, rechts größer – für <em>alle</em> Knoten darunter, nicht nur die direkten Kinder).</p></li><li class="task fi" id="k12-B7" data-kap="12" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>B7 ★★★</strong> Füge 1, 2, 3, 4, 5 nacheinander mit <code>tree-insert</code> in einen leeren Baum ein. Welche Tiefe hat das Ergebnis? Welche Tiefe hätte ein balancierter Baum?</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; B1
+(: tree-sum ((tree-of false number) -&gt; number))
+(check-expect (tree-sum tree4) 47)          ; 5 + 3 + 17 + 10 + 12
+(check-expect (tree-sum #f) 0)
+(define tree-sum
+  (lambda (t)
+    (cond
+      ((node? t) (+ (node-label t)
+                    (tree-sum (node-left-branch t))
+                    (tree-sum (node-right-branch t))))
+      (else 0))))
+
+; B2
+(define node-count
+  (lambda (t)
+    (cond
+      ((node? t) (+ 1 (node-count (node-left-branch t))
+                      (node-count (node-right-branch t))))
+      (else 0))))
+(check-expect (node-count tree4) 5)
+
+; B3
+(: tree-&gt;list ((tree-of false %a) -&gt; (list-of %a)))
+(check-expect (tree-&gt;list tree4) (list 3 5 10 12 17))
+(define tree-&gt;list
+  (lambda (t)
+    (cond
+      ((node? t)
+       (append (tree-&gt;list (node-left-branch t))
+               (list (node-label t))
+               (tree-&gt;list (node-right-branch t))))
+      (else empty))))
+; Bei einem sortierten Baum kommt eine aufsteigend sortierte Liste heraus!
+
+; B4
+(: list-&gt;tree ((list-of real) -&gt; (tree-of false real)))
+(check-expect (tree-&gt;list (list-&gt;tree (list 4 1 3))) (list 1 3 4))
+(define list-&gt;tree
+  (lambda (l)
+    (fold #f tree-insert l)))
+
+; B5
+(define ancestor-strict?
+  (lambda (name p)
+    (or (parent-ancestor? name (person-parent-1 p))
+        (parent-ancestor? name (person-parent-2 p)))))
+; parent-ancestor? ruft weiterhin das alte ancestor? auf:
+; Eltern, Großeltern usw. zählen, die Person selbst nicht.
+(check-expect (ancestor-strict? &quot;Kind&quot; kind) #f)
+(check-expect (ancestor-strict? &quot;Oma&quot; kind) #t)
+
+; B6 – Trick: Baum als Liste ausgeben und prüfen, ob sie streng aufsteigt
+(define strictly-increasing?
+  (lambda (l)
+    (cond
+      ((empty? l) #t)
+      ((empty? (rest l)) #t)
+      (else (and (&lt; (first l) (first (rest l)))
+                 (strictly-increasing? (rest l)))))))
+(define search-tree?
+  (lambda (t)
+    (strictly-increasing? (tree-&gt;list t))))
+(check-expect (search-tree? tree4) #t)
+(check-expect (search-tree? (make-node 5 (make-node 7 #f #f) #f)) #f)</code></pre>
+<p><strong>B7:</strong> Jede neue Zahl ist größer als alle bisherigen und landet ganz rechts – der Baum ist eine Kette 1 → 2 → 3 → 4 → 5 mit <strong>Tiefe 5</strong> (wie eine Liste). Ein balancierter Baum mit 5 Knoten hat Tiefe <strong>3</strong> (z. B. Wurzel 3, darunter 2 und 5, darunter 1 und 4).</p>
+<p><strong>Zu B4:</strong> <code>fold</code> ruft <code>tree-insert</code> mit (Element, bisheriger Baum) auf – genau die Reihenfolge der Parameter von <code>tree-insert</code>. Weil <code>fold</code> von rechts arbeitet, wird zuerst das letzte Element eingefügt; für den Inhalt des Baums ist das egal.</p>
+</details></section><section class="fg" id="kapitel-13"><h2>Kapitel 13: Eigenschaften von Funktionen</h2><p><a href="lernen.html#kapitel-13">→ Erklärung zu Kapitel 13</a> · <a href="fehler.html?kap=13">typische Fehler</a></p>
+<p>Formuliere jede Eigenschaft mit <code>check-property</code> und <code>for-all</code>. Nimm für Rechnungen mit Brüchen <code>rational</code> statt <code>real</code>, damit keine Rundungsfehler stören.</p>
+<ul class="fg"><li class="task fi" id="k13-P1" data-kap="13" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>P1 ★</strong> Prüfe, dass <code>*</code> kommutativ ist (a · b = b · a).</p></li><li class="task fi" id="k13-P2" data-kap="13" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>P2 ★</strong> Prüfe, dass 0 das neutrale Element von <code>+</code> und 1 das von <code>*</code> ist.</p></li><li class="task fi" id="k13-P3" data-kap="13" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>P3 ★★</strong> Schreibe <code>fahrenheit-&gt;celsius</code> als Umkehrung von <code>celsius-&gt;fahrenheit</code> (Kapitel 1, Übung E2) und prüfe, dass beide zusammen wieder die Ausgangszahl liefern.</p></li><li class="task fi" id="k13-P4" data-kap="13" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>P4 ★★</strong> Prüfe für <code>invert</code>/<code>reverse</code>: zweimal umdrehen ergibt die ursprüngliche Liste, und die Länge bleibt gleich.</p></li><li class="task fi" id="k13-P5" data-kap="13" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>P5 ★★</strong> Prüfe: Filtern einer zusammengehängten Liste ist dasselbe wie die gefilterten Teile zusammenzuhängen.</p></li><li class="task fi" id="k13-P6" data-kap="13" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>P6 ★★★</strong> Prüfe für <code>sort-numbers</code> (Kapitel 6, Übung L7): Ergebnis sortiert, Länge gleich, und jedes Element der Eingabe kommt im Ergebnis vor.</p></li><li class="task fi" id="k13-P7" data-kap="13" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>P7 ★★★</strong> Finde eine falsche Funktion, die die ersten beiden Eigenschaften aus P6 erfüllt, aber die dritte nicht.</p></li><li class="task fi" id="k13-P8" data-kap="13" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>P8 ★★★</strong> Gilt (a / b) · b = a? Formuliere die Eigenschaft mit <code>==&gt;</code> so, dass sie stimmt.</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<pre><code class="language-racket">; P1
+(check-property
+ (for-all ((a rational) (b rational))
+   (= (* a b) (* b a))))
+
+; P2
+(check-property
+ (for-all ((a rational))
+   (and (= (+ a 0) a) (= (* a 1) a))))
+
+; P3
+(: fahrenheit-&gt;celsius (rational -&gt; rational))
+(check-expect (fahrenheit-&gt;celsius 212) 100)
+(define fahrenheit-&gt;celsius
+  (lambda (f) (* (- f 32) 5/9)))
+(check-property
+ (for-all ((c rational))
+   (= (fahrenheit-&gt;celsius (celsius-&gt;fahrenheit c)) c)))
+
+; P4
+(check-property
+ (for-all ((l (list-of integer)))
+   (expect (reverse (reverse l)) l)))
+(check-property
+ (for-all ((l (list-of integer)))
+   (= (length (reverse l)) (length l))))
+
+; P5
+(check-property
+ (for-all ((a (list-of integer)) (b (list-of integer)))
+   (expect (filter even? (append a b))
+           (append (filter even? a) (filter even? b)))))
+
+; P6 (sorted? aus der Übersicht, Kapitel 13.4)
+(check-property
+ (for-all ((l (list-of integer)))
+   (sorted? (sort-numbers l))))
+(check-property
+ (for-all ((l (list-of integer)))
+   (= (length (sort-numbers l)) (length l))))
+(define member?
+  (lambda (x l)
+    (cond
+      ((empty? l) #f)
+      ((cons? l) (or (= x (first l)) (member? x (rest l)))))))
+(check-property
+ (for-all ((l (list-of integer)))
+   (every? (lambda (x) (member? x (sort-numbers l))) l)))   ; every? aus Kap. 9, H5
+
+; P7 – liefert eine sortierte Liste der richtigen Länge, aber lauter Nullen
+(define fake-sort
+  (lambda (l) (map (lambda (x) 0) l)))
+
+; P8 – nur für b ≠ 0
+(check-property
+ (for-all ((a rational) (b rational))
+   (==&gt; (not (= b 0))
+        (= (* (/ a b) b) a))))</code></pre>
+<p><strong>Zu P7:</strong> <code>fake-sort</code> erfüllt „sortiert“ (0, 0, 0 ist aufsteigend) und „gleiche Länge“, aber nicht „jedes Element kommt vor“ – außer bei Listen aus lauter Nullen. Genau deshalb braucht man die dritte Eigenschaft.</p>
+<p><strong>Zu P8:</strong> Ohne <code>==&gt;</code> ist die Eigenschaft für b = 0 falsch (Division durch 0) – DrRacket würde sofort ein Gegenbeispiel melden. Mit <code>rational</code> gibt es keine Rundungsfehler; mit <code>real</code> könnte es knapp danebengehen.</p>
+</details></section><section class="fg" id="kapitel-14"><h2>Kapitel 14: Exkurs – λ-Kalkül</h2><p><a href="lernen.html#kapitel-14">→ Erklärung zu Kapitel 14</a> · <a href="fehler.html?kap=14">typische Fehler</a></p>
+<p>Rechne auf Papier. Schreibe bei jedem Schritt dazu, welche Regel du benutzt (α oder β).</p>
+<ul class="fg"><li class="task fi" id="k14-K1" data-kap="14" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>K1 ★</strong> Welche Variablen sind frei, welche gebunden? a) λx.x y, b) (λx.x) x, c) λx.λy.z x</p></li><li class="task fi" id="k14-K2" data-kap="14" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>K2 ★</strong> Reduziere zur Normalform: (λx.x x)(λy.y)</p></li><li class="task fi" id="k14-K3" data-kap="14" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>K3 ★★</strong> Reduziere: (λf.λx.f (f x)) (λy.y) z</p></li><li class="task fi" id="k14-K4" data-kap="14" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>K4 ★★</strong> Zeige mit <strong>true</strong> = λxy.x, <strong>false</strong> = λxy.y und <strong>if</strong> = λtka.t k a, dass <strong>if false</strong> e₁ e₂ →* e₂.</p></li><li class="task fi" id="k14-K5" data-kap="14" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>K5 ★★★</strong> Mit <strong>succ</strong> = λn.λf.λx.f (n f x): Reduziere <strong>succ</strong> ⌈1⌉ und zeige, dass ⌈2⌉ herauskommt.</p></li><li class="task fi" id="k14-K6" data-kap="14" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>K6 ★★★</strong> Warum hängt sich <code>(define omega (lambda (x) (x x)))</code> und dann <code>(omega omega)</code> in DrRacket auf? Was hat das mit Normalformen zu tun?</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<p><strong>K1:</strong> a) x gebunden, y frei. b) Das x im Rumpf von λx.x ist gebunden; das zweite x (das Argument) ist frei. c) x und y gebunden (y wird zwar gebunden, aber nicht benutzt), z frei.</p>
+<p><strong>K2:</strong></p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>λ</mi><mi>x</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>x</mi><mtext> </mtext><mi>x</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>y</mi><mo stretchy="false">)</mo><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>y</mi><mo stretchy="false">)</mo><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>y</mi><mo stretchy="false">)</mo><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>y</mi></mrow><annotation encoding="application/x-tex">(\lambda x.\, x\,x)(\lambda y.\, y) \;\rightarrow_\beta\; (\lambda y.\, y)(\lambda y.\, y) \;\rightarrow_\beta\; \lambda y.\, y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8889em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span></span></span></span></span>
+<p><strong>K3:</strong></p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mi>λ</mi><mi>f</mi><mi mathvariant="normal">.</mi><mi>λ</mi><mi>x</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>f</mi><mtext> </mtext><mo stretchy="false">(</mo><mi>f</mi><mtext> </mtext><mi>x</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mtext> </mtext><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mi>y</mi><mo stretchy="false">)</mo><mtext>  </mtext><mi>z</mi><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mo stretchy="false">(</mo><mi>λ</mi><mi>x</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mi>y</mi><mo stretchy="false">)</mo><mtext> </mtext><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mi>y</mi><mo stretchy="false">)</mo><mtext> </mtext><mi>x</mi><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mtext>  </mtext><mi>z</mi><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mi>y</mi><mo stretchy="false">)</mo><mtext> </mtext><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mi>y</mi><mo stretchy="false">)</mo><mtext> </mtext><mi>z</mi><mo stretchy="false">)</mo><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mi>y</mi><mo stretchy="false">)</mo><mtext> </mtext><mi>z</mi><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mi>z</mi></mrow><annotation encoding="application/x-tex">(\lambda f.\lambda x.\, f\,(f\,x))\,(\lambda y.y)\; z
+\;\rightarrow_\beta\; (\lambda x.\, (\lambda y.y)\,((\lambda y.y)\,x))\; z
+\;\rightarrow_\beta\; (\lambda y.y)\,((\lambda y.y)\, z)
+\;\rightarrow_\beta\; (\lambda y.y)\, z
+\;\rightarrow_\beta\; z</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mord">.</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">))</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">((</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">))</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">((</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.044em;">z</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal" style="margin-right:0.044em;">z</span></span></span></span></span>
+<p><strong>K4:</strong></p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mi mathvariant="bold">i</mi><mi mathvariant="bold">f</mi></mrow><mtext>  </mtext><mrow><mi mathvariant="bold">f</mi><mi mathvariant="bold">a</mi><mi mathvariant="bold">l</mi><mi mathvariant="bold">s</mi><mi mathvariant="bold">e</mi></mrow><mtext>  </mtext><msub><mi>e</mi><mn>1</mn></msub><mtext>  </mtext><msub><mi>e</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false">(</mo><mi>λ</mi><mi>t</mi><mi>k</mi><mi>a</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>t</mi><mtext> </mtext><mi>k</mi><mtext> </mtext><mi>a</mi><mo stretchy="false">)</mo><mtext>  </mtext><mrow><mi mathvariant="bold">f</mi><mi mathvariant="bold">a</mi><mi mathvariant="bold">l</mi><mi mathvariant="bold">s</mi><mi mathvariant="bold">e</mi></mrow><mtext>  </mtext><msub><mi>e</mi><mn>1</mn></msub><mtext>  </mtext><msub><mi>e</mi><mn>2</mn></msub><mtext>  </mtext><msubsup><mo>→</mo><mi>β</mi><mo>∗</mo></msubsup><mtext>  </mtext><mrow><mi mathvariant="bold">f</mi><mi mathvariant="bold">a</mi><mi mathvariant="bold">l</mi><mi mathvariant="bold">s</mi><mi mathvariant="bold">e</mi></mrow><mtext>  </mtext><msub><mi>e</mi><mn>1</mn></msub><mtext>  </mtext><msub><mi>e</mi><mn>2</mn></msub><mo>=</mo><mo stretchy="false">(</mo><mi>λ</mi><mi>x</mi><mi>y</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>y</mi><mo stretchy="false">)</mo><mtext>  </mtext><msub><mi>e</mi><mn>1</mn></msub><mtext>  </mtext><msub><mi>e</mi><mn>2</mn></msub><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mo stretchy="false">(</mo><mi>λ</mi><mi>y</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>y</mi><mo stretchy="false">)</mo><mtext>  </mtext><msub><mi>e</mi><mn>2</mn></msub><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><msub><mi>e</mi><mn>2</mn></msub></mrow><annotation encoding="application/x-tex">\mathbf{if}\;\mathbf{false}\;e_1\;e_2
+= (\lambda t k a.\, t\,k\,a)\;\mathbf{false}\;e_1\;e_2
+\;\rightarrow^*_\beta\; \mathbf{false}\;e_1\;e_2
+= (\lambda x y.\, y)\;e_1\;e_2
+\;\rightarrow_\beta\; (\lambda y.\, y)\;e_2
+\;\rightarrow_\beta\; e_2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf" style="margin-right:0.109em;">if</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathbf">false</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1331em;vertical-align:-0.3831em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">t</span><span class="mord mathnormal" style="margin-right:0.0315em;">k</span><span class="mord mathnormal">a</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">t</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0315em;">k</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">a</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathbf">false</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8444em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathbf">false</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mopen">(</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.0359em;">y</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">e</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span>
+<p><strong>K5:</strong> Mit ⌈1⌉ = λf.λx.f x:</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mrow><mi mathvariant="bold">s</mi><mi mathvariant="bold">u</mi><mi mathvariant="bold">c</mi><mi mathvariant="bold">c</mi></mrow><mtext> </mtext><mo stretchy="false">⌈</mo><mn>1</mn><mo stretchy="false">⌉</mo><mtext>  </mtext><msub><mo>→</mo><mi>β</mi></msub><mtext>  </mtext><mi>λ</mi><mi>f</mi><mi mathvariant="normal">.</mi><mi>λ</mi><mi>x</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>f</mi><mtext> </mtext><mo stretchy="false">(</mo><mo stretchy="false">⌈</mo><mn>1</mn><mo stretchy="false">⌉</mo><mtext> </mtext><mi>f</mi><mtext> </mtext><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mi>λ</mi><mi>f</mi><mi mathvariant="normal">.</mi><mi>λ</mi><mi>x</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>f</mi><mtext> </mtext><mo stretchy="false">(</mo><mo stretchy="false">(</mo><mi>λ</mi><mi>f</mi><mi mathvariant="normal">.</mi><mi>λ</mi><mi>x</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>f</mi><mtext> </mtext><mi>x</mi><mo stretchy="false">)</mo><mtext> </mtext><mi>f</mi><mtext> </mtext><mi>x</mi><mo stretchy="false">)</mo><mtext>  </mtext><msubsup><mo>→</mo><mi>β</mi><mo>∗</mo></msubsup><mtext>  </mtext><mi>λ</mi><mi>f</mi><mi mathvariant="normal">.</mi><mi>λ</mi><mi>x</mi><mi mathvariant="normal">.</mi><mtext> </mtext><mi>f</mi><mtext> </mtext><mo stretchy="false">(</mo><mi>f</mi><mtext> </mtext><mi>x</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">⌈</mo><mn>2</mn><mo stretchy="false">⌉</mo></mrow><annotation encoding="application/x-tex">\mathbf{succ}\,\lceil 1 \rceil
+\;\rightarrow_\beta\; \lambda f.\lambda x.\, f\,(\lceil 1 \rceil\, f\, x)
+= \lambda f.\lambda x.\, f\,((\lambda f.\lambda x.\, f\,x)\, f\, x)
+\;\rightarrow^*_\beta\; \lambda f.\lambda x.\, f\,(f\,x) = \lceil 2 \rceil</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0361em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathbf">succ</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">⌈</span><span class="mord">1</span><span class="mclose">⌉</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mord">.</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">(⌈</span><span class="mord">1</span><span class="mclose">⌉</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1.1331em;vertical-align:-0.3831em;"></span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mord">.</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">((</span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mord">.</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel"><span class="mrel">→</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.7387em;"><span style="top:-2.453em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathnormal mtight" style="margin-right:0.0528em;">β</span></span></span><span style="top:-3.113em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mbin mtight">∗</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.3831em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal">λ</span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mord">.</span><span class="mord mathnormal">λ</span><span class="mord mathnormal">x</span><span class="mord">.</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mopen">(</span><span class="mord mathnormal" style="margin-right:0.1076em;">f</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">x</span><span class="mclose">)</span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mopen">⌈</span><span class="mord">2</span><span class="mclose">⌉</span></span></span></span></span>
+<p>(Beim inneren Schritt werden f und x der inneren Abstraktion durch die äußeren f und x ersetzt – Namensgleichheit ist hier unproblematisch, weil es dieselben Variablen sind.)</p>
+<p><strong>K6:</strong> <code>(omega omega)</code> ist genau der Term (λx.x x)(λx.x x) aus der Übersicht. Eine β-Reduktion führt wieder zu (λx.x x)(λx.x x) – der Term hat <strong>keine Normalform</strong>. DrRacket rechnet also endlos weiter. Mit „Stopp“ abbrechen.</p>
+</details></section><section class="fg" id="kapitel-15"><h2>Kapitel 15: Exkurs – SECD-Maschine</h2><p><a href="lernen.html#kapitel-15">→ Erklärung zu Kapitel 15</a> · <a href="fehler.html?kap=15">typische Fehler</a></p>
+<p>Sprachebene <strong>„Schreibe Dein Programm! – fortgeschritten“</strong> (für <code>quote</code> und Symbole).</p>
+<ul class="fg"><li class="task fi" id="k15-Q1" data-kap="15" data-stars="1"><p><input type="checkbox" aria-label="erledigt"> <strong>Q1 ★</strong> Was liefern diese Ausdrücke? a) <code>&#39;(1 2 3)</code> b) <code>(first &#39;(a b c))</code> c) <code>(symbol? &quot;mike&quot;)</code> d) <code>(equal? &#39;a &#39;a)</code> e) <code>&#39;(+ 1 2)</code></p></li><li class="task fi" id="k15-Q2" data-kap="15" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>Q2 ★★</strong> Schreibe <code>addition?</code>: Ist ein Term eine Liste der Form <code>(+ x y)</code> mit genau zwei Operanden? Finde Eingaben, bei denen eine Version ohne Längenprüfung fälschlich <code>#t</code> liefert.</p></li><li class="task fi" id="k15-Q3" data-kap="15" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>Q3 ★★</strong> Ein kleiner Rechner: Ein Ausdruck ist eine Zahl, <code>(+ a b)</code> oder <code>(* a b)</code> (a, b wieder Ausdrücke). Schreibe <code>compute</code>.</p></li><li class="task fi" id="k15-Q4" data-kap="15" data-stars="2"><p><input type="checkbox" aria-label="erledigt"> <strong>Q4 ★★</strong> Übersetze von Hand in SECD-Maschinencode: <code>&#39;(+ 1 (* 2 3))</code>.</p></li><li class="task fi" id="k15-Q5" data-kap="15" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>Q5 ★★★</strong> Spiele die SECD-Maschine für den Code aus Q4 Schritt für Schritt durch (nur Stapel S und Code C).</p></li><li class="task fi" id="k15-Q6" data-kap="15" data-stars="3"><p><input type="checkbox" aria-label="erledigt"> <strong>Q6 ★★★</strong> In <code>((lambda (x) (f (g x))) 5)</code>: Welcher Aufruf wird mit <code>tailap</code>, welcher mit <code>ap</code> übersetzt?</p></li></ul>
+<details class="loesung"><summary>Lösungen anzeigen</summary>
+<p><strong>Q1:</strong> a) die Liste <code>(1 2 3)</code> b) das Symbol <code>a</code> c) <code>#f</code> – ein String ist kein Symbol d) <code>#t</code> e) die Liste <code>(+ 1 2)</code> – nicht 3, weil <code>quote</code> nicht auswertet.</p>
+<pre><code class="language-racket">; Q2
+(define addition?
+  (lambda (term)
+    (and (cons? term)
+         (equal? (first term) &#39;+)
+         (= (length term) 3))))
+(check-expect (addition? &#39;(+ 1 2)) #t)
+(check-expect (addition? &#39;(+ 1)) #f)       ; ohne Längenprüfung: #t (falsch!)
+(check-expect (addition? &#39;(+ 1 2 3)) #f)   ; ohne Längenprüfung: #t (falsch!)
+(check-expect (addition? 5) #f)
+
+; Q3
+(define multiplication?
+  (lambda (term)
+    (and (cons? term)
+         (equal? (first term) &#39;*)
+         (= (length term) 3))))
+(define compute
+  (lambda (e)
+    (cond
+      ((number? e) e)
+      ((addition? e)
+       (+ (compute (first (rest e)))
+          (compute (first (rest (rest e))))))
+      ((multiplication? e)
+       (* (compute (first (rest e)))
+          (compute (first (rest (rest e)))))))))
+(check-expect (compute &#39;(+ 1 (* 2 3))) 7)
+
+; Q4
+(list 1 2 3 (make-prim &#39;* 2) (make-prim &#39;+ 2))</code></pre>
+<p><strong>Q5:</strong></p>
+<table><thead><tr><th>Schritt</th><th>Stapel S (oben links)</th><th>Code C</th></tr></thead><tbody><tr><td>0</td><td>(leer)</td><td>1 2 3 prim* prim+</td></tr><tr><td>1</td><td>1</td><td>2 3 prim* prim+</td></tr><tr><td>2</td><td>2 1</td><td>3 prim* prim+</td></tr><tr><td>3</td><td>3 2 1</td><td>prim* prim+</td></tr><tr><td>4</td><td>6 1</td><td>prim+</td></tr><tr><td>5</td><td>7</td><td>(leer) → Ergebnis 7</td></tr></tbody></table>
+<p><strong>Q6:</strong> Der Aufruf <code>(f …)</code> steht am Ende des Rumpfs – danach ist im Rumpf nichts mehr zu tun → <strong><code>tailap</code></strong>. Der Aufruf <code>(g x)</code> ist ein Argument von <code>f</code>: Danach muss noch <code>f</code> aufgerufen werden → <strong><code>ap</code></strong>.</p>
+</details></section></div>
+<div class="empty">Keine Aufgabe passt zu deiner Auswahl.</div>
+<h2>Quellen</h2>
+<ul><li><p>Aufgabenideen teils nach dem Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren (Tübingen University Press, Open Access, CC BY-SA 4.0): <a href="https://github.com/deinprogramm/schreibe-dein-programm">Buch-Quelltext auf GitHub</a></p></li><li><p><a href="https://docs.racket-lang.org/deinprogramm/index.html">Racket-Doku: Sprachebenen zu Schreibe Dein Programm!</a></p></li><li><p><a href="https://docs.racket-lang.org/teachpack/2htdpimage.html">Racket-Doku: 2htdp/image</a></p></li><li><p>Die Lösungen sind selbst geschrieben und nicht in DrRacket getestet. Wenn eine Lösung bei dir einen Fehler meldet, prüfe zuerst Sprachebene und Teachpacks.</p></li></ul>
+
+</main>
+<footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>
