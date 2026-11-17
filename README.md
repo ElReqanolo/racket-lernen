@@ -9,9 +9,23 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `befehle.html` | Befehlssammlung, filterbar nach Kapitel („nur“ oder „bis“ Kapitel) |
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
 | `fehler.html` | Fehlermeldungen und typische Fehler |
-| `uebungen.html` | Übungen mit aufklappbaren Lösungen, Häkchen und Schwierigkeitsfilter |
+| `uebungen.html` | Übungen mit aufklappbaren Lösungen, Häkchen, Schwierigkeitsfilter und Online-Prüfung der eigenen Lösung |
 
 Die Seite ist rein statisch: kein Server, keine Datenbank, kein Build-Schritt. Sie funktioniert auch offline, wenn du `index.html` direkt im Browser öffnest.
+
+## Online-Prüfung bei den Übungen
+
+Bei den meisten Aufgaben gibt es den Knopf **„Lösung abgeben“**. Der Code wird direkt im Browser von einem kleinen Racket-Interpreter (`assets/racket.js`) ausgeführt – es wird nichts an einen Server geschickt.
+
+Geprüft wird so (`assets/pruefer.js`):
+
+1. Die `check-expect`-Tests der Musterlösung laufen gegen deine Funktionen.
+2. Zufallstests: Deine Funktion und die Musterlösung bekommen dieselben zufälligen Eingaben (passend zur Signatur, mit Grenzwerten aus dem Code).
+3. Deine eigenen Tests laufen mit.
+
+Bei Fehlern zeigt die Seite die Eingabe, das erwartete und das tatsächliche Ergebnis und einen Hinweis, woran es liegen könnte (z. B. „Um genau 1 daneben – prüfe die Grenzen“). Bei Bildaufgaben werden die Bilder nebeneinander gezeigt.
+
+Grenzen: Signaturen werden nicht geprüft, Animationen (`big-bang`) werden nicht gestartet, und Beweis- oder Erklärfragen kann der Prüfer nicht bewerten. Der Interpreter ist ein Nachbau – im Zweifel gilt, was DrRacket sagt.
 
 ## Auf GitHub Pages veröffentlichen
 
