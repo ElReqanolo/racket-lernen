@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Playground · Racket lernen</title>
+<meta name="description" content="Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/style.css">
+<script>try{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+</head>
+<body>
+<header class="top"><div class="inner">
+<a class="brand" href="index.html"><span class="lam">λ</span><span>Racket lernen</span></a>
+<nav class="main"><a href="index.html">Start</a><a href="lernen.html">Lernübersicht</a><a href="befehle.html">Befehle</a><a href="glossar.html">Glossar</a><a href="fehler.html">Fehler</a><a href="uebungen.html">Übungen</a><a href="playground.html" class=active>Playground</a></nav>
+<button class="themebtn" type="button" title="Hell/Dunkel umschalten" aria-label="Hell/Dunkel umschalten">☾</button>
+</div></header>
+<main>
+
+<h1 class="page-title">Playground</h1>
+<p class="lead">Probier Befehle direkt im Browser aus – wie im Definitionsfenster von DrRacket. <strong>Ausführen</strong> (oder Strg+Enter) zeigt die Ergebnisse, Bilder und Testergebnisse; in der Zeile mit „&gt;“ kannst du danach weitere Ausdrücke eintippen wie im Interaktionsfenster.</p>
+<div class="pg">
+<div class="pg-left">
+<div class="pg-bar">
+<button type="button" id="pg-run" class="pg-run">▶ Ausführen</button><span class="kbd">Strg+Enter</span>
+<select id="pg-ex" aria-label="Beispiel laden"><option value="">Beispiel laden …</option></select>
+<button type="button" id="pg-share" class="chip">🔗 Link teilen</button>
+<button type="button" id="pg-clear" class="chip">Leeren</button>
+</div>
+<textarea id="pg-code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Racket-Code"></textarea>
+</div>
+<div class="pg-right">
+<div class="pg-outhead">Ausgabe</div>
+<div id="pg-out" aria-live="polite"></div>
+<div class="pg-replrow"><span>&gt;</span><input id="pg-repl" type="text" spellcheck="false" autocomplete="off" placeholder="Ausdruck eintippen und Enter drücken, z. B. (* 6 7)" aria-label="Ausdruck auswerten"></div>
+</div>
+</div>
+<details class="loesung" style="border-left-color:var(--accent);margin-top:22px"><summary style="color:var(--accent)">Was geht hier – und was nicht?</summary>
+<ul>
+<li>Alles aus den Lehrsprachen „Schreibe Dein Programm!“: <code>define</code>, <code>lambda</code>, <code>cond</code>, <code>if</code>, <code>define-record</code>, Listen, Zeichenketten, exakte Brüche, <code>check-expect</code>, <code>check-within</code>, <code>check-error</code>, <code>check-property</code>.</li>
+<li>Bilder aus <code>image.rkt</code>: <code>square</code>, <code>circle</code>, <code>star-polygon</code>, <code>above</code>, <code>beside</code>, <code>overlay</code>, <code>place-image</code> und mehr – die <a href="befehle.html#thema-bilder-teachpack-image-rkt">Befehlssammlung</a> zeigt alle.</li>
+<li>Nicht möglich: Animationen mit <code>big-bang</code>. Signaturen werden nicht geprüft.</li>
+<li>Der Code bleibt in deinem Browser gespeichert. Mit „Link teilen“ bekommst du einen Link, der deinen Code enthält.</li>
+<li>Das ist ein Nachbau im Browser. Im Zweifel gilt, was DrRacket sagt.</li>
+</ul></details>
+<script src="assets/racket.js"></script>
+<script src="assets/pruefer.js"></script>
+<script src="assets/playground.js"></script>
+</main>
+<footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
+<script src="assets/app.js"></script>
+</body>
+</html>

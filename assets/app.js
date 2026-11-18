@@ -85,8 +85,10 @@
     var mode = params.get("modus") === "bis" ? "bis" : "nur";
     var stars = params.get("sterne") || "";
 
+    var single = bar.hasAttribute("data-single");
     if (q && params.get("q")) q.value = params.get("q");
     if (kap && params.get("kap")) kap.value = params.get("kap");
+    else if (kap && single) kap.value = store.get("sdp-ueb-kap") || "1";
 
     function segSet(seg, val) {
       if (!seg) return;
@@ -123,7 +125,18 @@
         var t = document.getElementById(a.getAttribute("href").slice(1));
         a.classList.toggle("off", !t || t.classList.contains("hidden"));
       });
-      setParam("q", term); setParam("kap", k ? String(k) : ""); setParam("modus", k && mode === "bis" ? "bis" : "");
+      if (single) {
+        store.set("sdp-ueb-kap", String(k));
+        document.querySelectorAll(".kaplink:not(.sub)").forEach(function (l) { l.classList.toggle("current", l.dataset.kap === String(k)); });
+        var pg = document.querySelector(".uebpager");
+        if (pg) {
+          pg.innerHTML = "";
+          if (k > 1) pg.insertAdjacentHTML("beforeend", '<a class="prev" href="?kap=' + (k - 1) + '" data-kap="' + (k - 1) + '"><small>← zurück</small>' + kap.options[k - 2].text + "</a>"); else pg.insertAdjacentHTML("beforeend", "<span></span>");
+          if (k >= 1 && k < 15) pg.insertAdjacentHTML("beforeend", '<a class="next" href="?kap=' + (k + 1) + '" data-kap="' + (k + 1) + '"><small>weiter →</small>' + kap.options[k].text + "</a>");
+        }
+        setParam("kap", String(k));
+      } else setParam("kap", k ? String(k) : "");
+      setParam("q", term); setParam("modus", k && mode === "bis" ? "bis" : "");
       setParam("sterne", stars);
     }
     if (q) q.addEventListener("input", apply);
@@ -139,6 +152,15 @@
       if (e.key === "/" && document.activeElement !== q && q) { e.preventDefault(); q.focus(); }
     });
     window.__applyFilter = apply;
+    document.addEventListener("click", function (e) {
+      var l = e.target.closest(".kaplink, .uebpager a");
+      if (!l || !kap) return;
+      e.preventDefault();
+      kap.value = l.dataset.kap; apply();
+      var det = document.querySelector("aside.toc details"); if (det && window.innerWidth < 860) det.open = false;
+      var tg = l.dataset.target && document.getElementById(l.dataset.target);
+      if (tg) tg.scrollIntoView({ behavior: "instant", block: "start" }); else window.scrollTo({ top: 0, behavior: "instant" });
+    });
     apply();
   }
 
@@ -161,6 +183,10 @@
       var done = document.querySelectorAll("li.task.done").length;
       if (prog) prog.style.width = (100 * done / tasks.length) + "%";
       if (progTxt) progTxt.textContent = done + " / " + tasks.length + " erledigt";
+      document.querySelectorAll(".kp[data-kp]").forEach(function (sp) {
+        var k = sp.dataset.kp, all = document.querySelectorAll('li.task[data-kap="' + k + '"]').length, d = document.querySelectorAll('li.task.done[data-kap="' + k + '"]').length;
+        sp.textContent = d + "/" + all; sp.classList.toggle("full", all > 0 && d === all);
+      });
     };
     tasks.forEach(function (li) {
       var cb = li.querySelector("input[type=checkbox]");

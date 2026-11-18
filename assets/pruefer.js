@@ -441,6 +441,6 @@
     return { status: failed ? "fail" : "ok", summary: summary, items: items, notes: extraNotes, userImages: userImages, kind: A.kind };
   }
 
-  var api = { grade: grade, analyse: analyse, unparse: unparse };
+  var api = { grade: grade, analyse: analyse, unparse: unparse, errorHint: errorHint };
   if (typeof module !== "undefined" && module.exports) module.exports = api; else root.Pruefer = api;
 })(typeof window !== "undefined" ? window : this);

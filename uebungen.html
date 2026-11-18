@@ -12,13 +12,13 @@
 <body>
 <header class="top"><div class="inner">
 <a class="brand" href="index.html"><span class="lam">λ</span><span>Racket lernen</span></a>
-<nav class="main"><a href="index.html">Start</a><a href="lernen.html">Lernübersicht</a><a href="befehle.html">Befehle</a><a href="glossar.html">Glossar</a><a href="fehler.html">Fehler</a><a href="uebungen.html" class=active>Übungen</a></nav>
+<nav class="main"><a href="index.html">Start</a><a href="lernen.html">Lernübersicht</a><a href="befehle.html">Befehle</a><a href="glossar.html">Glossar</a><a href="fehler.html">Fehler</a><a href="uebungen.html" class=active>Übungen</a><a href="playground.html">Playground</a></nav>
 <button class="themebtn" type="button" title="Hell/Dunkel umschalten" aria-label="Hell/Dunkel umschalten">☾</button>
 </div></header>
 <main>
 
 <h1 class="page-title">Übungen mit Lösungen</h1>
-<p class="lead">125 Aufgaben zu allen 15 Kapiteln. Bei <strong class="pruefbar">vielen</strong> Aufgaben kannst du deine Lösung direkt hier abgeben: Ein kleiner Racket-Interpreter im Browser prüft sie mit den Tests der Musterlösung und sagt dir, was nicht stimmt. Bei den anderen (Bilder zum Anschauen, Beweise, Erklärfragen) vergleichst du mit der Lösung.</p>
+<p class="lead">125 Aufgaben, Kapitel für Kapitel. Bei <strong class="pruefbar">vielen</strong> Aufgaben kannst du deine Lösung direkt hier abgeben: Ein kleiner Racket-Interpreter im Browser prüft sie mit den Tests der Musterlösung und sagt dir, was nicht stimmt. Bei den anderen (Bilder zum Anschauen, Beweise, Erklärfragen) vergleichst du mit der Lösung.</p>
 <details class="loesung" style="border-left-color:var(--accent)"><summary style="color:var(--accent)">So benutzt du die Aufgaben</summary>
 <table><thead><tr><th>Zeichen</th><th>Bedeutung</th></tr></thead><tbody><tr><td>★</td><td>leicht – wendet direkt an, was im Kapitel erklärt wird</td></tr><tr><td>★★</td><td>mittel – mehrere Schritte oder ein kleiner eigener Gedanke</td></tr><tr><td>★★★</td><td>knifflig – zum Knobeln, gut für Klausurvorbereitung</td></tr></tbody></table>
 <p><strong>Vorgehen bei jeder Aufgabe</strong></p>
@@ -26,15 +26,21 @@
 <p>Erledigte Aufgaben kannst du abhaken – die Häkchen merkt sich dein Browser.</p>
 <p><strong>Sprachebene:</strong> Kapitel 1–5 laufen in <strong>„Schreibe Dein Programm! – Anfänger“</strong>. Ab Kapitel 6 (eingebaute Listen) brauchst du <strong>„Schreibe Dein Programm!“</strong>. Für Bilder und Animationen müssen die Teachpacks <code>image.rkt</code> und <code>universe.rkt</code> geladen sein.</p>
 </details>
-<div class="filters" data-filter data-one="Aufgabe" data-many="Aufgaben">
+<div class="filters" data-filter data-single data-one="Aufgabe" data-many="Aufgaben">
+<select class="kap" aria-label="Kapitel"><option value="1">Kapitel 1: Elemente des Programmierens</option><option value="2">Kapitel 2: Fallunterscheidungen und Verzweigungen</option><option value="3">Kapitel 3: Zusammengesetzte Daten</option><option value="4">Kapitel 4: Gemischte Daten</option><option value="5">Kapitel 5: Programmieren mit Selbstbezügen und Kombinatoren</option><option value="6">Kapitel 6: Programmieren mit Listen</option><option value="7">Kapitel 7: Natürliche Zahlen</option><option value="8">Kapitel 8: Exkurs – Induktive Beweise und Definitionen</option><option value="9">Kapitel 9: Higher-Order-Programmierung</option><option value="10">Kapitel 10: Programmieren mit Akkumulatoren</option><option value="11">Kapitel 11: Videospiele programmieren</option><option value="12">Kapitel 12: Bäume</option><option value="13">Kapitel 13: Eigenschaften von Funktionen</option><option value="14">Kapitel 14: Exkurs – Der λ-Kalkül</option><option value="15">Kapitel 15: Exkurs – Die SECD-Maschine</option><option value="0">Alle Kapitel auf einer Seite</option></select>
 <input type="search" placeholder="Aufgabe suchen …" aria-label="Aufgabe suchen">
-<select class="kap" aria-label="Kapitel"><option value="0">Alle Kapitel</option><option value="1">1: Elemente des Programmierens</option><option value="2">2: Fallunterscheidungen und Verzweigungen</option><option value="3">3: Zusammengesetzte Daten</option><option value="4">4: Gemischte Daten</option><option value="5">5: Programmieren mit Selbstbezügen und Kombinatoren</option><option value="6">6: Programmieren mit Listen</option><option value="7">7: Natürliche Zahlen</option><option value="8">8: Exkurs – Induktive Beweise und Definitionen</option><option value="9">9: Higher-Order-Programmierung</option><option value="10">10: Programmieren mit Akkumulatoren</option><option value="11">11: Videospiele programmieren</option><option value="12">12: Bäume</option><option value="13">13: Eigenschaften von Funktionen</option><option value="14">14: Exkurs – Der λ-Kalkül</option><option value="15">15: Exkurs – Die SECD-Maschine</option></select>
 <div class="seg stars"><button type="button" data-v="">alle</button><button type="button" data-v="1">★</button><button type="button" data-v="2">★★</button><button type="button" data-v="3">★★★</button></div>
 <label style="font-size:14px"><input type="checkbox" class="openonly"> nur offene</label>
 <button type="button" class="chip togglesol">Alle Lösungen aufklappen</button>
-<div class="progress" title="Fortschritt"><div></div></div><span class="progtxt" style="font-size:13px;color:var(--muted)"></span>
 <span class="count"></span>
 </div>
+<div class="layout">
+<aside class="toc"><details open><summary class="tocsum">Kapitel</summary>
+<div class="progwrap"><div class="progress" title="Fortschritt gesamt"><div></div></div><span class="progtxt"></span></div>
+<a href="?kap=1" class="kaplink" data-kap="1"><span>1. Elemente des Programmierens</span><span class="kp" data-kp="1"></span></a><a href="#abschnitte-1115-ausdrücke-zeichenketten-bilder-lambda" class="kaplink sub" data-kap="1" data-target="abschnitte-1115-ausdrücke-zeichenketten-bilder-lambda"><span>1.1–1.5: Ausdrücke, Zeichenketten, Bilder, lambda</span></a><a href="#abschnitte-16113-signatur-tests-konstruktionsanleitung" class="kaplink sub" data-kap="1" data-target="abschnitte-16113-signatur-tests-konstruktionsanleitung"><span>1.6–1.13: Signatur, Tests, Konstruktionsanleitung</span></a><a href="?kap=2" class="kaplink" data-kap="2"><span>2. Fallunterscheidungen und Verzweigungen</span><span class="kp" data-kp="2"></span></a><a href="?kap=3" class="kaplink" data-kap="3"><span>3. Zusammengesetzte Daten</span><span class="kp" data-kp="3"></span></a><a href="?kap=4" class="kaplink" data-kap="4"><span>4. Gemischte Daten</span><span class="kp" data-kp="4"></span></a><a href="?kap=5" class="kaplink" data-kap="5"><span>5. Programmieren mit Selbstbezügen und Kombinatoren</span><span class="kp" data-kp="5"></span></a><a href="?kap=6" class="kaplink" data-kap="6"><span>6. Programmieren mit Listen</span><span class="kp" data-kp="6"></span></a><a href="?kap=7" class="kaplink" data-kap="7"><span>7. Natürliche Zahlen</span><span class="kp" data-kp="7"></span></a><a href="?kap=8" class="kaplink" data-kap="8"><span>8. Exkurs – Induktive Beweise und Definitionen</span><span class="kp" data-kp="8"></span></a><a href="?kap=9" class="kaplink" data-kap="9"><span>9. Higher-Order-Programmierung</span><span class="kp" data-kp="9"></span></a><a href="?kap=10" class="kaplink" data-kap="10"><span>10. Programmieren mit Akkumulatoren</span><span class="kp" data-kp="10"></span></a><a href="?kap=11" class="kaplink" data-kap="11"><span>11. Videospiele programmieren</span><span class="kp" data-kp="11"></span></a><a href="?kap=12" class="kaplink" data-kap="12"><span>12. Bäume</span><span class="kp" data-kp="12"></span></a><a href="?kap=13" class="kaplink" data-kap="13"><span>13. Eigenschaften von Funktionen</span><span class="kp" data-kp="13"></span></a><a href="?kap=14" class="kaplink" data-kap="14"><span>14. Exkurs – Der λ-Kalkül</span><span class="kp" data-kp="14"></span></a><a href="?kap=15" class="kaplink" data-kap="15"><span>15. Exkurs – Die SECD-Maschine</span><span class="kp" data-kp="15"></span></a>
+<a href="?kap=0" class="kaplink" data-kap="0"><span>Alle Kapitel</span></a>
+</details></aside>
+<div>
 <div class="filterscope"><section class="fg" id="kapitel-1"><h2>Kapitel 1: Elemente des Programmierens</h2><p><a href="lernen.html#kapitel-1">→ Erklärung zu Kapitel 1</a> · <a href="fehler.html?kap=1">typische Fehler</a></p>
 <h3 id="abschnitte-1115-ausdrücke-zeichenketten-bilder-lambda">Abschnitte 1.1–1.5: Ausdrücke, Zeichenketten, Bilder, <code>lambda</code></h3>
 <p>Diese Aufgaben brauchen nur Ausdrücke, Zeichenketten, <code>define</code>, Bilder und <code>lambda</code>. Für Teil C und D müssen diese drei Beispielbilder im Definitionsfenster stehen:</p>
@@ -1310,6 +1316,9 @@
 <p><strong>Q6:</strong> Der Aufruf <code>(f …)</code> steht am Ende des Rumpfs – danach ist im Rumpf nichts mehr zu tun → <strong><code>tailap</code></strong>. Der Aufruf <code>(g x)</code> ist ein Argument von <code>f</code>: Danach muss noch <code>f</code> aufgerufen werden → <strong><code>ap</code></strong>.</p>
 </details></section></div>
 <div class="empty">Keine Aufgabe passt zu deiner Auswahl.</div>
+<div class="pager uebpager"></div>
+</div>
+</div>
 <h2>Quellen</h2>
 <ul><li><p>Aufgabenideen teils nach dem Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren (Tübingen University Press, Open Access, CC BY-SA 4.0): <a href="https://github.com/deinprogramm/schreibe-dein-programm">Buch-Quelltext auf GitHub</a></p></li><li><p><a href="https://docs.racket-lang.org/deinprogramm/index.html">Racket-Doku: Sprachebenen zu Schreibe Dein Programm!</a></p></li><li><p><a href="https://docs.racket-lang.org/teachpack/2htdpimage.html">Racket-Doku: 2htdp/image</a></p></li><li><p>Die Lösungen sind selbst geschrieben und nicht in DrRacket getestet. Wenn eine Lösung bei dir einen Fehler meldet, prüfe zuerst Sprachebene und Teachpacks.</p></li></ul>
 
