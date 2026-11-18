@@ -85,18 +85,21 @@ aside.toc .tocsearch{width:100%;padding:7px 9px;border:1px solid var(--line);bor
 .card .ic{font-size:24px}
 .card h3{margin:6px 0 4px;font-size:1.08em}
 .card p{margin:0;color:var(--muted);font-size:.92em}
-.kaplist{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
-.kapitem{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;min-height:150px;box-shadow:var(--shadow);transition:border-color .15s,transform .15s;outline:none}
-.kapitem:hover,.kapitem:focus-within{border-color:var(--accent);transform:translateY(-2px)}
-.kapitem .kh{display:flex;align-items:center;gap:14px}
-.kapitem .knum{flex:none;display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:1.3em}
-.kapitem .t{font-weight:700;font-size:1.22em;line-height:1.3;color:var(--text);text-decoration:none}
-.kapitem .t:hover{color:var(--accent)}
-.kapitem .kd{margin:12px 0 0;color:var(--muted);font-size:.95em}
-.kapitem .l{display:flex;flex-wrap:wrap;gap:7px;max-height:0;opacity:0;overflow:hidden;margin-top:0;transition:max-height .25s ease,opacity .2s ease,margin-top .25s ease}
-.kapitem:hover .l,.kapitem:focus-within .l{max-height:120px;opacity:1;margin-top:14px}
-.kapitem .l a{font-size:.88em;text-decoration:none}
-@media (hover:none){.kapitem .l{max-height:none;opacity:1;margin-top:14px}}
+.kaplist{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;align-items:start}
+.kapitem{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:30px 32px;min-height:210px;box-shadow:var(--shadow);transition:border-color .15s,transform .15s,box-shadow .15s;outline:none;cursor:pointer;user-select:none}
+.kapitem:hover{border-color:var(--accent);transform:translateY(-3px)}
+.kapitem:focus-visible{outline:3px solid var(--accent-soft);border-color:var(--accent)}
+.kapitem.open{border-color:var(--accent);cursor:default}
+.kapitem .kh{display:flex;align-items:center;gap:18px}
+.kapitem .knum{flex:none;display:grid;place-items:center;width:64px;height:64px;border-radius:16px;background:var(--accent-soft);color:var(--accent);font-weight:800;font-size:1.75em}
+.kapitem .t{font-weight:700;font-size:1.5em;line-height:1.25;color:var(--text);flex:1}
+.kapitem .chev{flex:none;font-size:1.3em;color:var(--muted);transition:transform .25s}
+.kapitem.open .chev{transform:rotate(180deg);color:var(--accent)}
+.kapitem .kd{margin:16px 0 0;color:var(--muted);font-size:1.08em;line-height:1.55}
+.kapitem .l{display:grid;grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:10px;max-height:0;opacity:0;overflow:hidden;margin-top:0;transition:max-height .3s ease,opacity .25s ease,margin-top .3s ease;visibility:hidden}
+.kapitem.open .l{max-height:400px;opacity:1;margin-top:22px;visibility:visible}
+.kapitem .l a{font-size:1em;padding:9px 14px;text-align:center;text-decoration:none;border-radius:10px}
+.kapitem .l a:hover{border-color:var(--accent);color:var(--accent)}
 @media (max-width:1100px){.kaplist{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){.kaplist{grid-template-columns:1fr}}
 

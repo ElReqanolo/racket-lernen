@@ -164,6 +164,22 @@
     apply();
   }
 
+  /* ---------- Startseite: Kapitelkacheln aufklappen ---------- */
+  function toggleKap(card) {
+    var open = !card.classList.contains("open");
+    document.querySelectorAll(".kapitem.open").forEach(function (c) { if (c !== card) { c.classList.remove("open"); c.setAttribute("aria-expanded", "false"); } });
+    card.classList.toggle("open", open); card.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  document.addEventListener("click", function (e) {
+    var card = e.target.closest(".kapitem");
+    if (!card || e.target.closest("a")) return;
+    toggleKap(card);
+  });
+  document.addEventListener("keydown", function (e) {
+    var card = e.target.closest && e.target.closest(".kapitem");
+    if (card && e.target === card && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); toggleKap(card); }
+  });
+
   /* ---------- Übungen: Tipps nacheinander aufdecken ---------- */
   document.addEventListener("click", function (e) {
     var b = e.target.closest(".tippbtn");
