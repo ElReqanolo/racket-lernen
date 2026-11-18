@@ -228,6 +228,15 @@
       update();
     };
     var selK = document.querySelector(".filters select.kap"); if (selK) selK.addEventListener("change", update);
+    var resetBtn = document.querySelector(".resetkap");
+    if (resetBtn) resetBtn.addEventListener("click", function () {
+      var k = selK ? selK.value : "0";
+      var list = Array.prototype.filter.call(tasks, function (li) { return k === "0" || li.dataset.kap === k; });
+      var what = k === "0" ? "ALLE Kapitel" : "Kapitel " + k;
+      if (!confirm(what + " zurücksetzen?\n\nDein Code, deine Antworten und alle Häkchen in " + what + " werden gelöscht. Das lässt sich nicht rückgängig machen.")) return;
+      list.forEach(function (li) { ["sdp-ueb-", "sdp-code-", "sdp-quiz-", "sdp-res-"].forEach(function (p) { try { localStorage.removeItem(p + li.id); } catch (e) {} }); });
+      location.reload();
+    });
     document.addEventListener("click", function (e) { if (e.target.closest(".kaplink, .uebpager a")) setTimeout(update, 0); });
     update();
   }

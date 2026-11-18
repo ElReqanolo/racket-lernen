@@ -275,3 +275,5 @@ li.task.done .status::after{content:"✓";color:#fff;font-size:13px;font-weight:
 .vorgabe{margin:4px 0 12px}
 .vorgabe-head{font-size:13px;color:var(--muted);margin-bottom:4px}
 .vorgabe pre{margin:0;font-size:.85em;padding:9px 12px;border-left:4px solid var(--accent)}
+.resetkap{color:var(--muted)}
+.resetkap:hover{border-color:#c0392b;color:#c0392b}
