@@ -334,3 +334,31 @@
     tocLinks.forEach(function (a) { a.addEventListener("click", function () { if (tocDet && window.innerWidth < 860) tocDet.open = false; }); });
   }
 })();
+
+/* Fachwort-Erklärungen (Glossar-Tooltips) */
+(function () {
+  const terms = document.querySelectorAll('.gl');
+  if (!terms.length) return;
+  const tip = document.createElement('div'); tip.id = 'gltip'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip);
+  let cur = null, sy = 0;
+  function show(el) {
+    cur = el; const d = el.dataset.def || ''; const i = d.indexOf(': ');
+    tip.innerHTML = ''; const b = document.createElement('b'); b.textContent = i > 0 ? d.slice(0, i) : '';
+    tip.appendChild(b); tip.appendChild(document.createTextNode(i > 0 ? d.slice(i + 2) : d));
+    tip.classList.add('on'); sy = scrollY;
+    const r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = Math.max(10, Math.min(r.left, innerWidth - w - 10));
+    let y = r.bottom + 8; if (y + h > innerHeight - 10) y = r.top - h - 8;
+    tip.style.left = x + 'px'; tip.style.top = Math.max(10, y) + 'px';
+  }
+  function hide() { cur = null; tip.classList.remove('on'); }
+  terms.forEach(el => {
+    el.addEventListener('mouseenter', () => show(el));
+    el.addEventListener('mouseleave', hide);
+    el.addEventListener('focus', () => show(el));
+    el.addEventListener('blur', hide);
+    el.addEventListener('click', e => { e.stopPropagation(); show(el); });
+  });
+  document.addEventListener('click', hide);
+  addEventListener('scroll', () => { if (cur && Math.abs(scrollY - sy) > 40) hide(); }, { passive: true });
+})();

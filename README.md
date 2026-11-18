@@ -9,7 +9,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | Datei | Inhalt |
 |---|---|
 | `index.html` | Startseite mit allen Kapiteln (Kachel anklicken öffnet die Links zum Kapitel) |
-| `lernen.html` | Lernübersicht: Erklärungen Kapitel für Kapitel, Volltextsuche, Links zu den passenden Übungen |
+| `lernen.html` | Lernübersicht: beginnt mit „Erste Schritte“ für alle ohne Vorwissen (inkl. DrRacket-Installation), dann Erklärungen Kapitel für Kapitel; Fachwörter mit Kurzerklärung zum Antippen, „▶ Im Playground ausprobieren“ bei den Codebeispielen, Volltextsuche, Links zu den passenden Übungen |
 | `befehle.html` | Befehlssammlung, filterbar nach Kapitel („nur“ oder „bis“ Kapitel) |
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
 | `fehler.html` | Fehlermeldungen und typische Fehler, nach Kapitel |
