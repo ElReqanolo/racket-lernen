@@ -5,11 +5,11 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | Seite | Inhalt |
 |---|---|
 | `index.html` | Startseite mit allen Kapiteln |
-| `lernen.html` | Lernübersicht: Erklärungen Kapitel für Kapitel, mit Volltextsuche |
+| `lernen.html` | Lernübersicht: Erklärungen Kapitel für Kapitel, mit Volltextsuche und Links zu den passenden Übungen |
 | `befehle.html` | Befehlssammlung, filterbar nach Kapitel („nur“ oder „bis“ Kapitel) |
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
 | `fehler.html` | Fehlermeldungen und typische Fehler |
-| `uebungen.html` | Übungen mit aufklappbaren Lösungen, Häkchen, Schwierigkeitsfilter und Online-Prüfung der eigenen Lösung |
+| `uebungen.html` | Übungen mit gestuften Tipps, Link zum passenden Abschnitt der Lernübersicht, aufklappbaren Lösungen, Häkchen, Schwierigkeitsfilter und Online-Prüfung der eigenen Lösung |
 
 Die Seite ist rein statisch: kein Server, keine Datenbank, kein Build-Schritt. Sie funktioniert auch offline, wenn du `index.html` direkt im Browser öffnest.
 

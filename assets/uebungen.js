@@ -79,6 +79,16 @@
       });
     }
     (r.notes || []).forEach(function (n) { var p = document.createElement("div"); p.className = "res-note"; p.textContent = n; box.appendChild(p); });
+    if (r.status === "fail" || r.status === "error") {
+      var li = box.closest("li.task"), tb = li && li.querySelector(".tippbtn");
+      if (tb && !tb.disabled) {
+        var p2 = document.createElement("div"); p2.className = "res-note";
+        p2.innerHTML = "Komm nicht weiter? ";
+        var b2 = document.createElement("button"); b2.type = "button"; b2.className = "chip"; b2.textContent = "💡 Tipp anzeigen";
+        b2.addEventListener("click", function () { tb.click(); tb.scrollIntoView({ behavior: "smooth", block: "center" }); });
+        p2.appendChild(b2); box.appendChild(p2);
+      }
+    }
   }
 
   function attach(li, task, kind) {

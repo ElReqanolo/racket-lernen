@@ -142,6 +142,16 @@
     apply();
   }
 
+  /* ---------- Übungen: Tipps nacheinander aufdecken ---------- */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest(".tippbtn");
+    if (!b) return;
+    var items = b.parentNode.querySelectorAll("ol.tipps li"), shown = 0, total = items.length;
+    for (var i = 0; i < total; i++) { if (items[i].hidden) { items[i].hidden = false; shown = i + 1; break; } shown = i + 1; }
+    if (shown >= total) { b.textContent = "💡 Alle Tipps gezeigt"; b.disabled = true; }
+    else b.textContent = "💡 Noch ein Tipp (" + (shown + 1) + " von " + total + ")";
+  });
+
   /* ---------- Übungen: Häkchen speichern ---------- */
   var tasks = document.querySelectorAll("li.task");
   if (tasks.length) {
@@ -209,7 +219,7 @@
       if (!target) { show(secs[0].id, false); return; }
       var sec = target.closest("section.kapitel");
       show(sec ? sec.id : "alle", false);
-      if (target !== sec) setTimeout(function () { target.scrollIntoView(); }, 0); else window.scrollTo(0, 0);
+      if (target !== sec) setTimeout(function () { target.scrollIntoView({ behavior: "instant", block: "start" }); }, 0); else window.scrollTo(0, 0);
     }
     window.addEventListener("hashchange", fromHash);
     if (sel) sel.addEventListener("change", function () {

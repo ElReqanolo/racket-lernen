@@ -200,7 +200,12 @@
   function randomTests(A, ri, ui) {
     var lit = literals(A.refForms);
     ri.numHints = lit.nums; ri.strHints = lit.strs;
-    var items = [], done = new Set();
+    var items = [], done = new Set(), within = new Set();
+    A.refChecks.forEach(function (t) { if (headName(t) === "check-within" && Array.isArray(t[1])) within.add(M.symName(t[1][0])); });
+    function same(name, a, b) {
+      if (within.has(name)) return M.equal(a, b, M.isNum(b) ? Math.max(0.001, Math.abs(M.toF(b)) * 1e-3) : 0.001);
+      return M.equal(a, b);
+    }
     A.refForms.forEach(function (f) {
       if (headName(f) !== ":" || !Array.isArray(f[2])) return;
       var name = M.symName(f[1]);
@@ -227,7 +232,7 @@
         var act = safe(function () { return ui.apply(uf, uargs.v); });
         var call = "(" + name + " " + args.v.map(function (a) { return M.show(a).replace(/^'/, "'"); }).join(" ") + ")";
         if (act.e) { items.push({ ok: false, random: true, title: "Zufallstest " + call, detail: "Fehler: " + act.e.message, hint: errorHint(act.e) || "Diese Eingabe ist in den festen Tests nicht dabei – prüfe, ob deine Funktion alle erlaubten Eingaben abdeckt." }); return; }
-        if (!M.equal(act.v, exp.v)) {
+        if (!same(name, act.v, exp.v)) {
           items.push({ ok: false, random: true, _act: act.v, _exp: exp.v, title: "Zufallstest " + call, detail: "erwartet " + M.show(exp.v) + ", dein Programm liefert " + M.show(act.v),
             hint: (diffHint(act.v, exp.v) ? diffHint(act.v, exp.v) + " " : "") + "Dieser Fall steht nicht in den festen Tests. Rechne ihn von Hand nach – oft ist es eine Grenze (< oder <=). Falls die Aufgabe diesen Fall gar nicht festlegt, darfst du ihn ignorieren." });
           return;
@@ -261,7 +266,7 @@
         var act = safe(function () { return ui.apply(uf, uargs.v); });
         var callS = "(" + name + " " + args.v.map(function (a) { return M.show(a); }).join(" ") + ")";
         if (act.e) bad = { ok: false, random: true, title: "Zufallstest " + callS, detail: "Fehler: " + act.e.message, hint: errorHint(act.e) || "Diese Eingabe ist in den festen Tests nicht dabei." };
-        else if (!M.equal(act.v, exp.v)) bad = { ok: false, random: true, _act: act.v, _exp: exp.v, title: "Zufallstest " + callS, detail: "erwartet " + M.show(exp.v) + ", dein Programm liefert " + M.show(act.v),
+        else if (!same(name, act.v, exp.v)) bad = { ok: false, random: true, _act: act.v, _exp: exp.v, title: "Zufallstest " + callS, detail: "erwartet " + M.show(exp.v) + ", dein Programm liefert " + M.show(act.v),
           hint: (diffHint(act.v, exp.v) ? diffHint(act.v, exp.v) + " " : "") + "Dieser Fall steht nicht in den festen Tests. Rechne ihn von Hand nach – oft ist es eine Grenze (< oder <=). Falls die Aufgabe diesen Fall gar nicht festlegt, darfst du ihn ignorieren." };
       }
       if (bad) items.push(bad);
