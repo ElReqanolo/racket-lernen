@@ -1,46 +1,44 @@
 # Racket lernen mit „Schreibe Dein Programm!“
 
-Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – Anfänger“ und den Teachpacks `image.rkt` und `universe.rkt`.
+**Zur Seite: <https://elreqanolo.github.io/racket-lernen/>**
 
-| Seite | Inhalt |
+Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – Anfänger“ und den Teachpacks `image.rkt` und `universe.rkt` – mit Erklärungen, Befehlssammlung, Glossar, Fehlermeldungen, 125 Übungen mit Online-Prüfung und einem Playground.
+
+## Seiten
+
+| Datei | Inhalt |
 |---|---|
-| `index.html` | Startseite mit allen Kapiteln |
-| `lernen.html` | Lernübersicht: Erklärungen Kapitel für Kapitel, mit Volltextsuche und Links zu den passenden Übungen |
+| `index.html` | Startseite mit allen Kapiteln (Kachel anklicken öffnet die Links zum Kapitel) |
+| `lernen.html` | Lernübersicht: Erklärungen Kapitel für Kapitel, Volltextsuche, Links zu den passenden Übungen |
 | `befehle.html` | Befehlssammlung, filterbar nach Kapitel („nur“ oder „bis“ Kapitel) |
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
-| `fehler.html` | Fehlermeldungen und typische Fehler |
-| `playground.html` | Playground: Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile |
+| `fehler.html` | Fehlermeldungen und typische Fehler, nach Kapitel |
 | `uebungen.html` | Übungen Kapitel für Kapitel: jede Aufgabe wird direkt abgegeben (Code-Editor, Auswahlfragen oder Eingabefelder) und bei richtiger Lösung automatisch abgehakt; gestufte Tipps, Link zur Lernübersicht, Musterlösung pro Aufgabe |
+| `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile |
 
-Die Seite ist rein statisch: kein Server, keine Datenbank, kein Build-Schritt. Sie funktioniert auch offline, wenn du `index.html` direkt im Browser öffnest.
+## Technik
 
-## Online-Prüfung bei den Übungen
+| Datei | Aufgabe |
+|---|---|
+| `assets/style.css` | Gestaltung aller Seiten (hell/dunkel, Handy) |
+| `assets/app.js` | Filter, Suche, Kapitelwahl, Fortschritt, Dunkelmodus |
+| `assets/racket.js` | kleiner Racket-Interpreter für die Lehrsprachen (Zahlen, Listen, Records, Bilder, Tests) |
+| `assets/pruefer.js` | prüft Abgaben gegen die Musterlösung (feste Tests + Zufallstests) und formuliert Hinweise |
+| `assets/uebungen.js` | Abgabe, Auswahlfragen und Musterlösung auf der Übungsseite |
+| `assets/playground.js` | der Playground |
+| `assets/katex/` | Schrift und Formatierung für die mathematischen Formeln in der Lernübersicht ([KaTeX](https://katex.org), MIT-Lizenz) |
+| `.nojekyll` | sorgt dafür, dass GitHub Pages die Dateien unverändert ausliefert |
 
-Jede Aufgabe wird direkt auf der Seite abgegeben: Programmieraufgaben im Code-Editor, Fragen ohne Programmieren per Auswahl oder Eingabefeld. Der Code wird direkt im Browser von einem kleinen Racket-Interpreter (`assets/racket.js`) ausgeführt – es wird nichts an einen Server geschickt.
+Die Seite ist rein statisch: kein Server, keine Datenbank, kein Build-Schritt, keine Cookies, kein Tracking. Fortschritt, Code und Antworten speichert nur der eigene Browser (`localStorage`). Sie funktioniert auch offline, wenn man `index.html` direkt öffnet.
 
-Geprüft wird so (`assets/pruefer.js`):
+## So wird bei den Übungen geprüft
 
-1. Die `check-expect`-Tests der Musterlösung laufen gegen deine Funktionen.
-2. Zufallstests: Deine Funktion und die Musterlösung bekommen dieselben zufälligen Eingaben (passend zur Signatur, mit Grenzwerten aus dem Code).
-3. Deine eigenen Tests laufen mit.
-
-Bei Fehlern zeigt die Seite die Eingabe, das erwartete und das tatsächliche Ergebnis und einen Hinweis, woran es liegen könnte (z. B. „Um genau 1 daneben – prüfe die Grenzen“). Bei Bildaufgaben werden die Bilder nebeneinander gezeigt.
-
-Grenzen: Signaturen werden nicht geprüft, Animationen (`big-bang`) werden nicht gestartet, und bei Beweisen werden die entscheidenden Schritte per Auswahlfragen abgefragt. Der Interpreter ist ein Nachbau – im Zweifel gilt, was DrRacket sagt.
-
-## Auf GitHub Pages veröffentlichen
-
-1. Auf github.com ein neues Repository anlegen, z. B. `racket-lernen` (Public).
-2. **Add file → Upload files** und den **Inhalt** dieses Ordners hineinziehen (also `index.html`, `assets/` usw. direkt in die oberste Ebene, nicht den Ordner selbst). Mit **Commit changes** bestätigen.
-3. **Settings → Pages**: unter *Build and deployment* bei *Source* „Deploy from a branch“ wählen, Branch `main` und Ordner `/ (root)`, dann **Save**.
-4. Nach ein bis zwei Minuten ist die Seite erreichbar unter
-   `https://DEIN-NAME.github.io/racket-lernen/`
-
-Die Datei `.nojekyll` sorgt dafür, dass GitHub die Dateien unverändert ausliefert. Sie ist versteckt – beim Hochladen per Browser bitte mit hochladen (oder einfach weglassen, es geht auch ohne).
+- **Programmieraufgaben:** Die `check-expect`-Tests der Musterlösung laufen gegen deine Funktionen. Dazu kommen Zufallstests: Deine Funktion und die Musterlösung bekommen dieselben Eingaben (passend zur Signatur, mit Grenzwerten aus dem Code). Deine eigenen Tests laufen mit.
+- **Aufgaben ohne Programmieren:** Auswahlfragen oder Eingabefelder; bei Beweisen werden die entscheidenden Schritte abgefragt.
+- **Rückmeldung:** Eingabe, erwartetes und tatsächliches Ergebnis und ein Hinweis, woran es liegen könnte (z. B. „Um genau 1 daneben – prüfe die Grenzen“). Bei Bildaufgaben werden die Bilder nebeneinander gezeigt.
+- **Grenzen:** Signaturen werden nicht geprüft, Animationen (`big-bang`) werden nicht gestartet. Der Interpreter ist ein Nachbau – im Zweifel gilt, was DrRacket sagt.
 
 ## Links mit Filter
-
-Filter lassen sich direkt verlinken, z. B.
 
 - `befehle.html?kap=6&modus=bis` – alle Befehle bis Kapitel 6
 - `glossar.html?kap=9` – Begriffe aus Kapitel 9
@@ -49,4 +47,4 @@ Filter lassen sich direkt verlinken, z. B.
 
 ## Hinweis
 
-Inoffizielle Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren. Das Buch und sein Quelltext stehen unter CC BY-SA 4.0 (<https://github.com/deinprogramm/schreibe-dein-programm>). Die Beispiele sind nicht alle in DrRacket getestet.
+Inoffizielle Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren (Tübingen University Press 2023, Open Access). Das Buch und sein Quelltext stehen unter der Lizenz CC BY-SA 4.0: <https://github.com/deinprogramm/schreibe-dein-programm>.

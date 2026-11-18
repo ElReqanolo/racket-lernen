@@ -299,7 +299,6 @@
     else if (refNames.size && calls.length) kind = "aufrufe";
     else if (refNames.size && /\(define s1/.test(task.given || "")) kind = "auto";
     else kind = "manual";
-    if (task.override) kind = task.override;
     var required = [];
     refNames.forEach(function (n) { if (refChecks.concat(calls).some(function (f) { return symbolsIn(f).has(n); })) required.push(n); });
     return { required: required, kind: kind, refForms: refForms, refNames: refNames, refChecks: refChecks, refExprs: refExprs, calls: calls };
@@ -348,14 +347,6 @@
           items.push(hit.length ? { ok: true, title: rule.ok || "Bild passt", images: [hit[0]] } : { ok: false, title: "Das Bild passt noch nicht", detail: rule.msg, images: imgs.slice(-1) });
         });
       }
-    }
-    if (A.kind === "zeigen") {
-      var callVals = function (it) { return A.calls.map(function (c) { var r = safe(function () { return it.eval(c, it.global); }); return r.e ? null : r.v; }); };
-      var mine = userVals.map(function (v) { return v.value; }).concat(A.calls.length ? callVals(ui) : []).filter(function (v) { return v instanceof M.Img; });
-      var theirs = refRun.v.values.map(function (v) { return v.value; }).concat(A.calls.length ? callVals(ri) : []).filter(function (v) { return v instanceof M.Img; });
-      if (A.calls.length) A.calls.forEach(function (c) { var r = safe(function () { return ui.eval(c, ui.global); }); if (r.e) items.push({ ok: false, title: unparse(c), detail: "Fehler: " + r.e.message, hint: errorHint(r.e) }); });
-      if (!mine.length && !items.length) return { status: "fail", summary: "Dein Programm liefert kein Bild.", items: [{ ok: false, title: "Kein Bild gefunden", hint: "Schreibe den Bild-Ausdruck direkt hin, z. B. (above …), nicht nur eine Definition." }] };
-      return { status: items.length ? "fail" : "zeigen", summary: items.length ? "Dein Programm hat einen Fehler." : "Hier gibt es kein festes Richtig oder Falsch – vergleiche dein Bild mit der Musterlösung.", items: items, gallery: { mine: mine.slice(0, 6), theirs: theirs.slice(0, 6) } };
     }
 
     // fehlende Definitionen

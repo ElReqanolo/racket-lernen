@@ -420,11 +420,10 @@
       var v = this.eval(f, this.global);
       var hn = Array.isArray(f) ? symName(f[0]) : null;
       var isDef = hn && (hn === "define" || hn === "define-record" || hn === ":" || hn.indexOf("check-") === 0);
-      if (!isDef && v !== Void) values.push({ form: f, value: v, src: formSource(src, f) });
+      if (!isDef && v !== Void) values.push({ form: f, value: v });
     }
     return values;
   };
-  function formSource(src, f) { return null; }
 
   // Tests ausführen; liefert Liste von Ergebnissen
   Interp.prototype.runTests = function (tests) {

@@ -108,7 +108,6 @@ details.loesung{border:1px solid var(--line);border-left:4px solid var(--ok);bor
 details.loesung>summary{cursor:pointer;font-weight:600;color:var(--ok);padding:8px 0}
 details.loesung[open]>summary{border-bottom:1px solid var(--line);margin-bottom:6px}
 li.task{list-style:none;margin:0 0 18px;padding:18px 22px 16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
-li.task input[type=checkbox]{transform:scale(1.15);margin-right:6px;accent-color:var(--ok);cursor:pointer}
 li.task.done{border-color:color-mix(in srgb,var(--ok) 55%,var(--line))}
 .progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden;flex:1 1 140px;max-width:220px}
 .progress div{height:100%;background:var(--ok);width:0;transition:width .2s}
@@ -133,19 +132,6 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:.85em;paddi
 }
 
 /* Abgabe und Prüfung */
-.abgabe-bar{display:flex;align-items:center;gap:10px;margin:4px 0 2px 26px}
-.abgabe-btn{border:1px solid var(--accent);background:var(--panel);color:var(--accent);border-radius:7px;padding:5px 11px;font-size:13.5px;cursor:pointer;font-weight:600}
-.abgabe-btn:hover{background:var(--accent-soft)}
-.abgabe-status{font-size:13px;color:var(--muted)}
-.abgabe-status.ok{color:var(--ok)}
-.abgabe-status.fail{color:#c0392b}
-.abgabe{margin:8px 0 14px 26px;border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:12px;box-shadow:var(--shadow)}
-.abgabe-info{font-size:13.5px;color:var(--muted);margin-bottom:8px}
-.abgabe textarea{width:100%;min-height:130px;font-family:var(--mono);font-size:14px;line-height:1.5;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--code-bg);color:var(--text);resize:vertical;tab-size:2}
-.abgabe textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
-.abgabe-actions{display:flex;align-items:center;gap:10px;margin-top:8px}
-.abgabe-actions .pruefen{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:8px 18px;font-weight:600;cursor:pointer;font-size:14px}
-.abgabe-actions .leeren{margin-left:auto;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer}
 .kbd{font-size:12px;color:var(--muted)}
 .abgabe-res{margin-top:10px}
 .res-head{font-weight:600;padding:9px 12px;border-radius:8px;background:var(--th)}
@@ -171,10 +157,8 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:.85em;paddi
 .res-imgs figure{margin:0;text-align:center}
 .res-imgs canvas{background:#fff;border:1px solid var(--line);border-radius:4px;display:block}
 .res-imgs figcaption{font-size:12px;color:var(--muted)}
-@media (max-width:860px){.abgabe,.abgabe-bar{margin-left:0}}
 
 /* Hilfen bei den Übungen */
-.hilfen{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:2px 0 4px 26px}
 .hilfen .chip{font-size:12.5px;padding:3px 10px}
 .hilfen .lernlink{text-decoration:none;color:var(--muted)}
 .hilfen .lernlink:hover{border-color:var(--accent);color:var(--accent)}
@@ -188,7 +172,6 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:.85em;paddi
 li.task:target{background:var(--accent-soft);border-radius:8px;outline:2px solid var(--accent);outline-offset:4px}
 .uebdazu{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:-2px 0 10px;font-size:.88em;color:var(--muted)}
 .uebdazu .chip{font-size:12.5px;padding:2px 9px;text-decoration:none}
-@media (max-width:860px){.hilfen{margin-left:0}}
 
 /* Übungen: Kapitel-Seitenleiste */
 aside.toc a.kaplink{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
@@ -235,7 +218,7 @@ li.task>p{margin:0 0 6px;font-size:1.04em}
 li.task .status{display:inline-block;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);vertical-align:-4px;margin-right:8px;position:relative}
 li.task.done .status{background:var(--ok);border-color:var(--ok)}
 li.task.done .status::after{content:"✓";color:#fff;font-size:13px;font-weight:700;position:absolute;inset:0;display:grid;place-items:center;line-height:1}
-.hilfen{margin:4px 0 10px}
+.hilfen{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:4px 0 10px}
 .aufgabe-work{margin-top:6px}
 .aufgabe-work .abgabe-info{font-size:13.5px;color:var(--muted);margin-bottom:8px}
 .aufgabe-work textarea{width:100%;min-height:170px;font-family:var(--mono);font-size:14.5px;line-height:1.55;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--code-bg);color:var(--text);resize:vertical;tab-size:2}
