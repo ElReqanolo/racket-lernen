@@ -157,6 +157,35 @@
     return /\(/.test(code.replace(/;[^\n]*/g, "")) ? code : "";
   }
 
+
+  // ---------- Vorgegebene Definitionen, die in der Aufgabe vorkommen, direkt bei der Aufgabe zeigen
+  function topForms(src) {
+    var out = [], depth = 0, start = -1, inStr = false;
+    for (var i = 0; i < src.length; i++) {
+      var c = src[i];
+      if (inStr) { if (c === "\\") i++; else if (c === '"') inStr = false; continue; }
+      if (c === '"') { inStr = true; continue; }
+      if (c === ";") { var e = src.indexOf("\n", i); if (e < 0) e = src.length; if (depth === 0 && start < 0) {} i = e - 1; continue; }
+      if (c === "(") { if (depth === 0) start = i; depth++; }
+      else if (c === ")") { depth--; if (depth === 0 && start >= 0) {
+        var end = i + 1, nl = src.indexOf("\n", end); var line = src.slice(end, nl < 0 ? src.length : nl);
+        if (/^\s*;/.test(line)) end = nl < 0 ? src.length : nl; // Kommentar am Zeilenende mitnehmen
+        out.push(src.slice(start, end)); start = -1; } }
+    }
+    return out;
+  }
+  function givenFor(task, li) {
+    if (!task.given) return "";
+    var forms = topForms(task.given).map(function (f) { var m = /^\(define\s+([^\s()]+)/.exec(f); return { name: m ? m[1] : null, src: f }; });
+    var text = (li.querySelector("p") || li).textContent + "\n" + (task.ref || "");
+    var used = {};
+    function mentions(t, n) { return new RegExp("(^|[\\s()'])" + n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[\\s()])").test(t); }
+    forms.forEach(function (f) { if (f.name && mentions(text, f.name)) used[f.name] = true; });
+    var changed = true;
+    while (changed) { changed = false; forms.forEach(function (f) { if (f.name && used[f.name]) forms.forEach(function (g) { if (g.name && !used[g.name] && mentions(f.src.replace(/^\(define\s+[^\s()]+/, ""), g.name)) { used[g.name] = true; changed = true; } }); }); }
+    return forms.filter(function (f) { return f.name && used[f.name]; }).map(function (f) { return f.src; }).join("\n");
+  }
+
   // ---------- Aufgabe einrichten
   function setup(li, task, kind) {
     var id = li.id, tried = false;
@@ -164,12 +193,18 @@
     var hasCode = kind !== "quiz";
     var quizBox = task.quiz && (task.quiz.questions || task.quiz.fields) ? buildQuiz(id, task.quiz) : null;
     var ta = null, clr = null, res = el("div", "abgabe-res");
+    var giv = givenFor(task, li);
+    if (giv) {
+      var gb = el("div", "vorgabe");
+      gb.appendChild(el("div", "vorgabe-head", "Vorgegeben (steht oben im Kapitel und gilt hier):"));
+      var gp = el("pre"); var gc = el("code"); gc.textContent = giv; gp.appendChild(gc); gb.appendChild(gp);
+      work.appendChild(gb);
+    }
     if (hasCode) {
       var info = kind === "werte" ? "Schreibe die Ausdrücke in der Reihenfolge der Aufgabe untereinander."
         : kind === "selbsttests" ? "Hier sollst du Tests schreiben (check-expect … oder check-property …). Sie werden ausgeführt und gezählt."
         : kind === "regeln" ? "Schreib deinen Code – das Ergebnis wird angezeigt und geprüft."
         : "Schreibe deine Definitionen wie im Definitionsfenster von DrRacket. Geprüft wird mit den Tests der Musterlösung und mit Zufallstests; deine eigenen check-expect-Tests laufen mit.";
-      if (task.given && /\(define s1/.test(task.given)) info += " Schon vorhanden: s1, c1, p1 und tile.";
       if (task.required && task.required.length) info += " Erwartete Namen: " + task.required.join(", ") + ".";
       work.appendChild(el("div", "abgabe-info", esc(info)));
       ta = el("textarea"); ta.spellcheck = false; ta.setAttribute("autocapitalize", "off"); ta.setAttribute("autocomplete", "off");
