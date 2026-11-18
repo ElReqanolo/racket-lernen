@@ -778,6 +778,7 @@
     // Signaturen (werden nicht geprüft, nur für check-property gebraucht)
     ["number", "real", "rational", "integer", "natural", "boolean", "string", "any", "empty-list", "true", "false", "symbol", "image", "property", "unspecific", "color", "mode"].forEach(function (n) { g.define(n, new Sig("base", n)); });
     def("list-of", 1, 1, function (s) { return new Sig("list", s); });
+    def("cons-list-of", 1, 1, function (s) { return new Sig("nelist", s); });
     def("nonempty-list-of", 1, 1, function (s) { return new Sig("nelist", s); });
     def("integer-from-to", 2, 2, function (a, b) { return new Sig("range", [a, b]); });
     def("enum", 0, -1, function () { return new Sig("enum", Array.prototype.slice.call(arguments)); });

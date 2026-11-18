@@ -6,7 +6,7 @@
 <title>Lernübersicht · Racket lernen</title>
 <meta name="description" content="Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=2d492791"><link rel="stylesheet" href="assets/katex/katex.min.css">
+<link rel="stylesheet" href="assets/style.css?v=6d1cd8bf"><link rel="stylesheet" href="assets/katex/katex.min.css">
 <script>try{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body>
@@ -997,7 +997,7 @@ gamer                  ; =&gt; #&lt;record:computer &quot;Cell&quot; 4 1000&gt;
 <p><strong>Lokale Variable:</strong> Ein <code>define</code> am Anfang eines <code>lambda</code>-Rumpfs oder eines <code>cond</code>-Zweigs gilt nur dort. Ohne sie müsste man <code>(list-min (rest list))</code> bis zu dreimal hinschreiben – und DrRacket würde es auch dreimal ausrechnen. Bei langen Listen wird das extrem langsam, weil sich die Arbeit bei jeder Ebene verdreifacht.</p>
 </div><div class="abschnitt"><h3 id="kapitel-6-6-8-funktionen-auf-nichtleeren-listen">6.8 Funktionen auf nichtleeren Listen</h3><div class="uebdazu"><span>✎ Übungen dazu:</span> <a class="chip" href="uebungen.html?kap=6#k6-L5">L5</a> <a class="chip" href="uebungen.html?kap=6#k6-L6">L6</a></div>
 <p>Alternative: Man verbietet die leere Liste schon in der Signatur. Dann braucht man kein <code>no-result</code>:</p>
-<pre><code class="language-racket">(: list-min-nonempty ((nonempty-list-of real) -&gt; real))
+<pre><code class="language-racket">(: list-min-nonempty ((cons-list-of real) -&gt; real))
 
 (check-expect (list-min-nonempty (list 7)) 7)
 (check-expect (list-min-nonempty (list 4 2 9)) 2)
@@ -1432,7 +1432,7 @@ e &amp;::= \top \mid \bot \mid e \wedge e \mid e \vee e \mid \neg e &amp;&amp; \
 <p><strong>Aufgabe:</strong> Gegeben die Kurse einer Aktie an aufeinanderfolgenden Tagen. Was ist der größte Gewinn, wenn man an einem Tag kauft und an einem <em>späteren</em> Tag verkauft?</p>
 <p>Beispiel: Kurse 5 2 7 3 9 5 1 → bei 2 kaufen, bei 9 verkaufen → Gewinn <strong>7</strong>. „Maximum minus Minimum“ wäre falsch (9 − 1 = 8), weil die 1 erst nach der 9 kommt.</p>
 <p>Lösung mit <strong>zwei Akkumulatoren</strong>: dem bisher niedrigsten Kurs (bester Einkaufspreis) und dem bisher besten Gewinn.</p>
-<pre><code class="language-racket">(: max-profit ((nonempty-list-of real) -&gt; real))
+<pre><code class="language-racket">(: max-profit ((cons-list-of real) -&gt; real))
 
 (check-expect (max-profit (list 5 2 7 3 9 5 1)) 7)
 
@@ -1949,13 +1949,13 @@ e &amp;::= \top \mid \bot \mid e \wedge e \mid e \vee e \mid \neg e &amp;&amp; \
 <ul><li><p><a href="https://www.lehmanns.ch/media/1431950/1">Inhaltsverzeichnis des Buchs (Lehmanns, PDF)</a></p></li></ul>
 <ul><li><p><a href="https://docs.racket-lang.org/deinprogramm/Konstruktionsanleitungen.html">Konstruktionsanleitungen und Schablonen (Racket-Doku)</a></p></li><li><p><a href="https://docs.racket-lang.org/deinprogramm/Signaturen.html">Signaturen in den SDP-Sprachen (Racket-Doku)</a></p></li></ul>
 <ul><li><p><a href="https://raw.githubusercontent.com/deinprogramm/schreibe-dein-programm/master/i1prog.tex">Buch-Quelltext Kapitel 1 „Elemente des Programmierens“ (GitHub, deinprogramm)</a></p></li><li><p><a href="https://docs.racket-lang.org/teachpack/2htdpimage.html">Racket-Doku: 2htdp/image (Bildfunktionen)</a></p></li><li><p><a href="https://docs.racket-lang.org/deinprogramm/application.html">Racket-Doku: Funktionsapplikation in den SDP-Sprachen</a></p></li></ul>
-<ul><li><p><a href="https://github.com/deinprogramm/schreibe-dein-programm">Buch-Quelltext aller Kapitel (GitHub, deinprogramm/schreibe-dein-programm)</a> – die Beispiele in Kapitel 1–15 folgen dem Buch (Open Access, Lizenz CC BY-SA 4.0); Erklärungen, Tabellen und Ergänzungen sind neu geschrieben.</p></li><li><p><a href="https://docs.racket-lang.org/deinprogramm/Konstruktionsanleitungen.html">Racket-Doku: Konstruktionsanleitungen</a></p></li><li><p>Die Codebeispiele sind nicht in DrRacket getestet; bei Abweichungen gilt die Schreibweise aus dem Kurs.</p></li></ul>
+<ul><li><p><a href="https://github.com/deinprogramm/schreibe-dein-programm">Buch-Quelltext aller Kapitel (GitHub, deinprogramm/schreibe-dein-programm)</a> – die Beispiele in Kapitel 1–15 folgen dem Buch (Open Access, Lizenz CC BY-SA 4.0); Erklärungen, Tabellen und Ergänzungen sind neu geschrieben.</p></li><li><p>Die Codebeispiele sind nicht in DrRacket getestet; bei Abweichungen gilt die Schreibweise aus dem Kurs.</p></li></ul>
 </section></div>
 <div class="pager"></div>
 </div>
 </div>
 </main>
 <footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
-<script src="assets/app.js?v=0c7fa196"></script>
+<script src="assets/app.js?v=e9471fbf"></script>
 </body>
 </html>

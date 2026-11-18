@@ -277,3 +277,11 @@ li.task.done .status::after{content:"✓";color:#fff;font-size:13px;font-weight:
 .vorgabe pre{margin:0;font-size:.85em;padding:9px 12px;border-left:4px solid var(--accent)}
 .resetkap{color:var(--muted)}
 .resetkap:hover{border-color:#c0392b;color:#c0392b}
+
+/* Handy: eingeklappte Filterleiste */
+@media (max-width:860px){
+  .filters{transition:padding .15s}
+  .filters.compact{padding:6px 0 7px;gap:6px}
+  .filters.compact > :not(input[type=search]){display:none!important}
+  .filters.compact:not(:has(input[type=search])){display:none}
+}

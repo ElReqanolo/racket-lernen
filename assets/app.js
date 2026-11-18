@@ -19,6 +19,22 @@
     store.set("sdp-theme", next);
   });
 
+  /* ---------- Handy: Filterleiste beim Runterscrollen einklappen (nur Suche bleibt) ---------- */
+  var fbar = document.querySelector(".filters");
+  if (fbar) {
+    var lastY = window.scrollY;
+    var onScroll = function () {
+      var y = window.scrollY;
+      if (window.innerWidth >= 860 || y < 150) { fbar.classList.remove("compact"); lastY = y; return; }
+      if (y > lastY + 12) { fbar.classList.add("compact"); lastY = y; }
+      else if (y < lastY - 60) { fbar.classList.remove("compact"); lastY = y; }
+      else if (y > lastY) lastY = y; // weiter runter: Bezugspunkt mitziehen
+      else if (y < lastY && !fbar.classList.contains("compact")) lastY = y;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+  }
+
   /* ---------- Code kopieren ---------- */
   document.querySelectorAll("pre").forEach(function (pre) {
     var btn = document.createElement("button");
