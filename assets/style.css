@@ -107,9 +107,9 @@ aside.toc .tocsearch{width:100%;padding:7px 9px;border:1px solid var(--line);bor
 details.loesung{border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:8px;background:var(--panel);margin:12px 0 22px;padding:2px 14px}
 details.loesung>summary{cursor:pointer;font-weight:600;color:var(--ok);padding:8px 0}
 details.loesung[open]>summary{border-bottom:1px solid var(--line);margin-bottom:6px}
-li.task{list-style:none;margin-left:-22px;padding:4px 0}
+li.task{list-style:none;margin:0 0 18px;padding:18px 22px 16px;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
 li.task input[type=checkbox]{transform:scale(1.15);margin-right:6px;accent-color:var(--ok);cursor:pointer}
-li.task.done>p{color:var(--muted)}
+li.task.done{border-color:color-mix(in srgb,var(--ok) 55%,var(--line))}
 .progress{height:8px;background:var(--line);border-radius:99px;overflow:hidden;flex:1 1 140px;max-width:220px}
 .progress div{height:100%;background:var(--ok);width:0;transition:width .2s}
 
@@ -228,3 +228,46 @@ aside.toc a.kaplink .kp.full::after{content:" ✓"}
 #pg-repl{flex:1;border:0;background:transparent;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;padding:4px 0}
 @media (max-width:960px){.pg{grid-template-columns:1fr}.pg-right{position:static;max-height:none}}
 aside.toc a.kaplink.sub{padding-left:20px;font-size:.88em}
+
+/* Übungen: Aufgabenkarten mit fester Abgabe */
+ul.fg{padding-left:0}
+li.task>p{margin:0 0 6px;font-size:1.04em}
+li.task .status{display:inline-block;width:20px;height:20px;border-radius:50%;border:2px solid var(--line);vertical-align:-4px;margin-right:8px;position:relative}
+li.task.done .status{background:var(--ok);border-color:var(--ok)}
+li.task.done .status::after{content:"✓";color:#fff;font-size:13px;font-weight:700;position:absolute;inset:0;display:grid;place-items:center;line-height:1}
+.hilfen{margin:4px 0 10px}
+.aufgabe-work{margin-top:6px}
+.aufgabe-work .abgabe-info{font-size:13.5px;color:var(--muted);margin-bottom:8px}
+.aufgabe-work textarea{width:100%;min-height:170px;font-family:var(--mono);font-size:14.5px;line-height:1.55;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--code-bg);color:var(--text);resize:vertical;tab-size:2}
+.aufgabe-work textarea:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+.aufgabe-work .abgabe-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px}
+.aufgabe-work .pruefen{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:9px 20px;font-weight:600;cursor:pointer;font-size:14.5px}
+.aufgabe-work .leeren{margin-left:auto;background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer}
+.musterbtn{font-size:13px}
+.musterbody{margin-top:12px;border:1px solid var(--line);border-left:4px solid var(--ok);border-radius:10px;padding:10px 14px;background:var(--bg)}
+.musterhead{font-weight:700;color:var(--ok);margin-bottom:4px}
+.quiz{display:flex;flex-direction:column;gap:12px;margin-top:8px}
+.quiz fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 14px 8px;margin:0;background:var(--bg)}
+.quiz legend{font-weight:600;padding:0 4px}
+.quiz .multi{font-weight:400;color:var(--muted);font-size:.88em}
+.quiz .opt{display:flex;gap:9px;align-items:flex-start;padding:6px 6px;border-radius:7px;cursor:pointer}
+.quiz .opt:hover{background:var(--accent-soft)}
+.quiz .opt input{margin-top:4px;accent-color:var(--accent)}
+.quiz fieldset.ok{border-color:var(--ok)}
+.quiz fieldset.bad{border-color:#c0392b}
+.quiz .qres{font-size:.88em;margin:2px 4px 2px}
+.quiz fieldset.ok .qres{color:var(--ok)}
+.quiz fieldset.bad .qres{color:#c0392b}
+.quiz .field{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
+.quiz .flabel{flex:1 1 260px;font-weight:600}
+.quiz .field input{flex:0 1 260px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-family:var(--mono);font-size:14px}
+.quiz .field.ok{border-color:var(--ok)}
+.quiz .field.bad{border-color:#c0392b}
+.quiz .fres{width:40px;font-weight:700}
+.quiz .field.ok .fres{color:var(--ok)}
+.quiz .field.bad .fres{color:#c0392b}
+.kapprog{display:inline-flex;align-items:center;gap:8px;font-size:.5em;font-weight:500;color:var(--muted);vertical-align:middle;margin-left:12px}
+.kapprog.full{color:var(--ok);font-weight:600}
+.kpbar{display:inline-block;width:110px;height:7px;background:var(--line);border-radius:9px;overflow:hidden}
+.kpbar span{display:block;height:100%;background:var(--ok)}
+.curprog{font-size:14px;font-weight:600;color:var(--ok);margin-left:auto}

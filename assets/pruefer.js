@@ -288,8 +288,12 @@
       var m = /;\s*Aufruf:\s*(\(.*\))\s*(?:=>.*)?$/.exec(line);
       if (m) { try { calls = calls.concat(M.readAll(m[1].replace(/=>.*$/, ""))); } catch (e) {} }
     });
+    var cust = task.custom || {};
+    (cust.tests || []).forEach(function (t) { try { M.readAll(t).forEach(function (f) { refForms.push(f); refChecks.push(f); }); } catch (e) {} });
+    if (cust.needName) refNames.add(cust.needName);
     var kind;
-    if (refChecks.length && refNames.size) kind = "tests";
+    if ((cust.images || cust.value) && !(cust.tests && cust.tests.length)) kind = "regeln";
+    else if (refChecks.length && refNames.size) kind = "tests";
     else if (refChecks.length) kind = "selbsttests";
     else if (refExprs.length) kind = "werte";
     else if (refNames.size && calls.length) kind = "aufrufe";
@@ -310,6 +314,7 @@
     var ri = new M.Interp(); evalForms(ri, ctx);
     var refRun = safe(function () { return runProgram(ri, task.ref); });
     if (refRun.e) return { status: "manual", summary: "Diese Aufgabe kann online leider nicht geprüft werden (" + refRun.e.message + "). Vergleiche mit der Lösung.", items: [] };
+    (task.custom && task.custom.tests || []).forEach(function (t) { safe(function () { M.readAll(t).forEach(function (f) { ri.eval(f, ri.global); }); }); });
     var refTests = ri.tests;
 
     // Abgabe ausführen
@@ -320,6 +325,30 @@
       return { status: "error", summary: "Dein Programm bricht mit einem Fehler ab.", items: [{ ok: false, title: userRun.e.message + (userRun.e.line ? " (Zeile " + userRun.e.line + ")" : ""), hint: errorHint(userRun.e) }] };
     }
     var userVals = userRun.v.values, items = [], extraNotes = [];
+    var cust = task.custom || {};
+    var userSyms = symbolsIn(userRun.v.forms);
+    (cust.forbid || []).forEach(function (sy) { if (userSyms.has(sy)) items.push({ ok: false, title: "„" + sy + "“ ist in dieser Aufgabe nicht erlaubt", hint: "Lies die Aufgabe noch einmal: Sie verlangt eine Lösung ohne " + sy + "." }); });
+    (cust.require || []).forEach(function (sy) { if (!userSyms.has(sy)) items.push({ ok: false, title: "„" + sy + "“ kommt in deinem Code nicht vor", hint: "Die Aufgabe verlangt, dass du " + sy + " benutzt." }); });
+    if (A.kind === "regeln") {
+      if (cust.value === "string-space") {
+        var sv = userVals.length ? userVals[userVals.length - 1].value : null;
+        items.push(typeof sv === "string" && /\S \S/.test(sv) ? { ok: true, title: "Ergebnis: " + M.show(sv), detail: "Text mit Leerzeichen zwischen Vor- und Nachname" }
+          : { ok: false, title: "Ergebnis: " + (sv === null ? "keins" : M.show(sv)), detail: "erwartet wird ein Text mit Vor- und Nachname und einem Leerzeichen dazwischen", hint: "Das Leerzeichen ist ein eigenes Argument: (string-append \"Vorname\" \" \" \"Nachname\")." });
+      }
+      if (cust.images) {
+        var imgs = userVals.map(function (v) { return v.value; });
+        (cust.calls || []).forEach(function (c) {
+          var r = safe(function () { return M.readAll(c).map(function (f) { return ui.eval(f, ui.global); }).pop(); });
+          if (r.e) items.push({ ok: false, title: c, detail: "Fehler: " + r.e.message, hint: errorHint(r.e) }); else imgs.push(r.v);
+        });
+        imgs = imgs.filter(function (v) { return v instanceof M.Img; });
+        if (!imgs.length && !items.length) items.push({ ok: false, title: "Kein Bild gefunden", hint: (cust.calls ? "Definiere die Funktion so, dass " + cust.calls[0] + " ein Bild liefert." : "Schreibe den Bild-Ausdruck direkt hin, nicht nur eine Definition.") });
+        else cust.images.forEach(function (rule) {
+          var re = new RegExp(rule.re), hit = imgs.filter(function (im) { return re.test(im.key()); });
+          items.push(hit.length ? { ok: true, title: rule.ok || "Bild passt", images: [hit[0]] } : { ok: false, title: "Das Bild passt noch nicht", detail: rule.msg, images: imgs.slice(-1) });
+        });
+      }
+    }
     if (A.kind === "zeigen") {
       var callVals = function (it) { return A.calls.map(function (c) { var r = safe(function () { return it.eval(c, it.global); }); return r.e ? null : r.v; }); };
       var mine = userVals.map(function (v) { return v.value; }).concat(A.calls.length ? callVals(ui) : []).filter(function (v) { return v instanceof M.Img; });
@@ -409,6 +438,13 @@
       });
     }
 
+    (cust.mustFail || []).forEach(function (src) {
+      var f = M.readAll(src)[0];
+      var pr = safe(function () { return ui.checkProperty(ui.eval(f[1], ui.global)); });
+      var title = "Diese Eigenschaft muss für deine Funktion FALSCH sein: " + unparse(f[1]).slice(0, 80) + " …";
+      if (pr.e) items.push({ ok: false, title: title, detail: "Fehler: " + pr.e.message, hint: errorHint(pr.e) });
+      else items.push(pr.v.ok ? { ok: false, title: title, detail: "Sie gilt aber für 100 zufällige Listen.", hint: "Deine Funktion ist zu gut – sie soll die dritte Eigenschaft verletzen." } : { ok: true, title: title, detail: "falsifiziert mit " + (pr.v.counter || []).join(", ") });
+    });
     if (A.kind === "tests" || A.kind === "aufrufe") {
       var fixedFailed = items.some(function (i) { return !i.ok; });
       var rnd = randomTests(A, ri, ui);

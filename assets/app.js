@@ -190,7 +190,7 @@
     else b.textContent = "💡 Noch ein Tipp (" + (shown + 1) + " von " + total + ")";
   });
 
-  /* ---------- Übungen: Häkchen speichern ---------- */
+  /* ---------- Übungen: erledigt wird automatisch gesetzt, wenn die Abgabe richtig ist ---------- */
   var tasks = document.querySelectorAll("li.task");
   if (tasks.length) {
     var prog = document.querySelector(".progress div");
@@ -198,30 +198,38 @@
     var update = function () {
       var done = document.querySelectorAll("li.task.done").length;
       if (prog) prog.style.width = (100 * done / tasks.length) + "%";
-      if (progTxt) progTxt.textContent = done + " / " + tasks.length + " erledigt";
+      if (progTxt) progTxt.textContent = "gesamt " + done + " / " + tasks.length;
+      var counts = {};
+      tasks.forEach(function (li) { var k = li.dataset.kap; counts[k] = counts[k] || [0, 0]; counts[k][1]++; if (li.classList.contains("done")) counts[k][0]++; });
       document.querySelectorAll(".kp[data-kp]").forEach(function (sp) {
-        var k = sp.dataset.kp, all = document.querySelectorAll('li.task[data-kap="' + k + '"]').length, d = document.querySelectorAll('li.task.done[data-kap="' + k + '"]').length;
-        sp.textContent = d + "/" + all; sp.classList.toggle("full", all > 0 && d === all);
+        var c = counts[sp.dataset.kp] || [0, 0]; sp.textContent = c[0] + "/" + c[1]; sp.classList.toggle("full", c[1] > 0 && c[0] === c[1]);
       });
+      document.querySelectorAll(".kapprog[data-kp]").forEach(function (sp) {
+        var c = counts[sp.dataset.kp] || [0, 0], pct = c[1] ? Math.round(100 * c[0] / c[1]) : 0;
+        sp.innerHTML = '<span class="kpbar"><span style="width:' + pct + '%"></span></span>' + c[0] + " von " + c[1] + " erledigt";
+        sp.classList.toggle("full", c[1] > 0 && c[0] === c[1]);
+      });
+      var cur = document.querySelector(".curprog"), sel = document.querySelector(".filters select.kap");
+      if (cur && sel) {
+        var k = sel.value;
+        if (k !== "0" && counts[k]) cur.textContent = "Kapitel " + k + ": " + counts[k][0] + " / " + counts[k][1] + " erledigt";
+        else cur.textContent = "Alle Kapitel: " + done + " / " + tasks.length + " erledigt";
+      }
     };
+    window.__updateProgress = update;
     tasks.forEach(function (li) {
-      var cb = li.querySelector("input[type=checkbox]");
-      var key = "sdp-ueb-" + li.id;
-      if (store.get(key) === "1") { cb.checked = true; li.classList.add("done"); }
-      cb.addEventListener("change", function () {
-        li.classList.toggle("done", cb.checked);
-        store.set(key, cb.checked ? "1" : "0");
-        update();
-        if (window.__applyFilter && document.querySelector(".openonly:checked")) window.__applyFilter();
-      });
+      if (store.get("sdp-ueb-" + li.id) === "1") li.classList.add("done");
+      var st = li.querySelector(".status"); if (st) st.title = li.classList.contains("done") ? "erledigt" : "offen";
     });
+    window.__markDone = function (li) {
+      if (li.classList.contains("done")) return;
+      li.classList.add("done"); store.set("sdp-ueb-" + li.id, "1");
+      var st = li.querySelector(".status"); if (st) st.title = "erledigt";
+      update();
+    };
+    var selK = document.querySelector(".filters select.kap"); if (selK) selK.addEventListener("change", update);
+    document.addEventListener("click", function (e) { if (e.target.closest(".kaplink, .uebpager a")) setTimeout(update, 0); });
     update();
-    var toggleAll = document.querySelector(".togglesol");
-    if (toggleAll) toggleAll.addEventListener("click", function () {
-      var ds = document.querySelectorAll("details.loesung"), anyClosed = Array.prototype.some.call(ds, function (d) { return !d.open; });
-      ds.forEach(function (d) { d.open = anyClosed; });
-      toggleAll.textContent = anyClosed ? "Alle Lösungen zuklappen" : "Alle Lösungen aufklappen";
-    });
   }
 
   /* ---------- Lernübersicht: Kapitelwahl, Suche, Inhaltsverzeichnis ---------- */

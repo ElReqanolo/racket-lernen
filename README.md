@@ -10,7 +10,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
 | `fehler.html` | Fehlermeldungen und typische Fehler |
 | `playground.html` | Playground: Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile |
-| `uebungen.html` | Übungen Kapitel für Kapitel, mit gestuften Tipps, Link zum passenden Abschnitt der Lernübersicht, aufklappbaren Lösungen, Häkchen, Schwierigkeitsfilter und Online-Prüfung der eigenen Lösung |
+| `uebungen.html` | Übungen Kapitel für Kapitel: jede Aufgabe wird direkt abgegeben (Code-Editor, Auswahlfragen oder Eingabefelder) und bei richtiger Lösung automatisch abgehakt; gestufte Tipps, Link zur Lernübersicht, Musterlösung pro Aufgabe |
 
 Die Seite ist rein statisch: kein Server, keine Datenbank, kein Build-Schritt. Sie funktioniert auch offline, wenn du `index.html` direkt im Browser öffnest.
 
