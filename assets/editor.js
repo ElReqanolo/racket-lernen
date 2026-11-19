@@ -295,13 +295,13 @@
     function schedule() { clearTimeout(timer); hl.innerHTML = esc(ta.value) + "\n"; timer = setTimeout(lint, 350); }
 
     // ---- Vervollständigung
-    var acItems = [], acSel = 0, acStart = 0;
+    var acItems = [], acSel = 0, acStart = 0, acPre = "", acNav = false, acAuto = false;
     function prefixAt() {
       var pos = ta.selectionStart, s = pos, v = ta.value;
       while (s > 0 && !/[\s()\[\]";'`]/.test(v[s - 1])) s--;
       return { start: s, text: v.slice(s, pos) };
     }
-    function candidates(pre) {
+    function candidates(pre, withExact) {
       var names = new Map();
       analyse(ta.value).globals.forEach(function (info, k) { names.set(k, info.min !== undefined ? "eigene Funktion · " + arityText(info.min, info.max) : "eigene Definition"); });
       // Parameter und lokale Namen grob aus dem Text holen
@@ -309,8 +309,8 @@
       SPECIAL.forEach(function (k) { if (!names.has(k)) names.set(k, "Sonderform"); });
       PRIMS.forEach(function (v, k) { if (!names.has(k)) names.set(k, v instanceof M.Sig ? "Signatur" : v instanceof M.Prim ? (v.min === 0 && v.max === -1 ? "eingebaut · beliebig viele Argumente" : "eingebaut · " + arityText(v.min, v.max)) : "eingebaut"); });
       var res = [];
-      names.forEach(function (d, k) { if (k.indexOf(pre) === 0 && k !== pre) res.push({ name: k, desc: d }); });
-      res.sort(function (a, b) { return a.name.length - b.name.length || (a.name < b.name ? -1 : 1); });
+      names.forEach(function (d, k) { if (k.indexOf(pre) === 0 && (withExact || k !== pre)) res.push({ name: k, desc: d }); });
+      res.sort(function (a, b) { return (b.name === pre) - (a.name === pre) || a.name.length - b.name.length || (a.name < b.name ? -1 : 1); });
       return res;
     }
     function common(arr) { var c = arr[0]; arr.forEach(function (x) { while (x.indexOf(c) !== 0) c = c.slice(0, -1); }); return c; }
@@ -323,24 +323,28 @@
       return r;
     }
     function showAc(items, start) {
-      acItems = items.slice(0, 50); acSel = 0; acStart = start;
+      acItems = items.slice(0, 50); acSel = 0; acStart = start; acNav = false; acPre = ta.value.slice(start, ta.selectionStart);
       ac.innerHTML = "";
       acItems.forEach(function (c, k) {
         var d = document.createElement("div"); d.className = "ed-aci" + (k === 0 ? " sel" : ""); d.setAttribute("role", "option");
-        d.innerHTML = "<code>" + esc(c.name) + "</code><span>" + esc(c.desc) + "</span>";
+        var kind = /^eigene|^Parameter/.test(c.desc) ? ["abc", "own"] : c.desc === "Sonderform" ? ["{ }", "form"] : c.desc === "Signatur" ? ["T", "sig"] : ["ƒ", "fn"];
+        var pl = Math.min(acPre.length, c.name.length);
+        d.innerHTML = '<i class="ed-k ' + kind[1] + '">' + kind[0] + '</i><code><b>' + esc(c.name.slice(0, pl)) + "</b>" + esc(c.name.slice(pl)) + "</code><span>" + esc(c.desc) + "</span>";
         d.addEventListener("mousedown", function (ev) { ev.preventDefault(); acSel = k; acceptAc(); });
         ac.appendChild(d);
       });
+      var hint = document.createElement("div"); hint.className = "ed-hint"; hint.textContent = "Tab übernehmen · ↑↓ auswählen · Esc schließen"; ac.appendChild(hint);
       var xy = caretXY(start);
       ac.style.left = Math.min(xy.x, Math.max(0, wrap.clientWidth - 260)) + "px"; ac.style.top = (xy.y - ta.scrollTop + 2) + "px";
       ac.classList.add("on");
     }
     function moveAc(d) {
-      acSel = (acSel + d + acItems.length) % acItems.length;
+      acSel = (acSel + d + acItems.length) % acItems.length; acNav = true;
       ac.querySelectorAll(".ed-aci").forEach(function (el, k) { el.classList.toggle("sel", k === acSel); if (k === acSel) el.scrollIntoView({ block: "nearest" }); });
     }
     function acceptAc() { var c = acItems[acSel]; if (!c) return; replaceRange(acStart, ta.selectionStart, c.name); closeAc(); }
     function complete() {
+      acAuto = false;
       var p = prefixAt();
       if (!p.text) return false;
       var cs = candidates(p.text);
@@ -351,25 +355,39 @@
       showAc(candidates(c), p.start);
       return true;
     }
+    function inStringOrComment(pos) {
+      var v = ta.value, inStr = false, i = v.lastIndexOf("\n", pos - 1) + 1;
+      // ab Zeilenanfang grob prüfen; mehrzeilige Zeichenketten sind selten
+      for (; i < pos; i++) { var c = v[i]; if (inStr) { if (c === "\\") i++; else if (c === '"') inStr = false; } else if (c === '"') inStr = true; else if (c === ";") return true; }
+      return inStr;
+    }
     function refreshAc() {
       var p = prefixAt();
-      if (!p.text || p.start !== acStart) { closeAc(); return; }
-      var cs = candidates(p.text); if (!cs.length) { closeAc(); return; }
+      if (!p.text || /^[0-9#".+-]?[0-9]/.test(p.text) || p.text[0] === "#" || inStringOrComment(p.start)) { closeAc(); return; }
+      var cs = candidates(p.text, acAuto);
+      if (!cs.length || (cs.length === 1 && cs[0].name === p.text)) { closeAc(); return; }
+      var sel = acItems[acSel] && acNav ? acItems[acSel].name : null;
       showAc(cs, p.start);
+      if (sel) { var k = cs.findIndex(function (c) { return c.name === sel; }); if (k > 0) { acSel = k - 1; moveAc(1); } }
     }
 
     ta.addEventListener("keydown", function (e) {
       if (ac.classList.contains("on")) {
         if (e.key === "ArrowDown") { e.preventDefault(); e.stopImmediatePropagation(); moveAc(1); return; }
         if (e.key === "ArrowUp") { e.preventDefault(); e.stopImmediatePropagation(); moveAc(-1); return; }
-        if (e.key === "Enter" || e.key === "Tab") { e.preventDefault(); e.stopImmediatePropagation(); acceptAc(); return; }
+        if (e.key === "Tab" || (e.key === "Enter" && acNav)) { e.preventDefault(); e.stopImmediatePropagation(); acceptAc(); return; }
+        if (e.key === "Enter") closeAc();
         if (e.key === "Escape") { e.preventDefault(); e.stopImmediatePropagation(); closeAc(); return; }
       }
       if (e.key === "Tab" && !e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey && ta.selectionStart === ta.selectionEnd) {
         if (complete()) { e.preventDefault(); e.stopImmediatePropagation(); }
       }
     }, true);
-    ta.addEventListener("input", function () { schedule(); if (ac.classList.contains("on")) refreshAc(); });
+    ta.addEventListener("input", function (e) {
+      schedule();
+      if (opts.suggest !== false && e.inputType === "insertText" && e.data && !/[\s()\[\]";'`]/.test(e.data)) { acAuto = true; refreshAc(); }
+      else if (ac.classList.contains("on")) { if (/^delete/.test(e.inputType || "")) refreshAc(); else if (e.inputType) closeAc(); }
+    });
     ta.addEventListener("blur", function () { setTimeout(closeAc, 120); });
     ta.addEventListener("scroll", function () { hl.scrollTop = ta.scrollTop; closeAc(); });
     ta.addEventListener("click", function () { closeAc(); markCur(); });

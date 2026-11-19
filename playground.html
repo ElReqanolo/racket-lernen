@@ -6,7 +6,7 @@
 <title>Playground · Racket lernen</title>
 <meta name="description" content="Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=f16dfa57">
+<link rel="stylesheet" href="assets/style.css?v=953d9ef3">
 <script>try{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body>
@@ -18,7 +18,7 @@
 <main>
 
 <h1 class="page-title">Playground</h1>
-<p class="lead">Probier Befehle direkt im Browser aus – wie im Definitionsfenster von DrRacket. <strong>Ausführen</strong> (oder Strg+Enter) zeigt die Ergebnisse, Bilder und Testergebnisse; in der Zeile mit „&gt;“ kannst du danach weitere Ausdrücke eintippen wie im Interaktionsfenster. Fang an, einen Befehl zu tippen, und drück <kbd>Tab</kbd> – dann wird er vervollständigt. Fehler wie fehlende Klammern, unbekannte Befehle oder fehlende Angaben werden schon beim Tippen rot unterstrichen.</p>
+<p class="lead">Probier Befehle direkt im Browser aus – wie im Definitionsfenster von DrRacket. <strong>Ausführen</strong> (oder Strg+Enter) zeigt die Ergebnisse, Bilder und Testergebnisse; in der Zeile mit „&gt;“ kannst du danach weitere Ausdrücke eintippen wie im Interaktionsfenster. Schon beim Tippen erscheinen passende Befehle als Vorschlag – mit <kbd>Tab</kbd> übernimmst du den markierten. Fehler wie fehlende Klammern, unbekannte Befehle oder fehlende Angaben werden schon beim Tippen rot unterstrichen.</p>
 <div class="pg">
 <div class="pg-left">
 <div class="pg-bar">
@@ -39,7 +39,7 @@
 <ul>
 <li>Alles aus den Lehrsprachen „Schreibe Dein Programm!“: <code>define</code>, <code>lambda</code>, <code>cond</code>, <code>if</code>, <code>define-record</code>, Listen, Zeichenketten, exakte Brüche, <code>check-expect</code>, <code>check-within</code>, <code>check-error</code>, <code>check-property</code>.</li>
 <li>Bilder aus <code>image.rkt</code>: <code>square</code>, <code>circle</code>, <code>star-polygon</code>, <code>above</code>, <code>beside</code>, <code>overlay</code>, <code>place-image</code> und mehr – die <a href="befehle.html#thema-bilder-teachpack-image-rkt">Befehlssammlung</a> zeigt alle.</li>
-<li><kbd>Tab</kbd> vervollständigt Befehle und deine eigenen Namen. Gibt es mehrere passende, erscheint eine Liste: mit ↑/↓ auswählen, mit Tab oder Enter übernehmen, mit Esc schließen. Steht kein angefangenes Wort vor dem Cursor, rückt Tab ein.</li>
+<li>Beim Tippen schlägt der Editor passende Befehle und deine eigenen Namen vor, mit der Zahl der nötigen Angaben (ƒ = eingebaute Funktion, { } = Sonderform wie <code>define</code>, T = Signatur, abc = selbst definiert). <kbd>Tab</kbd> übernimmt den markierten Vorschlag, ↑/↓ wählt einen anderen (dann geht auch Enter), Esc schließt die Liste. Steht kein angefangenes Wort vor dem Cursor, rückt Tab ein.</li>
 <li>Schon beim Tippen markiert: fehlende oder überzählige Klammern, nicht geschlossene Zeichenketten, unbekannte Befehle (mit Vorschlag bei Tippfehlern), zu wenige oder zu viele Angaben, leere Klammern und Werte an der Stelle eines Befehls, z. B. <code>(5 3)</code>. Ein Klick auf die Meldung springt zur Stelle. Fehler, die erst beim Ausführen auffallen (z. B. falsche Sorte von Wert), zeigt „Ausführen“.</li>
 <li>Nicht möglich: Animationen mit <code>big-bang</code>. Signaturen werden nicht geprüft.</li>
 <li>Der Code bleibt in deinem Browser gespeichert. Mit „Link teilen“ bekommst du einen Link, der deinen Code enthält.</li>
@@ -47,7 +47,7 @@
 </ul></details>
 <script src="assets/racket.js?v=58aa2ed3"></script>
 <script src="assets/pruefer.js?v=46c14757"></script>
-<script src="assets/editor.js?v=39c97e69"></script>
+<script src="assets/editor.js?v=f73435bd"></script>
 <script src="assets/playground.js?v=e873dd65"></script>
 </main>
 <footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
