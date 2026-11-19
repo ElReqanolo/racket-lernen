@@ -113,6 +113,17 @@
   ta.addEventListener("input", function () { store.set("sdp-playground", ta.value); autosize(); });
   repl.addEventListener("keydown", function (e) {
     if (e.key === "Enter") { e.preventDefault(); evalRepl(); }
+    else if (e.key === "Tab" && window.RacketEditor) {
+      var pos = repl.selectionStart, st = pos, v = repl.value;
+      while (st > 0 && !/[\s()\[\]";']/.test(v[st - 1])) st--;
+      var pre = v.slice(st, pos); if (!pre) return;
+      e.preventDefault();
+      var names = window.RacketEditor.names(ta.value).filter(function (k) { return k.indexOf(pre) === 0; });
+      if (!names.length) return;
+      var c = names[0]; names.forEach(function (x) { while (x.indexOf(c) !== 0) c = c.slice(0, -1); });
+      repl.value = v.slice(0, st) + c + v.slice(pos); repl.selectionStart = repl.selectionEnd = st + c.length;
+      if (names.length > 1 && c === pre) { line("info", null, "Passend: " + names.slice(0, 12).join("  ") + (names.length > 12 ? "  …" : "")); out.scrollTop = out.scrollHeight; }
+    }
     else if (e.key === "ArrowUp" && hist.length) { hpos = Math.min(hist.length - 1, hpos + 1); repl.value = hist[hpos]; e.preventDefault(); }
     else if (e.key === "ArrowDown") { hpos = Math.max(-1, hpos - 1); repl.value = hpos < 0 ? "" : hist[hpos]; e.preventDefault(); }
   });
@@ -135,5 +146,7 @@
   var m = /#code=([^&]+)/.exec(location.hash), start = null;
   if (m) { try { start = decodeURIComponent(escape(atob(m[1]))); } catch (e) {} }
   ta.value = start !== null ? start : (store.get("sdp-playground") || BEISPIELE["Bilder"]);
+  var ed = window.RacketEditor ? window.RacketEditor.attach(ta) : null;
   autosize(); run();
+  if (ed) ed.lint();
 })();

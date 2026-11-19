@@ -14,7 +14,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
 | `fehler.html` | Fehlermeldungen und typische Fehler, nach Kapitel |
 | `uebungen.html` | Übungen Kapitel für Kapitel: jede Aufgabe wird direkt abgegeben (Code-Editor, Auswahlfragen oder Eingabefelder) und bei richtiger Lösung automatisch abgehakt; gestufte Tipps, Link zur Lernübersicht, Musterlösung pro Aufgabe |
-| `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile |
+| `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile; Tab-Vervollständigung und Fehlermarkierung beim Tippen |
 
 ## Technik
 
@@ -26,6 +26,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `assets/pruefer.js` | prüft Abgaben gegen die Musterlösung (feste Tests + Zufallstests) und formuliert Hinweise |
 | `assets/uebungen.js` | Abgabe, Auswahlfragen und Musterlösung auf der Übungsseite |
 | `assets/playground.js` | der Playground |
+| `assets/editor.js` | Editor-Hilfen: Tab-Vervollständigung und Fehlerprüfung beim Tippen (Klammern, unbekannte Namen, Anzahl der Angaben) |
 | `assets/katex/` | Schrift und Formatierung für die mathematischen Formeln in der Lernübersicht ([KaTeX](https://katex.org), MIT-Lizenz) |
 | `.nojekyll` | sorgt dafür, dass GitHub Pages die Dateien unverändert ausliefert |
 

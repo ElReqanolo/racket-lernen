@@ -300,3 +300,24 @@ ol.pfad>li::before{content:counter(pf);position:absolute;left:14px;top:12px;widt
 ol.pfad>li>span{display:block;color:var(--muted);font-size:.95em}
 ol.pfad>li>a{text-decoration:none}
 .kapitem{min-width:0}.kapitem .kh .t{min-width:0;overflow-wrap:anywhere}main table{display:block;max-width:100%;overflow-x:auto}
+/* Editor: Fehlermarkierung und Vervollständigung */
+.ed-wrap{position:relative}
+.ed-hl{position:absolute;inset:0;margin:0;border-style:solid;border-color:transparent;white-space:pre-wrap;overflow-wrap:break-word;word-wrap:break-word;color:transparent;overflow:hidden;pointer-events:none;background:var(--code-bg);box-sizing:border-box}
+.ed-measure{visibility:hidden;bottom:auto}
+textarea.ed-ta{position:relative;z-index:1;background:transparent!important}
+.ed-err{background:rgba(214,48,49,.13);color:transparent;border-radius:2px;text-decoration:underline wavy #d63031;text-decoration-skip-ink:none;text-underline-offset:3px}
+.ed-eof{display:inline-block;width:.6em}
+.ed-lint{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.ed-ok{font-size:13.5px;color:var(--ok)}
+.ed-msg{all:unset;cursor:pointer;font-size:14px;line-height:1.4;padding:6px 10px;border-radius:7px;border-left:3px solid #d63031;background:rgba(214,48,49,.07);color:var(--text)}
+.ed-msg:hover,.ed-msg.cur{background:rgba(214,48,49,.16)}
+.ed-msg:focus-visible{outline:2px solid var(--accent)}
+.ed-ln{font-weight:600;color:#c0392b;margin-right:4px}
+[data-theme="dark"] .ed-ln{color:#f2a196}
+.ed-more{font-size:13px;color:var(--muted);padding-left:10px}
+.ed-ac{display:none;position:absolute;z-index:5;min-width:240px;max-width:340px;max-height:240px;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:9px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:4px}
+.ed-ac.on{display:block}
+.ed-aci{display:flex;justify-content:space-between;gap:12px;align-items:baseline;padding:5px 9px;border-radius:6px;cursor:pointer}
+.ed-aci code{background:none;padding:0;font-size:14px}
+.ed-aci span{font-size:12px;color:var(--muted);white-space:nowrap}
+.ed-aci.sel{background:var(--accent-soft)}
