@@ -30,6 +30,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 │   │   ├── editor.js             Vorschläge, Tab-Vervollständigung und Fehlermarkierung beim Tippen
 │   │   ├── stepper.js            Stepper: Auswertung Schritt für Schritt im Substitutionsmodell
 │   │   └── playground.js         der Playground (Ausführen, Animationen, universe, Bilder, Stepper-Fenster)
+│   ├── fonts/                    Schrift TeX Gyre Schola (Century Schoolbook; GUST Font License, liegt bei)
 │   └── katex/                    Schrift und CSS für die Formeln der Lernübersicht (KaTeX, MIT-Lizenz)
 ├── src/                          Quellen: daraus entstehen die Seiten
 │   ├── build.py                  Generator – erzeugt die sieben HTML-Seiten
@@ -49,6 +50,10 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 ```
 
 Die Seite ist rein statisch: kein Server, keine Datenbank, keine Cookies, kein Tracking. Fortschritt, Code und Antworten speichert nur der eigene Browser (`localStorage`). Sie funktioniert auch offline, wenn man `index.html` direkt öffnet.
+
+## Gestaltung
+
+Die Seite sieht aus wie ein **Rechenheft**: kariertes Papier, Schrift wie im Schulbuch (Century Schoolbook), Königsblau als Tinte für Links und Knöpfe, Rotstift für Fehler und den Heftrand, Textmarker-Gelb für das, was gerade wichtig ist – im Stepper zum Beispiel der Teil, der als Nächstes ausgerechnet wird. Im dunklen Modus wird daraus eine Schultafel. Bewegung gibt es nur, wo sie etwas zeigt: Auf der Startseite rechnet Racket einmal eine Aufgabe Zeile für Zeile vor, eine gelöste Aufgabe wird abgehakt, und im Stepper fährt der Textmarker über den neuen Schritt. Wer im Betriebssystem „Bewegung reduzieren“ eingestellt hat, sieht alles ohne Animation.
 
 ## Ändern, erstellen, testen
 

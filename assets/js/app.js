@@ -250,7 +250,8 @@
     });
     window.__markDone = function (li) {
       if (li.classList.contains("done")) return;
-      li.classList.add("done"); store.set("sdp-ueb-" + li.id, "1");
+      li.classList.add("done", "just-done"); store.set("sdp-ueb-" + li.id, "1");
+      setTimeout(function () { li.classList.remove("just-done"); }, 1000);
       var st = li.querySelector(".status"); if (st) st.title = "erledigt";
       update();
     };
@@ -372,4 +373,11 @@
   });
   document.addEventListener('click', hide);
   addEventListener('scroll', () => { if (cur && Math.abs(scrollY - sy) > 40) hide(); }, { passive: true });
+})();
+
+/* Startseite: die Rechnung noch einmal abspielen */
+(function () {
+  var r = document.querySelector(".rechnung"), b = r && r.querySelector(".r-replay");
+  if (!b) return;
+  b.addEventListener("click", function () { r.classList.remove("spielt"); void r.offsetWidth; r.classList.add("spielt"); });
 })();

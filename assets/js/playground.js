@@ -400,6 +400,7 @@
     stBox.querySelector(".st-form").textContent = "Ausdruck " + (s.form + 1) + " von " + s.total;
     note.textContent = s.error ? "" : (s.note || "");
     note.className = "st-note" + (s.test === true ? " ok" : s.test === false ? " bad" : "");
+    var panes = stBox.querySelector(".st-panes"); panes.classList.remove("neu"); void panes.offsetWidth; panes.classList.add("neu");
     stRenderInto(b, s.before, s.bpath, "st-redex");
     if (s.error) { a.innerHTML = '<span class="st-err">Fehler: ' + esc(s.error) + "</span>"; }
     else stRenderInto(a, s.after, s.apath, "st-contr");

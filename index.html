@@ -6,7 +6,7 @@
 <title>Start · Racket lernen</title>
 <meta name="description" content="Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/css/style.css?v=9afb4bbc">
+<link rel="stylesheet" href="assets/css/style.css?v=44fdb4d7">
 <script>try{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body>
@@ -18,8 +18,21 @@
 <main>
 
 <div class="hero">
+<div class="hero-text">
 <h1>Racket lernen mit „Schreibe Dein Programm!“</h1>
-<p class="lead">Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – Anfänger“ und den Teachpacks <code>image.rkt</code> und <code>universe.rkt</code>. Du brauchst keine Vorkenntnisse und auch nicht das Buch: Jeder Befehl kommt mit Beispiel, Ergebnis und typischen Fehlern.</p>
+<p class="lead">Programmieren lernen wie im Rechenheft: Schritt für Schritt, mit Beispielen zum Ausprobieren. Für DrRacket mit der Sprachebene „Schreibe Dein Programm!“ und den Teachpacks <code>image.rkt</code> und <code>universe.rkt</code> – ohne Vorkenntnisse und auch ohne das Buch.</p>
+<div class="hero-cta"><a class="btn" href="lernen.html#erste-schritte">Mit den ersten Schritten anfangen</a><a class="btn ghost" href="playground.html">Playground öffnen</a></div>
+</div>
+<figure class="rechnung spielt" style="--n:3" aria-label="Beispiel: So rechnet Racket den Ausdruck (verdoppeln (+ 1 2)) Schritt für Schritt aus">
+<div class="r-def"><code>(define verdoppeln (lambda (x) (* 2 x)))</code></div>
+<ol>
+<li style="--i:0"><span class="eq"></span><code>(verdoppeln <mark>(+ 1 2)</mark>)</code></li>
+<li style="--i:1"><span class="eq">=</span><code><mark>(verdoppeln 3)</mark></code></li>
+<li style="--i:2"><span class="eq">=</span><code><mark>(* 2 3)</mark></code></li>
+<li style="--i:3"><span class="eq">=</span><code><span class="ergebnis">6</span></code></li>
+</ol>
+<figcaption><span>So rechnet Racket: Der markierte Teil wird als Nächstes ausgerechnet. Genau das zeigt dir der Stepper im <a href="playground.html">Playground</a>.</span><button type="button" class="r-replay">Nochmal</button></figcaption>
+</figure>
 </div>
 <div class="cards">
 <a class="card" href="lernen.html"><div class="ic">📖</div><h3>Lernübersicht</h3><p>Alle Erklärungen, Kapitel für Kapitel</p></a>
@@ -44,6 +57,6 @@
 <p><strong>Tipp:</strong> Lies nicht nur – tippe die Beispiele selbst ab (nicht kopieren!), führe sie aus und verändere sie. Fehler sind normal und gehören dazu. So lernt man Programmieren am schnellsten.</p>
 </main>
 <footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
-<script src="assets/js/app.js?v=e33e48d3"></script>
+<script src="assets/js/app.js?v=713f2fdb"></script>
 </body>
 </html>

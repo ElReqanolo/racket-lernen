@@ -468,8 +468,21 @@ kapitems = "".join(
     f'<a class="chip" href="fehler.html?kap={n}">⚠ Fehler</a></div></div>' for n in sorted(CHAP))
 index_body = f"""
 <div class="hero">
+<div class="hero-text">
 <h1>Racket lernen mit „Schreibe Dein Programm!“</h1>
-<p class="lead">Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – Anfänger“ und den Teachpacks <code>image.rkt</code> und <code>universe.rkt</code>. Du brauchst keine Vorkenntnisse und auch nicht das Buch: Jeder Befehl kommt mit Beispiel, Ergebnis und typischen Fehlern.</p>
+<p class="lead">Programmieren lernen wie im Rechenheft: Schritt für Schritt, mit Beispielen zum Ausprobieren. Für DrRacket mit der Sprachebene „Schreibe Dein Programm!“ und den Teachpacks <code>image.rkt</code> und <code>universe.rkt</code> – ohne Vorkenntnisse und auch ohne das Buch.</p>
+<div class="hero-cta"><a class="btn" href="lernen.html#erste-schritte">Mit den ersten Schritten anfangen</a><a class="btn ghost" href="playground.html">Playground öffnen</a></div>
+</div>
+<figure class="rechnung spielt" style="--n:3" aria-label="Beispiel: So rechnet Racket den Ausdruck (verdoppeln (+ 1 2)) Schritt für Schritt aus">
+<div class="r-def"><code>(define verdoppeln (lambda (x) (* 2 x)))</code></div>
+<ol>
+<li style="--i:0"><span class="eq"></span><code>(verdoppeln <mark>(+ 1 2)</mark>)</code></li>
+<li style="--i:1"><span class="eq">=</span><code><mark>(verdoppeln 3)</mark></code></li>
+<li style="--i:2"><span class="eq">=</span><code><mark>(* 2 3)</mark></code></li>
+<li style="--i:3"><span class="eq">=</span><code><span class="ergebnis">6</span></code></li>
+</ol>
+<figcaption><span>So rechnet Racket: Der markierte Teil wird als Nächstes ausgerechnet. Genau das zeigt dir der Stepper im <a href="playground.html">Playground</a>.</span><button type="button" class="r-replay">Nochmal</button></figcaption>
+</figure>
 </div>
 <div class="cards">
 <a class="card" href="lernen.html"><div class="ic">📖</div><h3>Lernübersicht</h3><p>Alle Erklärungen, Kapitel für Kapitel</p></a>

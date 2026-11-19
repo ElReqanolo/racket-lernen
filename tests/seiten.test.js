@@ -51,3 +51,10 @@ test('Glossar, Befehle und Fehler haben Einträge mit Kapitel', () => {
     assert.ok(n > 30, s + ': nur ' + n + ' Einträge');
   }
 });
+
+test('Schriften aus dem CSS sind vorhanden', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'assets/css/style.css'), 'utf8');
+  const urls = [...css.matchAll(/url\((\.\.\/fonts\/[^)]+)\)/g)].map(m => m[1]);
+  assert.ok(urls.length >= 3);
+  for (const u of urls) assert.ok(fs.existsSync(path.join(ROOT, 'assets/css', u)), u);
+});
