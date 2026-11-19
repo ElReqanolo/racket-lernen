@@ -42,3 +42,18 @@ test('Playground-Beispiele und Ausprobieren-Links sind ohne Meldung', () => {
   for (const k in B) assert.deepEqual(meldungen(B[k]), [], k);
   for (const l of ausprobierLinks()) if (!l.fehlerAbsicht) assert.deepEqual(meldungen(l.code, l.level), [], l.code.slice(0, 80));
 });
+
+test('Syntaxfarben: Schlüsselwörter, Zeichenketten, Kommentare, Klammern', () => {
+  const h = E.highlight('(define x "a;b") ; Kommentar\n(+ 1 #t)', true);
+  assert.match(h, /<span class="t-key">define<\/span>/);
+  assert.match(h, /<span class="t-str">"a;b"<\/span>/);
+  assert.match(h, /<span class="t-com">; Kommentar<\/span>/);
+  assert.match(h, /<span class="t-con">#t<\/span>/);
+  assert.equal((h.match(/<span class="sx">/g) || []).length, 2);
+  // unvollständiger Code: alle Gruppen werden geschlossen
+  const u = E.highlight('(+ (* 1 2)', true);
+  assert.equal((u.match(/<span/g) || []).length, (u.match(/<\/span>/g) || []).length);
+  // Text bleibt gleich
+  const src = '(define (f x) "x<y&z")';
+  assert.equal(E.highlight(src, true).replace(/<[^>]+>/g, '').replace(/&lt;/g, '<').replace(/&amp;/g, '&'), src);
+});

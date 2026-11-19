@@ -2,6 +2,8 @@
    Braucht racket.js und pruefer.js. */
 (function () {
   "use strict";
+  // Code mit Syntaxfarben anzeigen (editor.js), sonst als reiner Text
+  function setCode(node, code) { if (window.RacketEditor && window.RacketEditor.highlight) node.innerHTML = window.RacketEditor.highlight(code, true); else node.textContent = code; }
   var M = window.MiniRacket, P = window.Pruefer;
   var dataEl = document.getElementById("aufgaben-daten");
   if (!M || !P || !dataEl) return;
@@ -197,7 +199,7 @@
     if (giv) {
       var gb = el("div", "vorgabe");
       gb.appendChild(el("div", "vorgabe-head", "Vorgegeben (steht oben im Kapitel und gilt hier):"));
-      var gp = el("pre"); var gc = el("code"); gc.textContent = giv; gp.appendChild(gc); gb.appendChild(gp);
+      var gp = el("pre"); var gc = el("code"); setCode(gc, giv); gp.appendChild(gc); gb.appendChild(gp);
       work.appendChild(gb);
     }
     if (hasCode) {
@@ -226,7 +228,7 @@
       solBody = el("div", "musterbody"); solBody.hidden = true;
       solBody.appendChild(el("div", "musterhead", "Musterlösung"));
       if (explain) solBody.appendChild(el("p", "", esc(explain)));
-      if (code) { var pre = el("pre"); var cc = el("code"); cc.textContent = code; pre.appendChild(cc); solBody.appendChild(pre); }
+      if (code) { var pre = el("pre"); var cc = el("code"); setCode(cc, code); pre.appendChild(cc); solBody.appendChild(pre); }
       mbtn.addEventListener("click", function () {
         if (solBody.hidden && !tried && !li.classList.contains("done") && !confirm("Erst selbst probieren? Die Musterlösung verrät alles.\n\nTrotzdem anzeigen?")) return;
         solBody.hidden = !solBody.hidden;

@@ -1,9 +1,55 @@
-/* Editor-Hilfen für Racket-Textfelder: Tab-Vervollständigung und Fehlermarkierung beim Tippen.
-   Braucht racket.js (window.MiniRacket). Nutzung: RacketEditor.attach(textarea, {onLint: fn}) */
+/* Editor-Hilfen für Racket-Textfelder: Syntaxfarben, Vorschläge, Tab-Vervollständigung und Fehlermarkierung beim Tippen.
+   Braucht racket.js (window.MiniRacket). Nutzung: RacketEditor.attach(textarea, {onLint: fn, level: fn})
+   RacketEditor.highlight(code) liefert farbiges HTML (wird auch beim Erstellen der Seiten benutzt). */
 (function () {
   "use strict";
   var M = window.MiniRacket;
   if (!M) return;
+
+  // ---------------------------------------------------------------- Syntaxfarben
+  var KEYWORDS = new Set(["define", "lambda", "λ", "cond", "else", "if", "and", "or", "let", "let*", "letrec", "quote", "begin",
+    "define-record", "define-record-procedures", "define-singleton", "check-expect", "check-within", "check-error", "check-property",
+    "check-satisfied", "check-member-of", "check-range", ":", "signature", "for-all", "==>", "match", "->"]);
+  // Zerlegt Quelltext in Abschnitte mit Farbklasse; Klammern bekommen ihre Schachtelungstiefe
+  function tokens(src) {
+    var out = [], i = 0, n = src.length, depth = 0;
+    function push(s, e, c, d) { out.push({ s: s, e: e, c: c, d: d }); }
+    while (i < n) {
+      var c = src[i], s = i;
+      if (c === ";") { while (i < n && src[i] !== "\n") i++; push(s, i, "t-com"); continue; }
+      if (c === "#" && src[i + 1] === "|") { var e = src.indexOf("|#", i + 2); i = e < 0 ? n : e + 2; push(s, i, "t-com"); continue; }
+      if (c === '"') { i++; while (i < n && src[i] !== '"') { if (src[i] === "\\") i++; i++; } i = Math.min(n, i + 1); push(s, i, "t-str"); continue; }
+      if (c === "(" || c === "[") { push(s, i + 1, "t-par", depth); depth++; i++; continue; }
+      if (c === ")" || c === "]") { depth = Math.max(0, depth - 1); push(s, i + 1, "t-par", depth); i++; continue; }
+      if (c === "'" || c === "`") { push(s, i + 1, "t-quo"); i++; continue; }
+      if (/\s/.test(c)) { while (i < n && /\s/.test(src[i])) i++; push(s, i, ""); continue; }
+      while (i < n && !/[\s()\[\]";']/.test(src[i])) i++;
+      if (i === s) i++;
+      var w = src.slice(s, i), cls = "";
+      if (/^#(t|f|true|false)$/.test(w) || /^#\\/.test(w)) cls = "t-con";
+      else if (/^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$|^[+-]?\d+\/\d+$|^#[ie]/i.test(w) || /^([+-]?[\d.\/]+)?[+-][\d.\/]*i$/.test(w)) cls = "t-num";
+      else if (KEYWORDS.has(w)) cls = "t-key";
+      push(s, i, cls);
+    }
+    return out;
+  }
+  function escH(t) { return t.replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
+  // nest=true: jede Klammergruppe wird in <span class="sx"> eingeschlossen (für das Hervorheben zusammengehöriger Klammern)
+  function highlight(src, nest) {
+    var html = "", open = 0;
+    tokens(src).forEach(function (t) {
+      var txt = escH(src.slice(t.s, t.e));
+      if (t.c === "t-par") {
+        var cls = "t-par d" + (t.d % 4), opening = src[t.s] === "(" || src[t.s] === "[";
+        if (nest && opening) { html += '<span class="sx"><span class="' + cls + '">' + txt + "</span>"; open++; return; }
+        if (nest && !opening && open > 0) { html += '<span class="' + cls + '">' + txt + "</span></span>"; open--; return; }
+        html += '<span class="' + cls + '">' + txt + "</span>"; return;
+      }
+      html += t.c ? '<span class="' + t.c + '">' + txt + "</span>" : txt;
+    });
+    while (open-- > 0) html += "</span>";
+    return html;
+  }
 
   // ---------------------------------------------------------------- bekannte Namen
   var SPECIAL = ["define", "lambda", "λ", "cond", "else", "if", "and", "or", "let", "let*", "letrec", "quote", "begin",
@@ -293,17 +339,31 @@
     function styleLike(el) { var cs = getComputedStyle(ta); COPY.forEach(function (k) { el.style[k] = cs[k]; }); }
     styleLike(hl);
 
-    function render() {
-      var src = ta.value, out = "", pos = 0;
-      state.errs.forEach(function (e, k) {
-        var s = Math.max(e.s, pos), en = Math.max(e.e, s + 1);
-        if (s >= src.length) { out += esc(src.slice(pos)); pos = src.length; out += '<mark class="ed-err ed-eof" data-k="' + k + '"> </mark>'; return; }
-        out += esc(src.slice(pos, s)) + '<mark class="ed-err" data-k="' + k + '">' + esc(src.slice(s, Math.min(en, src.length))) + "</mark>";
-        pos = Math.min(en, src.length);
-      });
-      out += esc(src.slice(pos)) + "\n";
-      hl.innerHTML = out;
+    // farbiger Text im Hintergrund + rote Wellenlinie unter Fehlern
+    function paint(errs) {
+      var src = ta.value, toks = tokens(src), out = "", ei = 0, inErr = -1;
+      var ranges = errs.map(function (e, k) { return { s: e.s, e: Math.max(e.e, e.s + 1), k: k }; }).sort(function (a, b) { return a.s - b.s; });
+      var cuts = new Set([0, src.length]);
+      toks.forEach(function (t) { cuts.add(t.s); cuts.add(t.e); });
+      ranges.forEach(function (r) { cuts.add(Math.min(r.s, src.length)); cuts.add(Math.min(r.e, src.length)); });
+      var pts = Array.from(cuts).sort(function (a, b) { return a - b; }), ti = 0;
+      for (var j = 0; j + 1 < pts.length; j++) {
+        var a = pts[j], b = pts[j + 1]; if (a === b) continue;
+        while (ti < toks.length && toks[ti].e <= a) ti++;
+        var t = toks[ti] && toks[ti].s <= a ? toks[ti] : null;
+        var err = -1; for (var r = 0; r < ranges.length; r++) if (ranges[r].s <= a && a < ranges[r].e) { err = ranges[r].k; break; }
+        if (err !== inErr) { if (inErr >= 0) out += "</mark>"; if (err >= 0) out += '<mark class="ed-err" data-k="' + err + '">'; inErr = err; }
+        var txt = esc(src.slice(a, b)), cls = t && t.c ? t.c + (t.c === "t-par" ? " d" + (t.d % 4) : "") : "";
+        out += cls ? '<span class="' + cls + '">' + txt + "</span>" : txt;
+      }
+      if (inErr >= 0) out += "</mark>";
+      ranges.forEach(function (r) { if (r.s >= src.length) out += '<mark class="ed-err ed-eof" data-k="' + r.k + '"> </mark>'; });
+      hl.innerHTML = out + "\n";
       hl.scrollTop = ta.scrollTop;
+    }
+    function render() {
+      var src = ta.value;
+      paint(state.errs);
       list.innerHTML = "";
       if (!src.trim()) return;
       if (!state.errs.length) { list.innerHTML = '<div class="ed-ok">✓ Keine Fehler beim Tippen gefunden.</div>'; return; }
@@ -322,7 +382,7 @@
     }
     function lv() { return opts.level ? opts.level() : null; }
     function lint() { state = analyse(ta.value, lv()); render(); if (opts.onLint) opts.onLint(state.errs); }
-    function schedule() { clearTimeout(timer); hl.innerHTML = esc(ta.value) + "\n"; timer = setTimeout(lint, 350); }
+    function schedule() { clearTimeout(timer); paint([]); timer = setTimeout(lint, 350); }
 
     // ---- Vervollständigung
     var acItems = [], acSel = 0, acStart = 0, acPre = "", acNav = false, acAuto = false;
@@ -427,5 +487,5 @@
   }
 
   function names(src, lv) { var g = analyse(src, lv).globals, r = Array.from(g.keys()); SPECIAL.concat(Array.from(PRIMS.keys())).forEach(function (k) { if (r.indexOf(k) < 0) r.push(k); }); return r.sort(function (a, b) { return a.length - b.length || (a < b ? -1 : 1); }); }
-  window.RacketEditor = { attach: attach, analyse: analyse, parse: parse, names: names };
+  window.RacketEditor = { attach: attach, analyse: analyse, parse: parse, names: names, highlight: highlight, tokens: tokens };
 })();

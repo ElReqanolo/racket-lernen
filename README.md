@@ -30,7 +30,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 │   │   ├── editor.js             Vorschläge, Tab-Vervollständigung und Fehlermarkierung beim Tippen
 │   │   ├── stepper.js            Stepper: Auswertung Schritt für Schritt im Substitutionsmodell
 │   │   └── playground.js         der Playground (Ausführen, Animationen, universe, Bilder, Stepper-Fenster)
-│   ├── fonts/                    Schrift TeX Gyre Schola (Century Schoolbook; GUST Font License, liegt bei)
+│   ├── fonts/                    Schriften Bricolage Grotesque, Instrument Sans, JetBrains Mono (SIL OFL, liegt bei)
 │   └── katex/                    Schrift und CSS für die Formeln der Lernübersicht (KaTeX, MIT-Lizenz)
 ├── src/                          Quellen: daraus entstehen die Seiten
 │   ├── build.py                  Generator – erzeugt die sieben HTML-Seiten
@@ -38,6 +38,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 │   ├── erste_schritte.py         Kapitel „Erste Schritte“ (mit DrRacket-Installation)
 │   ├── check_try.js              entfernt „Ausprobieren“-Knöpfe, deren Code nicht läuft
 │   ├── katex_render.js           rendert die Formeln beim Erstellen
+│   ├── highlight.js              färbt den Racket-Code beim Erstellen (gleiche Farben wie im Playground)
 │   └── inhalt/                   die Inhalte
 │       ├── lernuebersicht.html   Erklärungen Kapitel für Kapitel
 │       ├── uebungen.html         Aufgaben mit Musterlösungen
@@ -53,7 +54,7 @@ Die Seite ist rein statisch: kein Server, keine Datenbank, keine Cookies, kein T
 
 ## Gestaltung
 
-Die Seite sieht aus wie ein **Rechenheft**: kariertes Papier, Schrift wie im Schulbuch (Century Schoolbook), Königsblau als Tinte für Links und Knöpfe, Rotstift für Fehler und den Heftrand, Textmarker-Gelb für das, was gerade wichtig ist – im Stepper zum Beispiel der Teil, der als Nächstes ausgerechnet wird. Im dunklen Modus wird daraus eine Schultafel. Bewegung gibt es nur, wo sie etwas zeigt: Auf der Startseite rechnet Racket einmal eine Aufgabe Zeile für Zeile vor, eine gelöste Aufgabe wird abgehakt, und im Stepper fährt der Textmarker über den neuen Schritt. Wer im Betriebssystem „Bewegung reduzieren“ eingestellt hat, sieht alles ohne Animation.
+Modern und nach Programmieren aussehend, angelehnt an DrRacket: Racket-Blau und -Rot aus dem Racket-Logo, das Logo der Seite ist ein `(λ)`. Aller Racket-Code ist eingefärbt (Schlüsselwörter, Zeichenketten, Zahlen, Kommentare, Klammern je nach Tiefe) – auf den Seiten und beim Tippen im Playground. Fährt man über eine Klammer, wird wie in DrRacket der ganze zugehörige Ausdruck schattiert. Der Stepper nutzt die Farben aus DrRacket: grün, was als Nächstes ausgerechnet wird, lila das Ergebnis. Auf der Startseite rechnet ein Editorfenster einmal eine Aufgabe Schritt für Schritt vor. Weitere Bewegung gibt es nur als Antwort auf eine Handlung (Haken bei gelösten Aufgaben, neuer Schritt im Stepper). Wer im Betriebssystem „Bewegung reduzieren“ eingestellt hat, sieht alles ohne Animation. Schriften: Bricolage Grotesque (Überschriften), Instrument Sans (Text), JetBrains Mono (Code) – alle unter der SIL Open Font License, die Lizenztexte liegen in `assets/fonts/`.
 
 ## Ändern, erstellen, testen
 

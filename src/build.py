@@ -447,6 +447,7 @@ uebungen_body = f"""
 <script type="application/json" id="aufgaben-daten">{json.dumps({"kap": TASKDATA, "lern": LERNCODE}, ensure_ascii=False).replace("</", "<\\/").replace("nonempty-list-of", "cons-list-of")}</script>
 <script src="assets/js/racket.js"></script>
 <script src="assets/js/pruefer.js"></script>
+<script src="assets/js/editor.js"></script>
 <script src="assets/js/uebungen.js"></script>"""
 
 # ------------------------------------------------------------------ Startseite
@@ -470,26 +471,29 @@ index_body = f"""
 <div class="hero">
 <div class="hero-text">
 <h1>Racket lernen mit „Schreibe Dein Programm!“</h1>
-<p class="lead">Programmieren lernen wie im Rechenheft: Schritt für Schritt, mit Beispielen zum Ausprobieren. Für DrRacket mit der Sprachebene „Schreibe Dein Programm!“ und den Teachpacks <code>image.rkt</code> und <code>universe.rkt</code> – ohne Vorkenntnisse und auch ohne das Buch.</p>
+<p class="lead">Programmieren lernen, Schritt für Schritt und mit Beispielen, die du sofort im Browser ausprobierst. Für DrRacket mit der Sprachebene „Schreibe Dein Programm!“ und den Teachpacks <code>image.rkt</code> und <code>universe.rkt</code> – ohne Vorkenntnisse und auch ohne das Buch.</p>
 <div class="hero-cta"><a class="btn" href="lernen.html#erste-schritte">Mit den ersten Schritten anfangen</a><a class="btn ghost" href="playground.html">Playground öffnen</a></div>
 </div>
 <figure class="rechnung spielt" style="--n:3" aria-label="Beispiel: So rechnet Racket den Ausdruck (verdoppeln (+ 1 2)) Schritt für Schritt aus">
-<div class="r-def"><code>(define verdoppeln (lambda (x) (* 2 x)))</code></div>
-<ol>
-<li style="--i:0"><span class="eq"></span><code>(verdoppeln <mark>(+ 1 2)</mark>)</code></li>
+<div class="r-bar"><span class="r-file">verdoppeln.rkt</span><span class="r-lvl">Schreibe Dein Programm!</span><span class="r-start">Start ▶</span></div>
+<pre class="r-def"><code class="language-racket">(define verdoppeln
+  (lambda (x)
+    (* 2 x)))</code></pre>
+<div class="r-int"><ol>
+<li style="--i:0"><span class="eq">&gt;</span><code>(verdoppeln <mark>(+ 1 2)</mark>)</code></li>
 <li style="--i:1"><span class="eq">=</span><code><mark>(verdoppeln 3)</mark></code></li>
 <li style="--i:2"><span class="eq">=</span><code><mark>(* 2 3)</mark></code></li>
 <li style="--i:3"><span class="eq">=</span><code><span class="ergebnis">6</span></code></li>
-</ol>
-<figcaption><span>So rechnet Racket: Der markierte Teil wird als Nächstes ausgerechnet. Genau das zeigt dir der Stepper im <a href="playground.html">Playground</a>.</span><button type="button" class="r-replay">Nochmal</button></figcaption>
+</ol></div>
+<figcaption><span>Grün markiert ist der Teil, den Racket als Nächstes ausrechnet – so zeigt es auch der Stepper im <a href="playground.html">Playground</a>.</span><button type="button" class="r-replay">Nochmal</button></figcaption>
 </figure>
 </div>
 <div class="cards">
-<a class="card" href="lernen.html"><div class="ic">📖</div><h3>Lernübersicht</h3><p>Alle Erklärungen, Kapitel für Kapitel</p></a>
-<a class="card" href="befehle.html"><div class="ic">⌘</div><h3>Befehle</h3><p>Syntax und Beispiel, filterbar nach Kapitel</p></a>
+<a class="card" href="lernen.html"><div class="ic">λ</div><h3>Lernübersicht</h3><p>Alle Erklärungen, Kapitel für Kapitel</p></a>
+<a class="card" href="befehle.html"><div class="ic">( )</div><h3>Befehle</h3><p>Syntax und Beispiel, filterbar nach Kapitel</p></a>
 <a class="card" href="glossar.html"><div class="ic">Aa</div><h3>Glossar</h3><p>{n_terms} Begriffe von A bis Z</p></a>
-<a class="card" href="fehler.html"><div class="ic">⚠</div><h3>Fehlermeldungen</h3><p>Was die Meldung bedeutet und wie du sie behebst</p></a>
-<a class="card" href="uebungen.html"><div class="ic">✎</div><h3>Übungen</h3><p>{len(task_ids)} Aufgaben mit Tipps und Online-Prüfung</p></a>
+<a class="card" href="fehler.html"><div class="ic">!</div><h3>Fehlermeldungen</h3><p>Was die Meldung bedeutet und wie du sie behebst</p></a>
+<a class="card" href="uebungen.html"><div class="ic">✓</div><h3>Übungen</h3><p>{len(task_ids)} Aufgaben mit Tipps und Online-Prüfung</p></a>
 <a class="card" href="playground.html"><div class="ic">▶</div><h3>Playground</h3><p>Befehle direkt im Browser ausprobieren</p></a>
 </div>
 <h2>Kapitel für Kapitel</h2>
@@ -594,6 +598,20 @@ pages = [("index.html", "Start", index_body, False), ("lernen.html", "Lernübers
 def _fix_sig(t):
     return t.replace("nonempty-list-of", "cons-list-of")
 pages = [(fn, t, _fix_sig(b), kx) for fn, t, b, kx in pages]
+# Racket-Code einfärben (src/highlight.js nutzt dieselbe Zerlegung wie der Editor im Playground)
+_CODE_RX = re.compile(r'(<pre[^>]*>)<code class="language-racket">(.*?)</code></pre>', re.S)
+def _highlight_pages(pgs):
+    blocks = []
+    for _fn, _t, b, _kx in pgs:
+        blocks += [m.group(2) for m in _CODE_RX.finditer(b)]
+    plain = [html.unescape(x) for x in blocks if "<" not in x]
+    r = subprocess.run(["node", os.path.join(HERE, "highlight.js")], input=json.dumps(plain), capture_output=True, text=True, check=True)
+    colored = dict(zip(plain, json.loads(r.stdout)))
+    def sub(m):
+        if "<" in m.group(2): return m.group(0)
+        return m.group(1) + '<code class="language-racket">' + colored[html.unescape(m.group(2))] + "</code></pre>"
+    return [(fn, t, _CODE_RX.sub(sub, b), kx) for fn, t, b, kx in pgs]
+pages = _highlight_pages(pages)
 def _ver(path):
     return hashlib.md5(open(path, "rb").read()).hexdigest()[:8]
 ASSETS = ["css/style.css"] + ["js/" + j + ".js" for j in ("app", "racket", "pruefer", "uebungen", "editor", "stepper", "playground")]
