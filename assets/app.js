@@ -19,21 +19,31 @@
     store.set("sdp-theme", next);
   });
 
-  /* ---------- Handy: Filterleiste beim Runterscrollen einklappen (nur Suche bleibt) ---------- */
-  var fbar = document.querySelector(".filters");
-  if (fbar) {
-    var lastY = window.scrollY;
-    var onScroll = function () {
+  /* ---------- Handy: beim Runterscrollen Kopfzeile ausblenden und Filterleiste einklappen (nur Suche bleibt) ---------- */
+  (function () {
+    var fbar = document.querySelector(".filters"), body = document.body, lastY = window.scrollY;
+    var baseMB = fbar ? parseFloat(getComputedStyle(fbar).marginBottom) || 0 : 0;
+    function set(hide) {
+      if (body.classList.contains("hidehead") === hide) return;
+      body.classList.toggle("hidehead", hide);
+      if (!fbar) return;
+      // Höhe im Seitenfluss gleich halten, sonst springt die Seite beim Ein-/Ausklappen
+      var h0 = fbar.offsetHeight;
+      fbar.classList.toggle("compact", hide);
+      fbar.style.marginBottom = hide ? (baseMB + h0 - fbar.offsetHeight) + "px" : "";
+    }
+    function onScroll() {
       var y = window.scrollY;
-      if (window.innerWidth >= 860 || y < 150) { fbar.classList.remove("compact"); lastY = y; return; }
-      if (y > lastY + 12) { fbar.classList.add("compact"); lastY = y; }
-      else if (y < lastY - 60) { fbar.classList.remove("compact"); lastY = y; }
+      if (window.innerWidth >= 860 || y < 150) { set(false); lastY = y; return; }
+      if (document.activeElement && document.activeElement.matches && document.activeElement.matches("input[type=search]")) { lastY = y; return; }
+      if (y > lastY + 12) { set(true); lastY = y; }
+      else if (y < lastY - 60) { set(false); lastY = y; }
       else if (y > lastY) lastY = y; // weiter runter: Bezugspunkt mitziehen
-      else if (y < lastY && !fbar.classList.contains("compact")) lastY = y;
-    };
+      else if (y < lastY && !body.classList.contains("hidehead")) lastY = y;
+    }
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
-  }
+  })();
 
   /* ---------- Code kopieren ---------- */
   document.querySelectorAll("pre").forEach(function (pre) {
