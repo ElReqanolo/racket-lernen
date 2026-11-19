@@ -1,8 +1,8 @@
 /* Mini-Racket: ein kleiner Interpreter für die Lehrsprachen „Schreibe Dein Programm!“.
    Läuft im Browser (window.MiniRacket) und in Node (module.exports).
-   Unterstützt: define, lambda, cond, if, and, or, let, let*, letrec, quote, define-record,
-   Signaturen (werden nicht geprüft), check-expect/within/error/property, Listen, Zeichenketten,
-   exakte Brüche, Bilder (2htdp/image-Teilmenge). */
+   Unterstützt die drei Sprachebenen (Option level), define, lambda (auch mit Restparameter), cond, if, and, or,
+   let, let*, letrec, quote, begin, match, define-record, define-singleton, Signaturen (Prüfung mit Option checkSigs),
+   alle check-…-Tests, Listen, Zeichenketten, exakte Brüche, Bilder (2htdp/image) und big-bang-Klauseln (Hook onBigBang). */
 (function (root) {
   "use strict";
 
@@ -23,6 +23,9 @@
   function LazySig(expr, env) { this.expr = expr; this.env = env; this.cache = null; }
   function Property(vars, sigExprs, body, env) { this.vars = vars; this.sigExprs = sigExprs; this.body = body; this.env = env; }
   var Void = { toString: function () { return ""; } };
+  function Locked(name, msg) { this.name = name; this.msg = msg; }        // Name gibt es in der gewählten Sprachebene nicht
+  function Clause(kind, args) { this.kind = kind; this.args = args; }      // big-bang-Klausel (to-draw, on-tick, …)
+  function Singleton(name) { this.name = name; }
 
   // ------------------------------------------------------------------ exakte Zahlen
   function bgcd(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { var t = a % b; a = b; b = t; } return a; }
@@ -157,7 +160,7 @@
   function Env(parent) { this.vars = new Map(); this.parent = parent; }
   Env.prototype.lookup = function (name, node) {
     var e = this;
-    while (e) { if (e.vars.has(name)) { var v = e.vars.get(name); if (v === UNINIT) throw new RacketError(name + ": Variable wird benutzt, bevor sie definiert ist", "unbound"); return v; } e = e.parent; }
+    while (e) { if (e.vars.has(name)) { var v = e.vars.get(name); if (v instanceof Locked) throw new RacketError(v.msg, "level"); if (v === UNINIT) throw new RacketError(name + ": Variable wird benutzt, bevor sie definiert ist", "unbound"); return v; } e = e.parent; }
     throw new RacketError(name + ": Variable ist nicht definiert", "unbound", name);
   };
   Env.prototype.define = function (name, v) { this.vars.set(name, v); };
@@ -185,6 +188,8 @@
     if (v instanceof Img) return "[Bild " + Math.round(v.w) + "×" + Math.round(v.h) + "]";
     if (v instanceof Sig || v instanceof LazySig) return "#<signature>";
     if (v instanceof Property) return "#<property>";
+    if (v instanceof Singleton) return v.name;
+    if (v instanceof Clause) return "#<" + v.kind + ">";
     if (v === Void || v === undefined) return "";
     return String(v);
   }
@@ -224,13 +229,17 @@
     this.steps = 0; this.maxSteps = opts.maxSteps || 3000000;
     this.global = new Env(null);
     this.tests = []; this.output = [];
+    this.checkSigs = !!opts.checkSigs; this.sigDecls = new Map(); this.sigViolations = [];
+    this.level = opts.level || null; this.lockedForms = {};
     installPrims(this);
+    if (this.level) applyLevel(this, this.level);
   }
   function tick(it) { if (++it.steps > it.maxSteps) throw new RacketError("Das Programm läuft zu lange (über " + (it.maxSteps / 1e6) + " Mio. Schritte) – vermutlich eine Endlosrekursion: Wird der rekursive Aufruf wirklich mit einem kleineren Wert gemacht?", "loop"); }
 
   function special(name) { return SPECIAL.hasOwnProperty(name); }
   var SPECIAL = { define: 1, lambda: 1, "λ": 1, cond: 1, if: 1, and: 1, or: 1, let: 1, "let*": 1, letrec: 1, quote: 1, "define-record": 1, "define-record-procedures": 1,
-    "check-expect": 1, "check-within": 1, "check-error": 1, "check-property": 1, "check-satisfied": 1, ":": 1, signature: 1, "for-all": 1, "==>": 1, begin: 1, else: 1 };
+    "check-expect": 1, "check-within": 1, "check-error": 1, "check-property": 1, "check-satisfied": 1, "check-member-of": 1, "check-range": 1, ":": 1, signature: 1, "for-all": 1, "==>": 1, begin: 1, else: 1,
+    match: 1, "define-singleton": 1 };
 
   Interp.prototype.evalBody = function (forms, env) {
     // interne Definitionen zuerst, dann der letzte Ausdruck (Endposition)
@@ -254,6 +263,7 @@
       if (x.length === 0) throw new RacketError("(): leere Klammern – hier fehlt der Operator", "syntax");
       var head = x[0], hn = symName(head);
       if (hn && special(hn) && !env.vars.has(hn) && !(env !== this.global && this.shadowed(hn, env))) {
+        if (this.lockedForms[hn]) throw new RacketError(this.lockedForms[hn], "level");
         switch (hn) {
           case "quote": return quoteData(x[1]);
           case "define": return this.doDefine(x, env);
@@ -308,9 +318,22 @@
           }
           case "begin": x = this.evalBody(x.slice(1), env); continue;
           case "define-record": case "define-record-procedures": return this.doRecord(x, env);
-          case "check-expect": case "check-within": case "check-error": case "check-property": case "check-satisfied":
+          case "check-expect": case "check-within": case "check-error": case "check-property": case "check-satisfied": case "check-member-of": case "check-range":
             this.tests.push({ kind: hn, form: x, env: env, line: x.line }); return Void;
-          case ":": return Void;
+          case ":": return this.doSigDecl(x, env);
+          case "define-singleton": return this.doSingleton(x, env);
+          case "match": {
+            if (x.length < 3) throw new RacketError("match: erwartet einen Ausdruck und mindestens einen Zweig (Muster Ausdruck)", "syntax");
+            var mv = this.eval(x[1], env), hit = null, menv = null;
+            for (var mi = 2; mi < x.length; mi++) {
+              var mcl = x[mi];
+              if (!Array.isArray(mcl) || mcl.length < 2) throw new RacketError("match: jeder Zweig hat die Form (Muster Ausdruck)", "syntax");
+              var bnd = new Map();
+              if (this.matchPat(mcl[0], mv, bnd, env)) { hit = mcl; menv = new Env(env); bnd.forEach(function (v, k) { menv.define(k, v); }); break; }
+            }
+            if (!hit) throw new RacketError("match: kein Zweig passt auf den Wert " + show(mv), "cond");
+            x = this.evalBody(hit.slice(1), menv); env = menv; continue;
+          }
           case "signature": return new LazySig(x[1], env);
           case "for-all": {
             var vars = [], sigs = [];
@@ -330,18 +353,26 @@
       var args = new Array(x.length - 1);
       for (var a = 1; a < x.length; a++) args[a - 1] = this.eval(x[a], env);
       if (f instanceof Closure) {
-        if (args.length !== f.params.length)
-          throw new RacketError((f.name || "Funktion") + ": erwartet " + f.params.length + " Argument" + (f.params.length === 1 ? "" : "e") + ", bekommt aber " + args.length, "arity");
-        var fe = new Env(f.env);
-        for (var p = 0; p < args.length; p++) fe.define(f.params[p], args[p]);
+        if (f.sigDecl && this.checkSigs) return this.applyChecked(f, args, x.line);
+        var fe = bindArgs(f, args);
         env = fe; x = this.evalBody(f.body, fe); continue;
       }
-      return this.applyNonClosure(f, args, head);
+      return this.applyNonClosure(f, args, head, x.line);
     }
   };
   Interp.prototype.shadowed = function (name, env) { var e = env; while (e && e !== this.global) { if (e.vars.has(name)) return true; e = e.parent; } return false; };
-  Interp.prototype.applyNonClosure = function (f, args, head) {
+  function bindArgs(f, args) {
+    var n = f.params.length;
+    if (f.rest ? args.length < n : args.length !== n)
+      throw new RacketError((f.name || "Funktion") + ": erwartet " + (f.rest ? "mindestens " : "") + n + " Argument" + (n === 1 && !f.rest ? "" : "e") + ", bekommt aber " + args.length, "arity");
+    var fe = new Env(f.env);
+    for (var p = 0; p < n; p++) fe.define(f.params[p], args[p]);
+    if (f.rest) { var l = Empty; for (var q = args.length - 1; q >= n; q--) l = new Pair(args[q], l); fe.define(f.rest, l); }
+    return fe;
+  }
+  Interp.prototype.applyNonClosure = function (f, args, head, line) {
     if (f instanceof Prim) {
+      if (f.sigCheck && this.checkSigs) f.sigCheck(args, line);
       if (args.length < f.min || (f.max !== -1 && args.length > f.max))
         throw new RacketError(f.name + ": erwartet " + (f.min === f.max ? f.min : f.max === -1 ? "mindestens " + f.min : f.min + " bis " + f.max) + " Argument" + ((f.min === 1 && f.max === 1) ? "" : "e") + ", bekommt aber " + args.length, "arity");
       return f.fn.apply(this, args);
@@ -352,10 +383,8 @@
   };
   Interp.prototype.apply = function (f, args) {
     if (f instanceof Closure) {
-      if (args.length !== f.params.length)
-        throw new RacketError((f.name || "Funktion") + ": erwartet " + f.params.length + " Argument" + (f.params.length === 1 ? "" : "e") + ", bekommt aber " + args.length, "arity");
-      var fe = new Env(f.env);
-      for (var p = 0; p < args.length; p++) fe.define(f.params[p], args[p]);
+      if (f.sigDecl && this.checkSigs) return this.applyChecked(f, args, null);
+      var fe = bindArgs(f, args);
       return this.eval(this.evalBody(f.body, fe), fe);
     }
     return this.applyNonClosure(f, args, null);
@@ -367,7 +396,13 @@
     if (!Array.isArray(ps)) throw new RacketError("lambda: nach lambda kommt die Parameterliste in Klammern, z. B. (lambda (x) …)", "syntax");
     if (x.length < 3) throw new RacketError("lambda: der Rumpf fehlt", "syntax");
     var names = ps.map(function (p) { var n = symName(p); if (!n) throw new RacketError("lambda: Parameter müssen Namen sein", "syntax"); return n; });
-    return new Closure(names, x.slice(2), env, name);
+    var rest = null, dot = names.indexOf(".");
+    if (dot >= 0) {
+      if (this.level && this.level !== "advanced") throw new RacketError("lambda: Ein Restparameter mit Punkt (lambda (x . rest) …) gibt es erst in der Sprachebene „Schreibe Dein Programm! – fortgeschritten“", "syntax");
+      if (dot !== names.length - 2) throw new RacketError("lambda: Nach dem Punkt muss genau ein Name für den Restparameter stehen", "syntax");
+      rest = names[dot + 1]; names = names.slice(0, dot);
+    }
+    var cl = new Closure(names, x.slice(2), env, name); cl.rest = rest; return cl;
   };
   Interp.prototype.doDefine = function (x, env) {
     if (Array.isArray(x[1])) {
@@ -381,6 +416,7 @@
     if ((hn === "lambda" || hn === "λ") && !env.vars.has(hn)) val = this.makeLambda(vx, env, name);
     else { env.define(name, UNINIT); val = this.eval(vx, env); if (val instanceof Closure && !val.name) val.name = name; }
     env.define(name, val);
+    if (this.checkSigs && this.sigDecls.has(name) && env === this.global) this.attachSig(name, val, this.sigDecls.get(name));
     return Void;
   };
   Interp.prototype.doRecord = function (x, env) {
@@ -394,7 +430,15 @@
     rt.fieldSigs = rest.map(function (f) { return f[1]; }); rt.env = env; rt.params = Array.isArray(tn) ? tn.length - 1 : 0;
     var sigv = new Sig("record", rt);
     env.define(typeName, Array.isArray(tn) ? new Prim(typeName, function () { return sigv; }, 0, -1) : sigv);
-    env.define(ctor, new Prim(ctor, function () { return new RecordVal(rt, Array.prototype.slice.call(arguments)); }, fields.length));
+    var ctorP = new Prim(ctor, function () { return new RecordVal(rt, Array.prototype.slice.call(arguments)); }, fields.length);
+    ctorP.recordType = rt;
+    ctorP.sigCheck = function (args, line) {
+      for (var i = 0; i < args.length; i++) if (rt.fieldSigs[i] !== undefined) {
+        var sg; try { sg = it.evalSig(rt.fieldSigs[i], rt.env); } catch (e) { continue; }
+        if (!it.sigOk(sg, args[i])) it.violation(ctor + ": Signaturverletzung beim Feld " + fields[i] + " – bekommen " + show(args[i]) + ", erwartet " + unparse(rt.fieldSigs[i]), line, lineOf(rt.fieldSigs[i]));
+      }
+    };
+    env.define(ctor, ctorP);
     if (pred) env.define(pred, new Prim(pred, function (v) { return v instanceof RecordVal && (v.type === rt || v.type.name === rt.name); }, 1));
     fields.forEach(function (sel, i) {
       env.define(sel, new Prim(sel, function (v) {
@@ -412,6 +456,152 @@
     return d;
   }
 
+  // ------------------------------------------------------------------ Signaturen prüfen (wie DrRacket: Verletzungen werden gesammelt, das Programm läuft weiter)
+  function unparse(x) {
+    if (Array.isArray(x)) return "(" + x.map(unparse).join(" ") + ")";
+    if (isSymNode(x)) return x.sym.name;
+    if (x instanceof String) return JSON.stringify(String(x));
+    if (x === true) return "#t"; if (x === false) return "#f";
+    if (isNum(x)) return numToString(x);
+    return String(x);
+  }
+  Interp.prototype.violation = function (msg, line, sigLine) {
+    if (this.sigViolations.length >= 100) return;
+    var full = msg + (line ? " (Aufruf in Zeile " + line + (sigLine ? ", Signatur in Zeile " + sigLine : "") + ")" : sigLine ? " (Signatur in Zeile " + sigLine + ")" : "");
+    for (var i = 0; i < this.sigViolations.length; i++) if (this.sigViolations[i].msg === full) { this.sigViolations[i].count++; return; }
+    this.sigViolations.push({ msg: full, line: line, sigLine: sigLine, count: 1 });
+  };
+  // Signatur-Ausdruck auswerten; (a b -> c) wird zur Funktions-Signatur
+  Interp.prototype.evalSig = function (x, env) {
+    var it = this;
+    if (Array.isArray(x)) {
+      var ai = -1; for (var i = 0; i < x.length; i++) if (symName(x[i]) === "->") ai = i;
+      if (ai >= 0) return new Sig("fn", { args: x.slice(0, ai).map(function (a) { return it.evalSig(a, env); }), res: x[ai + 1] !== undefined ? it.evalSig(x[ai + 1], env) : new Sig("base", "any") });
+      var hn = symName(x[0]);
+      if (hn === "signature") return it.evalSig(x[1], env);
+      if (hn === "predicate" || hn === "lambda" || hn === "λ" || hn === "integer-from-to" || hn === "enum" || hn === "one-of") return it.resolveSig(it.eval(x, env));
+      var f = it.eval(x[0], env);
+      if (f instanceof Prim) return it.resolveSig(f.fn.apply(it, x.slice(1).map(function (a) { return it.evalSig(a, env); })));
+      if (f instanceof Closure) return it.resolveSig(it.apply(f, x.slice(1).map(function (a) { return it.evalSig(a, env); })));
+      return new Sig("base", "any");
+    }
+    if (isSymNode(x)) { if (x.sym.name.charAt(0) === "%") return new Sig("var", x.sym.name); return it.resolveSig(env.lookup(x.sym.name)); }
+    return it.resolveSig(it.eval(x, env));
+  };
+  Interp.prototype.sigOk = function (sg, v) {
+    var it = this; sg = it.resolveSig(sg);
+    if (!(sg instanceof Sig)) return true;
+    switch (sg.kind) {
+      case "base":
+        switch (sg.data) {
+          case "number": case "real": return isNum(v);
+          case "rational": return isNum(v) && (isExact(v) || Number.isFinite(v));
+          case "integer": return isNum(v) && isInt(v);
+          case "natural": return isNum(v) && isInt(v) && cmp(v, R(0)) >= 0;
+          case "boolean": return v === true || v === false;
+          case "string": return typeof v === "string" || v instanceof String;
+          case "symbol": return v instanceof Sym;
+          case "empty-list": return v === Empty;
+          case "true": return v === true; case "false": return v === false;
+          case "image": return v instanceof Img;
+          case "property": return v instanceof Property || v === true || v === false;
+          case "color": return typeof v === "string" || (v instanceof RecordVal && v.type.name === "color");
+          case "mode": return v === "solid" || v === "outline" || isNum(v);
+          default: return true;
+        }
+      case "var": return true;
+      case "list": case "nelist": {
+        if (sg.kind === "nelist" && !(v instanceof Pair)) return false;
+        while (v instanceof Pair) { if (!it.sigOk(sg.data, v.car)) return false; v = v.cdr; }
+        return v === Empty;
+      }
+      case "range": return isNum(v) && isInt(v) && cmp(v, sg.data[0]) >= 0 && cmp(v, sg.data[1]) <= 0;
+      case "enum": return sg.data.some(function (o) { return equal(o, v); });
+      case "mixed": return sg.data.some(function (o) { return it.sigOk(o, v); });
+      case "combined": return sg.data.every(function (o) { return it.sigOk(o, v); });
+      case "pred": { var r; try { r = it.apply(sg.data, [v]); } catch (e) { return false; } return r === true; }
+      case "record": return v instanceof RecordVal && (v.type === sg.data || v.type.name === sg.data.name);
+      case "singleton": return v === sg.data;
+      case "fn": return v instanceof Closure || v instanceof Prim;
+      case "app": return true;
+    }
+    return true;
+  };
+  Interp.prototype.doSigDecl = function (x, env) {
+    if (x.length !== 3) throw new RacketError(": erwartet einen Namen und eine Signatur, z. B. (: f (number -> number))", "syntax");
+    var name = symName(x[1]);
+    if (!name) throw new RacketError(": nach dem Doppelpunkt muss der Name stehen, dann die Signatur", "syntax");
+    if (!this.checkSigs) return Void;
+    var decl = { expr: x[2], env: env, line: x.line || lineOf(x[2]), name: name };
+    this.sigDecls.set(name, decl);
+    if (env.vars.has(name)) { var v = env.vars.get(name); if (v !== UNINIT) this.attachSig(name, v, decl); }
+    return Void;
+  };
+  Interp.prototype.attachSig = function (name, val, decl) {
+    var sg;
+    try { sg = this.evalSig(decl.expr, decl.env); } catch (e) { sg = null; }
+    if (val instanceof Closure) { val.sigDecl = decl; return; }
+    if (sg && !(sg.kind === "fn") && !this.sigOk(sg, val)) this.violation(name + ": Signaturverletzung – der Wert " + show(val) + " passt nicht zur Signatur " + unparse(decl.expr), null, decl.line);
+  };
+  Interp.prototype.applyChecked = function (f, args, line) {
+    var d = f.sigDecl, sg = d.sig;
+    if (!sg) { try { sg = d.sig = this.evalSig(d.expr, d.env); } catch (e) { sg = d.sig = new Sig("base", "any"); } }
+    var fe = bindArgs(f, args);
+    if (sg.kind === "fn") {
+      if (sg.data.args.length !== f.params.length && !f.rest && !d.arityWarned) {
+        d.arityWarned = true;
+        this.violation(f.name + ": Die Signatur nennt " + sg.data.args.length + " Argument" + (sg.data.args.length === 1 ? "" : "e") + ", die Funktion hat aber " + f.params.length + " Parameter", null, d.line);
+      }
+      var argExprs = Array.isArray(d.expr) ? d.expr : [];
+      for (var i = 0; i < args.length && i < sg.data.args.length; i++)
+        if (!this.sigOk(sg.data.args[i], args[i])) this.violation(f.name + ": Signaturverletzung beim " + (i + 1) + ". Argument – bekommen " + show(args[i]) + ", erwartet " + unparse(argExprs[i]), line, d.line);
+    }
+    var res = this.eval(this.evalBody(f.body, fe), fe);
+    if (sg.kind === "fn" && !this.sigOk(sg.data.res, res)) {
+      var rx = Array.isArray(d.expr) ? d.expr[d.expr.length - 1] : null;
+      this.violation(f.name + ": Signaturverletzung beim Ergebnis – geliefert " + show(res) + ", erwartet " + unparse(rx), line, d.line);
+    }
+    return res;
+  };
+  Interp.prototype.doSingleton = function (x, env) {
+    // (define-singleton signatur name [prädikat])
+    var sn = symName(x[1]), vn = symName(x[2]), pn = x[3] ? symName(x[3]) : null;
+    if (!sn || !vn) throw new RacketError("define-singleton: erwartet (define-singleton signatur name) oder (define-singleton signatur name prädikat)", "syntax");
+    var single = new Singleton(vn);
+    env.define(sn, new Sig("singleton", single));
+    env.define(vn, single);
+    if (pn) env.define(pn, new Prim(pn, function (v) { return v === single; }, 1));
+    return Void;
+  };
+  // Muster für match: Name, ... / _ (alles), Literale, empty, (cons a b), (list a …), 'symbol, (konstruktor muster …)
+  Interp.prototype.matchPat = function (pat, v, bnd, env) {
+    var it = this;
+    if (isSymNode(pat)) {
+      var n = pat.sym.name;
+      if (n === "..." || n === "_") return true;
+      if (n === "empty") return v === Empty;
+      if (n === "#t" || n === "true") return v === true;
+      if (n === "#f" || n === "false") return v === false;
+      bnd.set(n, v); return true;
+    }
+    if (pat instanceof String) return (typeof v === "string" || v instanceof String) && String(v) === String(pat);
+    if (pat === true || pat === false) return v === pat;
+    if (isNum(pat)) return isNum(v) && equal(pat, v);
+    if (Array.isArray(pat)) {
+      var h = symName(pat[0]);
+      if (h === "quote") return equal(quoteData(pat[1]), v);
+      if (h === "cons") return v instanceof Pair && pat.length === 3 && it.matchPat(pat[1], v.car, bnd, env) && it.matchPat(pat[2], v.cdr, bnd, env);
+      if (h === "list") { for (var i = 1; i < pat.length; i++) { if (!(v instanceof Pair) || !it.matchPat(pat[i], v.car, bnd, env)) return false; v = v.cdr; } return v === Empty; }
+      var c; try { c = env.lookup(h); } catch (e) { throw new RacketError("match: " + h + " ist kein Konstruktor eines Records", "syntax"); }
+      if (!(c instanceof Prim) || !c.recordType) throw new RacketError("match: " + h + " ist kein Konstruktor eines Records", "syntax");
+      if (!(v instanceof RecordVal) || (v.type !== c.recordType && v.type.name !== c.recordType.name)) return false;
+      if (pat.length - 1 !== v.vals.length) throw new RacketError("match: das Muster für " + h + " braucht " + v.vals.length + " Teilmuster, hat aber " + (pat.length - 1), "syntax");
+      for (var k = 1; k < pat.length; k++) if (!it.matchPat(pat[k], v.vals[k - 1], bnd, env)) return false;
+      return true;
+    }
+    return false;
+  };
+
   // ------------------------------------------------------------------ Programm laufen lassen
   Interp.prototype.run = function (src) {
     var forms = readAll(src), values = [];
@@ -419,7 +609,7 @@
       var f = forms[i];
       var v = this.eval(f, this.global);
       var hn = Array.isArray(f) ? symName(f[0]) : null;
-      var isDef = hn && (hn === "define" || hn === "define-record" || hn === ":" || hn.indexOf("check-") === 0);
+      var isDef = hn && (hn === "define" || hn === "define-record" || hn === "define-singleton" || hn === ":" || hn.indexOf("check-") === 0);
       if (!isDef && v !== Void) values.push({ form: f, value: v });
     }
     return values;
@@ -444,7 +634,18 @@
         r.ok = equal(act, exp, eps);
       } else if (t.kind === "check-error") {
         try { r.actual = it.eval(f[1], aEnv); r.ok = false; r.noError = true; }
-        catch (e) { if (!(e instanceof RacketError) || e.kind === "loop") throw e; r.ok = true; r.errorMsg = e.message; }
+        catch (e) {
+          if (!(e instanceof RacketError) || e.kind === "loop") throw e;
+          r.errorMsg = e.message; r.ok = true;
+          if (f.length > 2) { var want = it.eval(f[2], eEnv); if (String(want) !== e.message) { r.ok = false; r.wrongMsg = true; r.expectedMsg = String(want); } }
+        }
+      } else if (t.kind === "check-member-of") {
+        var av = it.eval(f[1], aEnv); r.actual = av;
+        var opts = f.slice(2).map(function (e) { return it.eval(e, eEnv); });
+        r.expected = opts; r.ok = opts.some(function (o) { return equal(av, o); }); r.memberOf = true;
+      } else if (t.kind === "check-range") {
+        var rv = it.eval(f[1], aEnv), lo = it.eval(f[2], eEnv), hi = it.eval(f[3], eEnv); r.actual = rv; r.range = [lo, hi];
+        r.ok = isNum(rv) && cmp(rv, lo) >= 0 && cmp(rv, hi) <= 0;
       } else if (t.kind === "check-satisfied") {
         var v = it.eval(f[1], aEnv), pr = it.eval(f[2], eEnv);
         r.actual = v; r.ok = it.apply(pr, [v]) === true;
@@ -774,7 +975,7 @@
     def("procedure?", 1, 1, function (f) { return f instanceof Closure || f instanceof Prim; });
     def("identity", 1, 1, function (x) { return x; });
 
-    // Signaturen (werden nicht geprüft, nur für check-property gebraucht)
+    // Signaturen (Prüfung siehe sigOk; außerdem für check-property gebraucht)
     ["number", "real", "rational", "integer", "natural", "boolean", "string", "any", "empty-list", "true", "false", "symbol", "image", "property", "unspecific", "color", "mode"].forEach(function (n) { g.define(n, new Sig("base", n)); });
     def("list-of", 1, 1, function (s) { return new Sig("list", s); });
     def("cons-list-of", 1, 1, function (s) { return new Sig("nelist", s); });
@@ -833,17 +1034,198 @@
     def("polygon", 3, 3, function (pts, m, c) { var a = toArr(lst("polygon", pts)).map(function (p) { return [toF(p.vals[0]), toF(p.vals[1])]; }); return polyImg("polygon", a, m, c, "poly(" + JSON.stringify(a) + "," + m + "," + colorOf(c) + ")"); });
     def("make-color", 3, 4, function (r, g2, b) { return new RecordVal(COLOR, [r, g2, b]); });
 
-    // Animation – nicht im Browser-Prüfer
-    ["big-bang", "animate", "to-draw", "on-tick", "on-key", "on-mouse", "stop-when", "on-pad", "on-draw", "on-release", "name", "check-with"].forEach(function (n) {
-      def(n, 0, -1, function () { if (n === "big-bang" || n === "animate") it.animSkipped = true; return Void; });
+    // ---------- weitere Zahlenfunktionen (Sprachebenen „Schreibe Dein Programm!“)
+    function fl(name, f, exactZeroIn, exactOut) {
+      def(name, 1, 1, function (a) {
+        num(name, a);
+        if (exactZeroIn !== undefined && isExact(a) && cmp(a, exactZeroIn) === 0) return exactOut;
+        var r = f(toF(a));
+        if (Number.isNaN(r)) throw new RacketError(name + ": Das Ergebnis wäre eine komplexe Zahl – die kann der Playground nicht darstellen", "type");
+        return r;
+      });
+    }
+    fl("sin", Math.sin, R(0), R(0)); fl("cos", Math.cos, R(0), R(1)); fl("tan", Math.tan, R(0), R(0));
+    fl("asin", Math.asin, R(0), R(0)); fl("acos", Math.acos, R(1), R(0)); fl("exp", Math.exp, R(0), R(1));
+    def("log", 1, 1, function (a) { num("log", a); if (isExact(a) && cmp(a, R(1)) === 0) return R(0); if (cmp(a, R(0)) === 0) throw new RacketError("log: Logarithmus von 0 ist nicht definiert", "type"); if (toF(a) < 0) throw new RacketError("log: Das Ergebnis wäre eine komplexe Zahl – die kann der Playground nicht darstellen", "type"); return Math.log(toF(a)); });
+    def("atan", 1, 2, function (a, b) { num("atan", a); if (b === undefined) return isExact(a) && cmp(a, R(0)) === 0 ? R(0) : Math.atan(toF(a)); num("atan", b); return Math.atan2(toF(a), toF(b)); });
+    def("numerator", 1, 1, function (a) { num("numerator", a); if (isExact(a)) return new Rat(a.n); var p = parseNumber(String(a)); return p ? toF(new Rat(p.n)) : a; });
+    def("denominator", 1, 1, function (a) { num("denominator", a); if (isExact(a)) return new Rat(a.d); var p = parseNumber(String(a)); return p ? toF(new Rat(p.d)) : 1; });
+    def("random", 1, 1, function (n) { intg("random", n); if (cmp(n, R(1)) < 0) throw new RacketError("random: positive natürliche Zahl erwartet, " + show(n) + " bekommen", "type"); return R(Math.floor(Math.random() * toF(n))); });
+    def("current-seconds", 0, 0, function () { return R(Math.floor(Date.now() / 1000)); });
+    def("real-part", 1, 1, function (a) { return num("real-part", a); });
+    def("imag-part", 1, 1, function (a) { num("imag-part", a); return R(0); });
+    def("magnitude", 1, 1, function (a) { num("magnitude", a); return cmp(a, R(0)) < 0 ? sub(R(0), a) : a; });
+    def("angle", 1, 1, function (a) { num("angle", a); if (cmp(a, R(0)) === 0) throw new RacketError("angle: für 0 nicht definiert", "type"); return cmp(a, R(0)) > 0 ? (isExact(a) ? R(0) : 0) : Math.PI; });
+    def("make-polar", 2, 2, function (r, t) { num("make-polar", r); num("make-polar", t); var y = toF(r) * Math.sin(toF(t)); if (Math.abs(y) > 1e-12) throw new RacketError("make-polar: Das Ergebnis wäre eine komplexe Zahl – die kann der Playground nicht darstellen", "type"); return toF(r) * Math.cos(toF(t)); });
+    def("complex?", 1, 1, isNum);
+    def("false?", 1, 1, function (x) { return x === false; });
+    def("true?", 1, 1, function (x) { return x === true; });
+    def("signature?", 1, 1, function (x) { return x instanceof Sig || x instanceof LazySig; });
+    def("write-string", 1, 1, function (s) { s = str("write-string", s); it.output.push(s); if (it.onOutput) it.onOutput(s); return Void; });
+    def("write-newline", 0, 0, function () { it.output.push("\n"); if (it.onOutput) it.onOutput("\n"); return Void; });
+    def("read", 0, 0, function () {
+      if (!it.onRead) throw new RacketError("read: Eingabe ist hier nicht möglich", "type");
+      var t = it.onRead(); if (t === null || t === undefined) throw new RacketError("read: keine Eingabe", "type");
+      var forms = readAll(String(t)); if (!forms.length) throw new RacketError("read: keine Eingabe", "type");
+      return quoteData(forms[0]);
     });
+    def("expect-member-of", 1, -1, function (a) { var o = Array.prototype.slice.call(arguments, 1); return o.some(function (b) { return equal(a, b); }); });
+    def("expect-range", 3, 3, function (a, lo, hi) { return isNum(a) && cmp(a, lo) >= 0 && cmp(a, hi) <= 0; });
+
+    // ---------- weitere Bildfunktionen (2htdp/image)
+    function imgs(name, a) { a = Array.prototype.slice.call(a); imageArgs(name, a); return a; }
+    function fit(name, list, under, xa, ya) {
+      var w = 0, h = 0; list.forEach(function (i) { w = Math.max(w, i.w); h = Math.max(h, i.h); });
+      var order = under ? list.slice() : list.slice().reverse();
+      return new Img(w, h, function (ctx, ox, oy) { order.forEach(function (i) { i.draw(ctx, ox + alignOff(xa, w, i.w), oy + alignOff(ya, h, i.h)); }); },
+        name + "[" + xa + "," + ya + "](" + list.map(function (i) { return i.key(); }).join(",") + ")");
+    }
+    function offsetImg(name, i1, dx, dy, i2, under) {
+      imageArgs(name, [i1, i2]); var X = toF(num(name, dx)), Y = toF(num(name, dy));
+      // i2 wird um (X,Y) gegenüber der Mitte von i1 verschoben (overlay/offset)
+      var c1x = i1.w / 2, c1y = i1.h / 2, x2 = c1x + X - i2.w / 2, y2 = c1y + Y - i2.h / 2;
+      var minx = Math.min(0, x2), miny = Math.min(0, y2), w = Math.max(i1.w, x2 + i2.w) - minx, h = Math.max(i1.h, y2 + i2.h) - miny;
+      return new Img(w, h, function (ctx, ox, oy) {
+        if (under) { i1.draw(ctx, ox - minx, oy - miny); i2.draw(ctx, ox + x2 - minx, oy + y2 - miny); }
+        else { i2.draw(ctx, ox + x2 - minx, oy + y2 - miny); i1.draw(ctx, ox - minx, oy - miny); }
+      }, name + "(" + i1.key() + "," + X + "," + Y + "," + i2.key() + ")");
+    }
+    g.define("empty-image", new Img(0, 0, function () {}, "empty"));
+    def("overlay/align", 4, -1, function (xa, ya) { var a = imgs("overlay/align", Array.prototype.slice.call(arguments, 2)); return fit("overlay/align", a, false, String(xa), String(ya)); });
+    def("underlay/align", 4, -1, function (xa, ya) { var a = imgs("underlay/align", Array.prototype.slice.call(arguments, 2)); return fit("underlay/align", a, true, String(xa), String(ya)); });
+    def("overlay/offset", 4, 4, function (i1, x, y, i2) { return offsetImg("overlay/offset", i1, x, y, i2, false); });
+    def("underlay/offset", 4, 4, function (i1, x, y, i2) { return offsetImg("underlay/offset", i1, x, y, i2, true); });
+    def("underlay/xy", 4, 4, function (i1, dx, dy, i2) { imageArgs("underlay/xy", [i1, i2]); var X = toF(dx), Y = toF(dy); var minx = Math.min(0, X), miny = Math.min(0, Y); var w = Math.max(i1.w, X + i2.w) - minx, h = Math.max(i1.h, Y + i2.h) - miny;
+      return new Img(w, h, function (ctx, ox, oy) { i1.draw(ctx, ox - minx, oy - miny); i2.draw(ctx, ox + X - minx, oy + Y - miny); }, "uxy(" + i1.key() + "," + X + "," + Y + "," + i2.key() + ")"); });
+    def("text/font", 8, 8, function (s, size, c, face, family, style, weight, ul) {
+      var S = str("text/font", s), Z = toF(num("text/font", size)), col = colorOf(c);
+      var fam = { "default": "sans-serif", "swiss": "Helvetica, Arial, sans-serif", "roman": "Georgia, 'Times New Roman', serif", "modern": "ui-monospace, Menlo, Consolas, monospace", "decorative": "fantasy", "script": "cursive", "symbol": "serif", "system": "system-ui" }[String(family)] || "sans-serif";
+      var fnt = (String(style) === "italic" || String(style) === "slant" ? "italic " : "") + (String(weight) === "bold" ? "bold " : String(weight) === "light" ? "300 " : "") + Z + "px " + (face instanceof String || typeof face === "string" ? "'" + face + "', " : "") + fam;
+      var m = textMeasure(S, Z, fnt);
+      return new Img(m.w, m.h, function (ctx, ox, oy) { ctx.save(); ctx.fillStyle = col; ctx.font = fnt; ctx.textBaseline = "top"; ctx.fillText(S, ox, oy + Z * 0.1); if (ul === true) { ctx.fillRect(ox, oy + Z * 1.08, m.w, Math.max(1, Z / 14)); } ctx.restore(); }, "textf(" + S + "," + Z + "," + col + "," + fnt + "," + ul + ")");
+    });
+    function lineCol(c) { return c instanceof RecordVal && c.type.name === "pen" ? colorOf(c.vals[0]) : colorOf(c); }
+    def("add-line", 6, 6, function (img, x1, y1, x2, y2, c) {
+      imageArgs("add-line", [img]); var X1 = toF(x1), Y1 = toF(y1), X2 = toF(x2), Y2 = toF(y2), col = lineCol(c);
+      var minx = Math.min(0, X1, X2), miny = Math.min(0, Y1, Y2), w = Math.max(img.w, X1, X2) - minx, h = Math.max(img.h, Y1, Y2) - miny;
+      return new Img(w, h, function (ctx, ox, oy) { img.draw(ctx, ox - minx, oy - miny); ctx.save(); ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(ox + X1 - minx + .5, oy + Y1 - miny + .5); ctx.lineTo(ox + X2 - minx + .5, oy + Y2 - miny + .5); ctx.stroke(); ctx.restore(); }, "addline(" + img.key() + "," + [X1, Y1, X2, Y2] + "," + col + ")");
+    });
+    def("scene+line", 6, 6, function (img, x1, y1, x2, y2, c) {
+      imageArgs("scene+line", [img]); var X1 = toF(x1), Y1 = toF(y1), X2 = toF(x2), Y2 = toF(y2), col = lineCol(c);
+      return new Img(img.w, img.h, function (ctx, ox, oy) { img.draw(ctx, ox, oy); ctx.save(); ctx.beginPath(); ctx.rect(ox, oy, img.w, img.h); ctx.clip(); ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(ox + X1 + .5, oy + Y1 + .5); ctx.lineTo(ox + X2 + .5, oy + Y2 + .5); ctx.stroke(); ctx.restore(); }, "sceneline(" + img.key() + "," + [X1, Y1, X2, Y2] + "," + col + ")");
+    });
+    def("place-images", 3, 3, function (is, ps, sc) {
+      var I = toArr(lst("place-images", is)), P = toArr(lst("place-images", ps)), r = sc;
+      if (I.length !== P.length) throw new RacketError("place-images: Bilder- und Positionsliste müssen gleich lang sein", "type");
+      for (var i = 0; i < I.length; i++) r = place("place-images", I[i], P[i].vals[0], P[i].vals[1], r, "center", "center");
+      return r;
+    });
+    def("place-images/align", 5, 5, function (is, ps, ax, ay, sc) {
+      var I = toArr(lst("place-images/align", is)), P = toArr(lst("place-images/align", ps)), r = sc;
+      for (var i = 0; i < I.length; i++) r = place("place-images/align", I[i], P[i].vals[0], P[i].vals[1], r, String(ax), String(ay));
+      return r;
+    });
+    def("put-image", 4, 4, function (img, x, y, sc) { imageArgs("put-image", [img, sc]); return place("put-image", img, x, sub(R(Math.round(sc.h)), num("put-image", y)), sc, "center", "center"); });
+    def("scale/xy", 3, 3, function (fx, fy, img) { imageArgs("scale/xy", [img]); var X = toF(num("scale/xy", fx)), Y = toF(num("scale/xy", fy)); return new Img(img.w * X, img.h * Y, function (ctx, ox, oy) { ctx.save(); ctx.translate(ox, oy); ctx.scale(X, Y); img.draw(ctx, 0, 0); ctx.restore(); }, "scalexy(" + X + "," + Y + "," + img.key() + ")"); });
+    def("crop", 5, 5, function (x, y, w, h, img) { imageArgs("crop", [img]); var X = toF(x), Y = toF(y), W = toF(w), H = toF(h); return new Img(W, H, function (ctx, ox, oy) { ctx.save(); ctx.beginPath(); ctx.rect(ox, oy, W, H); ctx.clip(); img.draw(ctx, ox - X, oy - Y); ctx.restore(); }, "crop(" + [X, Y, W, H] + "," + img.key() + ")"); });
+    def("color-frame", 2, 2, function (c, img) { imageArgs("color-frame", [img]); var col = colorOf(c); return new Img(img.w, img.h, function (ctx, ox, oy) { img.draw(ctx, ox, oy); ctx.save(); ctx.strokeStyle = col; ctx.strokeRect(ox + .5, oy + .5, img.w - 1, img.h - 1); ctx.restore(); }, "cframe(" + col + "," + img.key() + ")"); });
+    def("image-baseline", 1, 1, function (img) { imageArgs("image-baseline", [img]); return R(Math.round(img.h)); });
+    def("rhombus", 4, 4, function (s, ang, m, c) { checkMode("rhombus", m); var S = toF(s), A = toF(ang) * Math.PI / 180, w = 2 * S * Math.sin(A / 2), h = 2 * S * Math.cos(A / 2); return polyImg("rhombus", [[w / 2, 0], [w, h / 2], [w / 2, h], [0, h / 2]], m, c, "rhombus(" + S + "," + toF(ang) + "," + m + "," + colorOf(c) + ")"); });
+    def("radial-star", 5, 5, function (n, inner, outer, m, c) { checkMode("radial-star", m); var N = Number(intg("radial-star", n).n), I = toF(inner), O = toF(outer), pts = [];
+      for (var i = 0; i < 2 * N; i++) { var a = -Math.PI / 2 + Math.PI * i / N, r = i % 2 ? I : O; pts.push([r * Math.cos(a), r * Math.sin(a)]); }
+      return polyImg("radial-star", pts, m, c, "rstar(" + [N, I, O] + "," + m + "," + colorOf(c) + ")"); });
+    def("wedge", 4, 4, function (r, ang, m, c) { checkMode("wedge", m); var Rr = toF(r), A = toF(ang), pts = [[0, 0]], steps = Math.max(2, Math.ceil(A / 5));
+      for (var i = 0; i <= steps; i++) { var a = -A * Math.PI / 180 * i / steps; pts.push([Rr * Math.cos(a), Rr * Math.sin(a)]); }
+      return polyImg("wedge", pts, m, c, "wedge(" + Rr + "," + A + "," + m + "," + colorOf(c) + ")"); });
+    function triSSS(name, a, b, c, m, col) {
+      // a = Seite unten links→rechts? Wie 2htdp: Seiten a, b, c; Ecke A gegenüber a
+      if (a + b <= c || a + c <= b || b + c <= a) throw new RacketError(name + ": Mit diesen Maßen gibt es kein Dreieck", "type");
+      var x = (b * b + c * c - a * a) / (2 * c), y = Math.sqrt(Math.max(0, b * b - x * x));
+      return polyImg(name, [[0, y], [c, y], [x, 0]], m, col, "tri3(" + [a, b, c].map(function (v) { return v.toFixed(6); }) + "," + m + "," + colorOf(col) + ")");
+    }
+    function deg(v) { return toF(v) * Math.PI / 180; }
+    def("triangle/sss", 5, 5, function (a, b, c, m, col) { checkMode("triangle/sss", m); return triSSS("triangle/sss", toF(a), toF(b), toF(c), m, col); });
+    def("triangle/sas", 5, 5, function (a, B, c, m, col) { checkMode("triangle/sas", m); var A = toF(a), C = toF(c), b = Math.sqrt(A * A + C * C - 2 * A * C * Math.cos(deg(B))); return triSSS("triangle/sas", A, b, C, m, col); });
+    def("triangle/ssa", 5, 5, function (a, b, Cang, m, col) { checkMode("triangle/ssa", m); var A = toF(a), Bs = toF(b), c = Math.sqrt(A * A + Bs * Bs - 2 * A * Bs * Math.cos(deg(Cang))); return triSSS("triangle/ssa", A, Bs, c, m, col); });
+    def("triangle/ass", 5, 5, function (Aang, b, c, m, col) { checkMode("triangle/ass", m); var Bs = toF(b), C = toF(c), a = Math.sqrt(Bs * Bs + C * C - 2 * Bs * C * Math.cos(deg(Aang))); return triSSS("triangle/ass", a, Bs, C, m, col); });
+    function triAngles(name, A, B, C, side, which, m, col) {
+      // zwei Winkel + eine Seite → Sinussatz
+      var k = side / Math.sin(which === "a" ? A : which === "b" ? B : C);
+      return triSSS(name, k * Math.sin(A), k * Math.sin(B), k * Math.sin(C), m, col);
+    }
+    def("triangle/aas", 5, 5, function (A, B, c, m, col) { checkMode("triangle/aas", m); var a1 = deg(A), b1 = deg(B); return triAngles("triangle/aas", a1, b1, Math.PI - a1 - b1, toF(c), "c", m, col); });
+    def("triangle/asa", 5, 5, function (A, b, C, m, col) { checkMode("triangle/asa", m); var a1 = deg(A), c1 = deg(C); return triAngles("triangle/asa", a1, Math.PI - a1 - c1, c1, toF(b), "b", m, col); });
+    def("triangle/saa", 5, 5, function (a, B, C, m, col) { checkMode("triangle/saa", m); var b1 = deg(B), c1 = deg(C); return triAngles("triangle/saa", Math.PI - b1 - c1, b1, c1, toF(a), "a", m, col); });
+    def("color-list->bitmap", 3, 3, function (l, w, h) {
+      var cols = toArr(lst("color-list->bitmap", l)).map(colorOf), W = Number(intg("color-list->bitmap", w).n), H = Number(intg("color-list->bitmap", h).n);
+      return new Img(W, H, function (ctx, ox, oy) { ctx.save(); for (var i = 0; i < cols.length && i < W * H; i++) { ctx.fillStyle = cols[i]; ctx.fillRect(ox + i % W, oy + Math.floor(i / W), 1, 1); } ctx.restore(); }, "bitmap(" + W + "," + H + "," + cols.join(";") + ")");
+    });
+    def("make-pen", 5, 5, function (c, w, st, cap, join) { return new RecordVal(PEN, [c, w, st, cap, join]); });
+    def("color-red", 1, 1, function (c) { return c.vals[0]; }); def("color-green", 1, 1, function (c) { return c.vals[1]; }); def("color-blue", 1, 1, function (c) { return c.vals[2]; });
+    def("color-alpha", 1, 1, function (c) { return c.vals[3] === undefined ? R(255) : c.vals[3]; });
+    def("color?", 1, 1, function (c) { return c instanceof RecordVal && c.type.name === "color"; });
+    def("posn?", 1, 1, function (p) { return p instanceof RecordVal && p.type.name === "posn"; });
+    def("mode?", 1, 1, function (m) { return m === "solid" || m === "outline" || (isNum(m) && isInt(m) && toF(m) >= 0 && toF(m) <= 255); });
+    def("image-color?", 1, 1, function (c) { return typeof c === "string" || (c instanceof RecordVal && c.type.name === "color"); });
+    def("x-place?", 1, 1, function (x) { return ["left", "right", "middle", "center", "pinhole"].indexOf(String(x)) >= 0; });
+    def("y-place?", 1, 1, function (x) { return ["top", "bottom", "middle", "center", "baseline", "pinhole"].indexOf(String(x)) >= 0; });
+    def("angle?", 1, 1, function (x) { return isNum(x) && toF(x) >= 0 && toF(x) < 360; });
+    def("side-count?", 1, 1, function (x) { return isNum(x) && isInt(x) && toF(x) >= 3; });
+    def("step-count?", 1, 1, function (x) { return isNum(x) && isInt(x) && toF(x) >= 1; });
+    def("image=?", 2, 2, function (a, b) { imageArgs("image=?", [a, b]); return equal(a, b); });
+
+    // ---------- Animationen (2htdp/universe)
+    function clause(name, min, max) { def(name, min, max, function () { var a = Array.prototype.slice.call(arguments); proc(name, a[0]); return new Clause(name === "on-draw" ? "to-draw" : name, a); }); }
+    clause("to-draw", 1, 3); clause("on-draw", 1, 3); clause("on-tick", 1, 3); clause("on-key", 1, 1); clause("on-release", 1, 1);
+    clause("on-pad", 1, 1); clause("on-mouse", 1, 1); clause("stop-when", 1, 2); clause("check-with", 1, 1);
+    ["name", "record?", "state", "close-on-stop", "display-mode"].forEach(function (n) { def(n, 1, 3, function () { return new Clause(n, Array.prototype.slice.call(arguments)); }); });
+    def("big-bang", 1, -1, function (init) {
+      var cl = Array.prototype.slice.call(arguments, 1);
+      cl.forEach(function (c) { if (!(c instanceof Clause)) throw new RacketError("big-bang: nach dem Anfangszustand kommen nur Klauseln wie (to-draw …) oder (on-tick …), nicht " + show(c), "type"); });
+      if (!cl.some(function (c) { return c.kind === "to-draw"; })) throw new RacketError("big-bang: es fehlt die Klausel (to-draw zeichne-funktion)", "syntax");
+      if (it.onBigBang) { it.onBigBang({ init: init, clauses: cl }); return Void; }
+      it.animSkipped = true; return init;
+    });
+    def("animate", 1, 1, function (f) {
+      proc("animate", f);
+      if (it.onBigBang) { it.onBigBang({ init: R(0), clauses: [new Clause("to-draw", [f]), new Clause("on-tick", [new Prim("add1", function (n) { return add(n, R(1)); }, 1)])] }); return Void; }
+      it.animSkipped = true; return R(0);
+    });
+    def("key-event?", 1, 1, function (k) { return typeof k === "string" || k instanceof String; });
+    def("key=?", 2, 2, function (a, b) { return String(str("key=?", a)) === String(str("key=?", b)); });
+    def("mouse-event?", 1, 1, function (k) { return ["button-down", "button-up", "drag", "move", "enter", "leave"].indexOf(String(k)) >= 0; });
+    def("mouse=?", 2, 2, function (a, b) { return String(str("mouse=?", a)) === String(str("mouse=?", b)); });
   }
-  var POSN = new RecordType("posn", ["x", "y"]), COLOR = new RecordType("color", ["red", "green", "blue"]);
+  var POSN = new RecordType("posn", ["x", "y"]), COLOR = new RecordType("color", ["red", "green", "blue", "alpha"]), PEN = new RecordType("pen", ["color", "width", "style", "cap", "join"]);
+
+  // ------------------------------------------------------------------ Sprachebenen
+  // Was es in welcher Sprachebene gibt (laut Doku „Sprachebenen und Material zu Schreibe Dein Programm!“)
+  var LV_NAMES = { beginner: "Schreibe Dein Programm! – Anfänger", vanilla: "Schreibe Dein Programm!", advanced: "Schreibe Dein Programm! – fortgeschritten" };
+  var LISTS = ["append", "cons", "cons?", "empty", "empty?", "filter", "first", "fold", "length", "list", "list-ref", "rest", "reverse", "map", "for-each"];
+  var ADV = ["string->symbol", "symbol->string", "symbol=?", "symbol?", "apply", "eq?"];
+  // nicht Teil der Lehrsprachen (gibt es nur im großen Racket bzw. anderen Lehrsprachen)
+  var NOT_SDP = { "add1": "(+ x 1)", "sub1": "(- x 1)", "car": "first", "cdr": "rest", "null": "empty", "null?": "empty?", "pair?": "cons?", "list?": null, "member": null, "member?": null,
+    "foldl": "fold", "foldr": "fold", "string-upcase": null, "string-downcase": null, "substring": null, "string->list": "string->strings-list", "list->string": "strings-list->string",
+    "identity": null, "error": "violation", "eqv?": "equal?", "procedure?": null, "truncate": null, "nonempty-list-of": "cons-list-of", "one-of": "enum" };
+  function applyLevel(it, lv) {
+    var g = it.global;
+    function lock(n, msg) { if (g.vars.has(n)) g.define(n, new Locked(n, msg)); }
+    Object.keys(NOT_SDP).forEach(function (n) { lock(n, n + ": gibt es in den Sprachebenen von „Schreibe Dein Programm!“ nicht" + (NOT_SDP[n] ? " – nimm stattdessen " + NOT_SDP[n] : "")); });
+    if (lv === "beginner") {
+      LISTS.forEach(function (n) { lock(n, n + ": Listen gibt es erst in der Sprachebene „" + LV_NAMES.vanilla + "“ (ab Kapitel 6) – stelle oben die Sprachebene um"); });
+      ["let", "let*", "letrec"].forEach(function (n) { it.lockedForms[n] = n + ": gibt es erst in der Sprachebene „" + LV_NAMES.vanilla + "“ – stelle oben die Sprachebene um"; });
+    }
+    if (lv !== "advanced") {
+      ADV.forEach(function (n) { lock(n, n + ": gibt es erst in der Sprachebene „" + LV_NAMES.advanced + "“ – stelle oben die Sprachebene um"); });
+      ["quote", "begin"].forEach(function (n) { it.lockedForms[n] = (n === "quote" ? "Das Hochkomma ' (quote) und Symbole gibt es" : "begin gibt es") + " erst in der Sprachebene „" + LV_NAMES.advanced + "“ – stelle oben die Sprachebene um"; });
+    }
+  }
 
   var api = {
     Interp: Interp, RacketError: RacketError, readAll: readAll, show: show, equal: equal, typeName: typeName,
     isNum: isNum, isExact: isExact, toF: toF, Img: Img, Pair: Pair, Empty: Empty, Rat: Rat, Sym: Sym, sym: sym, symName: symName, RecordVal: RecordVal,
     Closure: Closure, Prim: Prim, Void: Void, RecordType: RecordType, Sig: Sig, quoteData: quoteData,
+    Locked: Locked, Clause: Clause, Singleton: Singleton, LEVELS: LV_NAMES, unparse: unparse,
     setImageEqual: function (f) { imageEqualHook = f; },
     setTextMeasure: function (f) { textMeasure = f; }
   };

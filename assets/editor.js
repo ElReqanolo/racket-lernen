@@ -8,10 +8,17 @@
   // ---------------------------------------------------------------- bekannte Namen
   var SPECIAL = ["define", "lambda", "λ", "cond", "else", "if", "and", "or", "let", "let*", "letrec", "quote", "begin",
     "define-record", "define-record-procedures", "check-expect", "check-within", "check-error", "check-property",
-    "check-satisfied", ":", "signature", "for-all", "==>"];
-  var PRIMS = new Map();
-  (function () { var it = new M.Interp(); it.global.vars.forEach(function (v, k) { PRIMS.set(k, v); }); })();
-  var KNOWN = new Set(SPECIAL.concat(Array.from(PRIMS.keys())));
+    "check-satisfied", "check-member-of", "check-range", ":", "signature", "for-all", "==>", "match", "define-singleton"];
+  // eingebaute Namen je Sprachebene (gesperrte Namen liefern eine eigene Meldung)
+  var PRIMS = new Map(), KNOWN = new Set(), LOCKED = new Map(), LOCKEDFORMS = {}, curLevel = "?";
+  function useLevel(lv) {
+    if (lv === curLevel) return; curLevel = lv;
+    var it = new M.Interp(lv ? { level: lv } : {});
+    PRIMS = new Map(); LOCKED = new Map(); LOCKEDFORMS = it.lockedForms || {};
+    it.global.vars.forEach(function (v, k) { if (v instanceof M.Locked) LOCKED.set(k, v.msg); else PRIMS.set(k, v); });
+    KNOWN = new Set(SPECIAL.filter(function (k) { return !LOCKEDFORMS[k]; }).concat(Array.from(PRIMS.keys())));
+  }
+  useLevel(null);
   // Mindest-/Höchstzahl an Teilen nach dem Namen bei Sonderformen
   var FORM_ARITY = {
     "if": [3, 3, "Bedingung, Konsequente und Alternative"], "define": [2, 2, "einen Namen und einen Ausdruck"],
@@ -21,7 +28,9 @@
     "check-satisfied": [2, 2, "einen Ausdruck und ein Prädikat"], ":": [2, 2, "einen Namen und eine Signatur"],
     "cond": [1, -1, "mindestens einen Zweig"], "let": [2, -1, "Bindungen und einen Rumpf"], "let*": [2, -1, "Bindungen und einen Rumpf"],
     "letrec": [2, -1, "Bindungen und einen Rumpf"], "for-all": [2, 2, "Bindungen und eine Eigenschaft"], "==>": [2, 2, "eine Bedingung und eine Eigenschaft"],
-    "quote": [1, 1, "genau einen Wert"]
+    "quote": [1, 1, "genau einen Wert"], "check-member-of": [2, -1, "einen Ausdruck und mindestens einen erlaubten Wert"],
+    "check-range": [3, 3, "einen Ausdruck, eine Untergrenze und eine Obergrenze"], "match": [2, -1, "einen Ausdruck und mindestens einen Zweig (Muster Ausdruck)"],
+    "define-singleton": [2, 3, "Signatur, Name und optional ein Prädikat"]
   };
 
   // ---------------------------------------------------------------- Leser mit Positionen
@@ -94,12 +103,15 @@
   function argWord(k) { return k === 1 ? "1 Argument" : k + " Argumente"; }
   function arityText(min, max) { return min === max ? argWord(min) : max === -1 ? "mindestens " + argWord(min) : min + " bis " + max + " Argumente"; }
 
-  function analyse(src) {
+  function analyse(src, lv) {
+    if (lv !== undefined) useLevel(lv);
     var p = parse(src), errs = p.errs, globals = new Map(); // Name -> {min,max} oder {}
     function defineGlobal(name, info) { if (name) globals.set(name, info || {}); }
     function lambdaArity(node) {
-      if (node && node.t === "list" && (sym(node.items[0]) === "lambda" || sym(node.items[0]) === "λ") && node.items[1] && node.items[1].t === "list")
-        return { min: node.items[1].items.length, max: node.items[1].items.length };
+      if (node && node.t === "list" && (sym(node.items[0]) === "lambda" || sym(node.items[0]) === "λ") && node.items[1] && node.items[1].t === "list") {
+        var ps = node.items[1].items, dot = ps.findIndex(function (x) { return sym(x) === "."; });
+        return dot >= 0 ? { min: dot, max: -1 } : { min: ps.length, max: ps.length };
+      }
       return {};
     }
     function recordNames(f, add) {
@@ -127,6 +139,7 @@
         if (f.items[1] && f.items[1].t === "list") defineGlobal(sym(f.items[1].items[0]), { min: f.items[1].items.length - 1, max: f.items[1].items.length - 1 });
         else defineGlobal(sym(f.items[1]), lambdaArity(f.items[2]));
       } else if (h === "define-record" || h === "define-record-procedures") recordNames(f, defineGlobal);
+      else if (h === "define-singleton") { defineGlobal(sym(f.items[1]), {}); defineGlobal(sym(f.items[2]), {}); if (f.items[3]) defineGlobal(sym(f.items[3]), { min: 1, max: 1 }); }
     });
 
     function bound(name, scopes) {
@@ -139,6 +152,7 @@
       var name = node.v;
       if (bound(name, scopes)) return;
       if (inSig && (name === "->" || name[0] === "%")) return;
+      if (LOCKED.has(name) && !inSig) { errs.push({ s: node.s, e: node.e, msg: LOCKED.get(name) + "." }); return; }
       var pool = new Set(KNOWN); globals.forEach(function (_, k) { pool.add(k); }); scopes.forEach(function (sc) { sc.forEach(function (k) { pool.add(k); }); });
       var sug = suggest(name, pool);
       errs.push({ s: node.s, e: node.e, msg: "„" + name + "“ ist kein bekannter Befehl und nirgends definiert." + (sug ? " Meintest du „" + sug + "“?" : " Hast du es mit define definiert?") });
@@ -169,6 +183,7 @@
       if (!it.length) { errs.push({ s: node.s, e: node.e, msg: "Leere Klammer: Nach „(“ muss ein Befehl stehen, z. B. (+ 1 2)." }); return; }
       if (inSig && h !== "predicate" && h !== "lambda" && h !== "λ" && h !== "integer-from-to") { it.forEach(function (x) { check(x, scopes, true); }); return; }
       var isLocal = h && local(h, scopes);
+      if (h && !isLocal && LOCKEDFORMS[h]) { errs.push({ s: it[0].s, e: it[0].e, msg: LOCKEDFORMS[h] + "." }); return; }
       if (h && !isLocal && FORM_ARITY[h]) {
         var fa = FORM_ARITY[h], k = it.length - 1;
         if (k < fa[0] || (fa[1] !== -1 && k > fa[1])) {
@@ -177,6 +192,20 @@
       }
       if (h && !isLocal) switch (h) {
         case "quote": return;
+        case "define-singleton": return;
+        case "match":
+          check(it[1], scopes, false);
+          it.slice(2).forEach(function (cl) {
+            if (cl.t !== "list" || cl.items.length < 2) { errs.push({ s: cl.s, e: cl.e, msg: "match: Jeder Zweig hat die Form (Muster Ausdruck)." }); return; }
+            var pv = new Set();
+            (function pat(n) {
+              if (!n) return;
+              if (n.t === "sym") { if (["...", "_", "empty", "true", "false"].indexOf(n.v) < 0) pv.add(n.v); return; }
+              if (n.t === "list") { var hh = sym(n.items[0]); if (hh === "quote") return; if (hh && hh !== "cons" && hh !== "list" && !bound(hh, scopes)) errs.push({ s: n.items[0].s, e: n.items[0].e, msg: "match: „" + hh + "“ ist kein bekannter Konstruktor." }); n.items.slice(1).forEach(pat); }
+            })(cl.items[0]);
+            body(cl.items.slice(1), [pv].concat(scopes));
+          });
+          return;
         case "define":
           if (it[1] && it[1].t === "list") { var ps = new Set(); it[1].items.slice(1).forEach(function (x) { ps.add(sym(x)); }); body(it.slice(2), [ps].concat(scopes)); return; }
           if (it[1] && it[1].t !== "sym") errs.push({ s: it[1].s, e: it[1].e, msg: "define: Nach define muss ein Name stehen, kein " + (it[1].t === "num" ? "Zahl" : "Wert") + "." });
@@ -184,7 +213,7 @@
           it.slice(2).forEach(function (x) { check(x, scopes, false); }); return;
         case "lambda": case "λ":
           var pr = new Set();
-          if (it[1] && it[1].t === "list") it[1].items.forEach(function (x) { if (x.t !== "sym") errs.push({ s: x.s, e: x.e, msg: "lambda: In der Parameterliste dürfen nur Namen stehen." }); else pr.add(x.v); });
+          if (it[1] && it[1].t === "list") it[1].items.forEach(function (x) { if (x.t !== "sym") errs.push({ s: x.s, e: x.e, msg: "lambda: In der Parameterliste dürfen nur Namen stehen." }); else if (x.v !== ".") pr.add(x.v); });
           else if (it[1]) errs.push({ s: it[1].s, e: it[1].e, msg: "lambda: Nach lambda kommt die Parameterliste in Klammern, z. B. (lambda (x) …)." });
           body(it.slice(2), [pr].concat(scopes)); return;
         case "cond":
@@ -291,7 +320,8 @@
       var c = ta.selectionStart;
       list.querySelectorAll(".ed-msg").forEach(function (b) { var e = state.errs[+b.dataset.k]; b.classList.toggle("cur", !!e && c >= e.s && c <= e.e); });
     }
-    function lint() { state = analyse(ta.value); render(); if (opts.onLint) opts.onLint(state.errs); }
+    function lv() { return opts.level ? opts.level() : null; }
+    function lint() { state = analyse(ta.value, lv()); render(); if (opts.onLint) opts.onLint(state.errs); }
     function schedule() { clearTimeout(timer); hl.innerHTML = esc(ta.value) + "\n"; timer = setTimeout(lint, 350); }
 
     // ---- Vervollständigung
@@ -303,7 +333,7 @@
     }
     function candidates(pre, withExact) {
       var names = new Map();
-      analyse(ta.value).globals.forEach(function (info, k) { names.set(k, info.min !== undefined ? "eigene Funktion · " + arityText(info.min, info.max) : "eigene Definition"); });
+      analyse(ta.value, lv()).globals.forEach(function (info, k) { names.set(k, info.min !== undefined ? "eigene Funktion · " + arityText(info.min, info.max) : "eigene Definition"); });
       // Parameter und lokale Namen grob aus dem Text holen
       (ta.value.match(/\((?:lambda|λ)\s*\(([^()]*)\)/g) || []).forEach(function (m) { m.replace(/\((?:lambda|λ)\s*\(/, "").replace(")", "").split(/\s+/).forEach(function (p) { if (p && !names.has(p)) names.set(p, "Parameter"); }); });
       SPECIAL.forEach(function (k) { if (!names.has(k)) names.set(k, "Sonderform"); });
@@ -396,6 +426,6 @@
     return { lint: lint, analyse: analyse };
   }
 
-  function names(src) { var g = analyse(src).globals, r = Array.from(g.keys()); SPECIAL.concat(Array.from(PRIMS.keys())).forEach(function (k) { if (r.indexOf(k) < 0) r.push(k); }); return r.sort(function (a, b) { return a.length - b.length || (a < b ? -1 : 1); }); }
+  function names(src, lv) { var g = analyse(src, lv).globals, r = Array.from(g.keys()); SPECIAL.concat(Array.from(PRIMS.keys())).forEach(function (k) { if (r.indexOf(k) < 0) r.push(k); }); return r.sort(function (a, b) { return a.length - b.length || (a < b ? -1 : 1); }); }
   window.RacketEditor = { attach: attach, analyse: analyse, parse: parse, names: names };
 })();

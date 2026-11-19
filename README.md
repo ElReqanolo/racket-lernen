@@ -14,7 +14,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
 | `fehler.html` | Fehlermeldungen und typische Fehler, nach Kapitel |
 | `uebungen.html` | Übungen Kapitel für Kapitel: jede Aufgabe wird direkt abgegeben (Code-Editor, Auswahlfragen oder Eingabefelder) und bei richtiger Lösung automatisch abgehakt; gestufte Tipps, Link zur Lernübersicht, Musterlösung pro Aufgabe |
-| `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile; Tab-Vervollständigung und Fehlermarkierung beim Tippen |
+| `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile; Sprachebenen wie in DrRacket, Signaturprüfung, Animationen mit `big-bang`, Tab-Vervollständigung und Fehlermarkierung beim Tippen |
 
 ## Technik
 
@@ -37,7 +37,7 @@ Die Seite ist rein statisch: kein Server, keine Datenbank, kein Build-Schritt, k
 - **Programmieraufgaben:** Die `check-expect`-Tests der Musterlösung laufen gegen deine Funktionen. Dazu kommen Zufallstests: Deine Funktion und die Musterlösung bekommen dieselben Eingaben (passend zur Signatur, mit Grenzwerten aus dem Code). Deine eigenen Tests laufen mit.
 - **Aufgaben ohne Programmieren:** Auswahlfragen oder Eingabefelder; bei Beweisen werden die entscheidenden Schritte abgefragt.
 - **Rückmeldung:** Eingabe, erwartetes und tatsächliches Ergebnis und ein Hinweis, woran es liegen könnte (z. B. „Um genau 1 daneben – prüfe die Grenzen“). Bei Bildaufgaben werden die Bilder nebeneinander gezeigt.
-- **Grenzen:** Signaturen werden nicht geprüft, Animationen (`big-bang`) werden nicht gestartet. Der Interpreter ist ein Nachbau – im Zweifel gilt, was DrRacket sagt.
+- **Grenzen:** Beim Prüfen der Übungen werden Signaturen nicht geprüft und Animationen nicht gestartet; im Playground geht beides. Es fehlen der Stepper, eingefügte Bilder (`bitmap`) und `universe` mit mehreren Welten. Der Interpreter ist ein Nachbau – im Zweifel gilt, was DrRacket sagt.
 
 ## Links mit Filter
 

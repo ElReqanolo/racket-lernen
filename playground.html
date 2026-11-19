@@ -6,7 +6,7 @@
 <title>Playground · Racket lernen</title>
 <meta name="description" content="Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=2e57d6d0">
+<link rel="stylesheet" href="assets/style.css?v=f306c09b">
 <script>try{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body>
@@ -18,11 +18,12 @@
 <main>
 
 <h1 class="page-title">Playground</h1>
-<p class="lead">Probier Befehle direkt im Browser aus – wie im Definitionsfenster von DrRacket. <strong>Ausführen</strong> (oder Strg+Enter) zeigt die Ergebnisse, Bilder und Testergebnisse; in der Zeile mit „&gt;“ kannst du danach weitere Ausdrücke eintippen wie im Interaktionsfenster. Schon beim Tippen erscheinen passende Befehle als Vorschlag – mit <kbd>Tab</kbd> übernimmst du den markierten. Fehler wie fehlende Klammern, unbekannte Befehle oder fehlende Angaben werden schon beim Tippen rot unterstrichen.</p>
+<p class="lead">Programmiere direkt im Browser – fast wie in DrRacket: mit Sprachebene, Signaturprüfung, Tests, Bildern und Animationen (<code>big-bang</code>). <strong>Ausführen</strong> (oder Strg+Enter) zeigt die Ergebnisse, Bilder und Testergebnisse; in der Zeile mit „&gt;“ kannst du danach weitere Ausdrücke eintippen wie im Interaktionsfenster. Schon beim Tippen erscheinen passende Befehle als Vorschlag – mit <kbd>Tab</kbd> übernimmst du den markierten. Fehler wie fehlende Klammern, unbekannte Befehle oder fehlende Angaben werden schon beim Tippen rot unterstrichen.</p>
 <div class="pg">
 <div class="pg-left">
 <div class="pg-bar">
 <button type="button" id="pg-run" class="pg-run">▶ Ausführen</button><span class="kbd">Strg+Enter</span>
+<select id="pg-level" aria-label="Sprachebene" title="Sprachebene wie in DrRacket unter Sprache → Sprache auswählen…"><option value="beginner">Schreibe Dein Programm! – Anfänger</option><option value="vanilla" selected>Schreibe Dein Programm!</option><option value="advanced">Schreibe Dein Programm! – fortgeschritten</option></select>
 <select id="pg-ex" aria-label="Beispiel laden"><option value="">Beispiel laden …</option></select>
 <button type="button" id="pg-share" class="chip">🔗 Link teilen</button>
 <button type="button" id="pg-dl" class="chip" title="Programm als .rkt-Datei speichern – lässt sich in DrRacket öffnen">⬇ Herunterladen</button>
@@ -34,25 +35,28 @@
 </div>
 <div class="pg-right">
 <div class="pg-outhead">Ausgabe</div>
+<div id="pg-anim" hidden></div>
 <div id="pg-out" aria-live="polite"></div>
 <div class="pg-replrow"><span>&gt;</span><input id="pg-repl" type="text" spellcheck="false" autocomplete="off" placeholder="Ausdruck eintippen und Enter drücken, z. B. (* 6 7)" aria-label="Ausdruck auswerten"></div>
 </div>
 </div>
 <details class="loesung" style="border-left-color:var(--accent);margin-top:22px"><summary style="color:var(--accent)">Was geht hier – und was nicht?</summary>
 <ul>
-<li>Alles aus den Lehrsprachen „Schreibe Dein Programm!“: <code>define</code>, <code>lambda</code>, <code>cond</code>, <code>if</code>, <code>define-record</code>, Listen, Zeichenketten, exakte Brüche, <code>check-expect</code>, <code>check-within</code>, <code>check-error</code>, <code>check-property</code>.</li>
-<li>Bilder aus <code>image.rkt</code>: <code>square</code>, <code>circle</code>, <code>star-polygon</code>, <code>above</code>, <code>beside</code>, <code>overlay</code>, <code>place-image</code> und mehr – die <a href="befehle.html#thema-bilder-teachpack-image-rkt">Befehlssammlung</a> zeigt alle.</li>
-<li>Beim Tippen schlägt der Editor passende Befehle und deine eigenen Namen vor, mit der Zahl der nötigen Angaben (ƒ = eingebaute Funktion, { } = Sonderform wie <code>define</code>, T = Signatur, abc = selbst definiert). <kbd>Tab</kbd> übernimmt den markierten Vorschlag, ↑/↓ wählt einen anderen (dann geht auch Enter), Esc schließt die Liste. Steht kein angefangenes Wort vor dem Cursor, rückt Tab ein.</li>
-<li>Schon beim Tippen markiert: fehlende oder überzählige Klammern, nicht geschlossene Zeichenketten, unbekannte Befehle (mit Vorschlag bei Tippfehlern), zu wenige oder zu viele Angaben, leere Klammern und Werte an der Stelle eines Befehls, z. B. <code>(5 3)</code>. Ein Klick auf die Meldung springt zur Stelle. Fehler, die erst beim Ausführen auffallen (z. B. falsche Sorte von Wert), zeigt „Ausführen“.</li>
-<li>Nicht möglich: Animationen mit <code>big-bang</code>. Signaturen werden nicht geprüft.</li>
-<li>Der Code bleibt in deinem Browser gespeichert. Mit „Link teilen“ bekommst du einen Link, der deinen Code enthält.</li>
-<li>„⬇ Herunterladen“ speichert dein Programm als <code>.rkt</code>-Datei. Die öffnest du in DrRacket mit <em>Datei → Öffnen…</em> – vorher wie gewohnt die Sprache „Schreibe Dein Programm! – Anfänger“ (bzw. „Schreibe Dein Programm!“ ab Kapitel 6) und die Teachpacks einstellen. „📂 Öffnen“ lädt umgekehrt eine <code>.rkt</code>-Datei in den Playground. Dateien, in die in DrRacket Bilder eingefügt wurden, kann der Playground nicht lesen.</li>
-<li>Das ist ein Nachbau im Browser. Im Zweifel gilt, was DrRacket sagt.</li>
+<li><strong>Sprachebene</strong> oben wählen wie in DrRacket: „Anfänger“ (Kapitel 1–5), „Schreibe Dein Programm!“ (ab Kapitel 6, mit Listen und <code>let</code>) oder „fortgeschritten“ (mit Symbolen, <code>'</code>, <code>begin</code>, <code>apply</code> und Restparametern). Was es in der gewählten Ebene nicht gibt, wird wie in DrRacket abgelehnt – mit Hinweis, ab welcher Ebene es geht.</li>
+<li>Alles aus den Lehrsprachen: <code>define</code>, <code>lambda</code>, <code>cond</code>, <code>if</code>, <code>and</code>/<code>or</code>, <code>let</code>/<code>let*</code>/<code>letrec</code>, <code>define-record</code> (auch mit Signatur-Parametern), <code>define-singleton</code>, <code>match</code>, Signaturen (<code>signature</code>, <code>enum</code>, <code>mixed</code>, <code>predicate</code>, <code>combined</code>, <code>list-of</code>, <code>cons-list-of</code>, <code>integer-from-to</code>, Signatur-Variablen wie <code>%a</code>), exakte Brüche, alle Zahlen-, Zeichenketten- und Listenfunktionen der Doku sowie <code>write-string</code>, <code>write-newline</code> und <code>read</code>.</li>
+<li><strong>Signaturen werden geprüft</strong> wie in DrRacket: Passt ein Argument, ein Ergebnis oder ein Record-Feld nicht zur Signatur, erscheint eine Signaturverletzung mit Zeile – das Programm läuft trotzdem weiter.</li>
+<li>Tests: <code>check-expect</code>, <code>check-within</code>, <code>check-member-of</code>, <code>check-range</code>, <code>check-satisfied</code>, <code>check-error</code> (auch mit erwarteter Meldung) und <code>check-property</code> mit <code>for-all</code>, <code>==&gt;</code>, <code>expect</code>, <code>expect-within</code>, <code>expect-member-of</code>, <code>expect-range</code>.</li>
+<li><strong>Bilder</strong> aus <code>image.rkt</code>: Formen (<code>square</code>, <code>circle</code>, <code>star-polygon</code>, <code>radial-star</code>, <code>rhombus</code>, <code>wedge</code>, <code>triangle/sss</code> …), Text (<code>text</code>, <code>text/font</code>), Kombinieren (<code>above</code>, <code>beside</code>, <code>overlay</code>, <code>underlay</code> samt <code>/align</code>, <code>/offset</code>, <code>/xy</code>), Szenen (<code>empty-scene</code>, <code>place-image</code>, <code>place-images</code>, <code>scene+line</code>, <code>add-line</code>, <code>put-image</code>), Verändern (<code>scale</code>, <code>scale/xy</code>, <code>rotate</code>, <code>flip-…</code>, <code>crop</code>, <code>frame</code>) – die <a href="befehle.html#thema-bilder-teachpack-image-rkt">Befehlssammlung</a> erklärt die wichtigsten.</li>
+<li><strong>Animationen</strong> aus <code>universe.rkt</code>: <code>big-bang</code> mit <code>to-draw</code>, <code>on-tick</code> (auch mit Tempo und Grenze), <code>on-key</code>, <code>on-release</code>, <code>on-mouse</code>, <code>stop-when</code> und <code>check-with</code> sowie <code>animate</code>. Die Animation läuft oben in der Ausgabe; klick ins Bild, damit Tasten ankommen. Mit „Stopp“ hältst du sie an, dann siehst du den Endzustand.</li>
+<li><kbd>Tab</kbd> und Vorschläge beim Tippen vervollständigen Befehle und deine eigenen Namen (ƒ = eingebaute Funktion, { } = Sonderform wie <code>define</code>, T = Signatur, abc = selbst definiert). ↑/↓ wählt, Tab oder nach ↑/↓ auch Enter übernimmt, Esc schließt.</li>
+<li>Schon beim Tippen markiert: fehlende oder überzählige Klammern, nicht geschlossene Zeichenketten, unbekannte Befehle (mit Vorschlag bei Tippfehlern), Befehle aus einer anderen Sprachebene, zu wenige oder zu viele Angaben, leere Klammern und Werte an der Stelle eines Befehls. Ein Klick auf die Meldung springt zur Stelle.</li>
+<li>Der Code bleibt in deinem Browser gespeichert. „Link teilen“ erzeugt einen Link mit Code und Sprachebene; „⬇ Herunterladen“ speichert eine <code>.rkt</code>-Datei für DrRacket (<em>Datei → Öffnen…</em>, vorher Sprachebene und Teachpacks wie in der Datei angegeben einstellen), „📂 Öffnen“ lädt eine <code>.rkt</code>-Datei – auch eine, die DrRacket gespeichert hat; die Sprachebene wird dann übernommen.</li>
+<li><strong>Was fehlt:</strong> der Stepper, eingefügte Bilder aus Dateien (<code>bitmap</code>), Bilder in Farblisten zerlegen (<code>image-&gt;color-list</code>) und Netzwerkspiele mit mehreren Welten (<code>universe</code>). Komplexe Zahlen gibt es nicht. Das ist ein Nachbau im Browser – im Zweifel gilt, was DrRacket sagt.</li>
 </ul></details>
-<script src="assets/racket.js?v=58aa2ed3"></script>
+<script src="assets/racket.js?v=ebf53903"></script>
 <script src="assets/pruefer.js?v=46c14757"></script>
-<script src="assets/editor.js?v=f73435bd"></script>
-<script src="assets/playground.js?v=fc0fc314"></script>
+<script src="assets/editor.js?v=66853563"></script>
+<script src="assets/playground.js?v=4a187470"></script>
 </main>
 <footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
 <script src="assets/app.js?v=e33e48d3"></script>

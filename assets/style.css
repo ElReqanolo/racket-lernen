@@ -336,3 +336,12 @@ body.hidehead aside.toc{top:calc(var(--fh, 0px) + 14px);max-height:calc(100vh - 
 body.hidehead .pg-right{top:16px;max-height:calc(100vh - 32px)}
 @media (max-width:860px){.filters .lernsuche{flex:1 1 100%}}
 .filters .lernsuche{flex:1 1 220px;min-width:0;padding:8px 11px;border:1px solid var(--line);border-radius:8px;background:var(--panel);color:var(--text);font-size:15px}
+/* Playground: Animation, Ausgabe, Signaturverletzungen */
+#pg-anim{padding:10px 14px;border-bottom:1px solid var(--line)}
+.pg-anim .pg-animhead{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:8px;font-size:13.5px;color:var(--muted)}
+.pg-animcv{display:block;max-width:100%;border:1px solid var(--line);border-radius:6px;background:#fff;outline:none;cursor:crosshair}
+.pg-animcv:focus{box-shadow:0 0 0 3px var(--accent-soft);border-color:var(--accent)}
+.pg-anim.stopped .pg-animcv{opacity:.85}
+.pg-line.print .pg-val{font-family:var(--mono);white-space:pre-wrap;color:var(--text);background:var(--code-bg);padding:4px 8px;border-radius:6px}
+.pg-line.sig .pg-val{font-family:inherit;font-size:.92em}
+#pg-level{max-width:100%}
