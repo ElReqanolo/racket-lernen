@@ -19,7 +19,7 @@
     store.set("sdp-theme", next);
   });
 
-  /* ---------- Handy: beim Runterscrollen Kopfzeile ausblenden und Filterleiste einklappen (nur Suche bleibt) ---------- */
+  /* ---------- Beim Runterscrollen Kopfzeile ausblenden und Filterleiste einklappen (nur Suche bleibt) ---------- */
   (function () {
     var fbar = document.querySelector(".filters"), body = document.body, lastY = window.scrollY;
     var baseMB = fbar ? parseFloat(getComputedStyle(fbar).marginBottom) || 0 : 0;
@@ -31,10 +31,11 @@
       var h0 = fbar.offsetHeight;
       fbar.classList.toggle("compact", hide);
       fbar.style.marginBottom = hide ? (baseMB + h0 - fbar.offsetHeight) + "px" : "";
+      document.documentElement.style.setProperty("--fh", (hide && getComputedStyle(fbar).display !== "none" ? fbar.offsetHeight : 0) + "px");
     }
     function onScroll() {
       var y = window.scrollY;
-      if (window.innerWidth >= 860 || y < 150) { set(false); lastY = y; return; }
+      if (y < 150) { set(false); lastY = y; return; }
       if (document.activeElement && document.activeElement.matches && document.activeElement.matches("input[type=search]")) { lastY = y; return; }
       if (y > lastY + 12) { set(true); lastY = y; }
       else if (y < lastY - 60) { set(false); lastY = y; }
