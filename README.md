@@ -16,22 +16,45 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `uebungen.html` | Übungen Kapitel für Kapitel: jede Aufgabe wird direkt abgegeben (Code-Editor, Auswahlfragen oder Eingabefelder) und bei richtiger Lösung automatisch abgehakt; gestufte Tipps, Link zur Lernübersicht, Musterlösung pro Aufgabe |
 | `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile; Sprachebenen wie in DrRacket, Signaturprüfung, Stepper, Animationen mit `big-bang` und `universe`, Bilder aus Dateien, komplexe Zahlen, Tab-Vervollständigung und Fehlermarkierung beim Tippen |
 
-## Technik
+## Ordnerstruktur
 
-| Datei | Aufgabe |
-|---|---|
-| `assets/style.css` | Gestaltung aller Seiten (hell/dunkel, Handy) |
-| `assets/app.js` | Filter, Suche, Kapitelwahl, Fortschritt, Dunkelmodus |
-| `assets/racket.js` | kleiner Racket-Interpreter für die Lehrsprachen (Zahlen, Listen, Records, Bilder, Tests) |
-| `assets/pruefer.js` | prüft Abgaben gegen die Musterlösung (feste Tests + Zufallstests) und formuliert Hinweise |
-| `assets/uebungen.js` | Abgabe, Auswahlfragen und Musterlösung auf der Übungsseite |
-| `assets/playground.js` | der Playground |
-| `assets/stepper.js` | Stepper: Auswertung Schritt für Schritt im Substitutionsmodell |
-| `assets/editor.js` | Editor-Hilfen: Tab-Vervollständigung und Fehlerprüfung beim Tippen (Klammern, unbekannte Namen, Anzahl der Angaben) |
-| `assets/katex/` | Schrift und Formatierung für die mathematischen Formeln in der Lernübersicht ([KaTeX](https://katex.org), MIT-Lizenz) |
-| `.nojekyll` | sorgt dafür, dass GitHub Pages die Dateien unverändert ausliefert |
+```
+├── index.html, lernen.html, …    die veröffentlichten Seiten (von src/build.py erzeugt – nicht von Hand ändern)
+├── assets/
+│   ├── css/style.css             Gestaltung aller Seiten (hell/dunkel, Handy)
+│   ├── js/                       JavaScript (wird direkt so ausgeliefert)
+│   │   ├── app.js                Filter, Suche, Kapitelwahl, Fortschritt, Kopfzeile, Fachwort-Erklärungen
+│   │   ├── racket.js             Racket-Interpreter für die Lehrsprachen (Sprachebenen, Signaturen, Bilder, Animationen)
+│   │   ├── pruefer.js            prüft Abgaben gegen die Musterlösung (feste Tests + Zufallstests) und formuliert Hinweise
+│   │   ├── uebungen.js           Abgabe, Auswahlfragen und Musterlösung auf der Übungsseite
+│   │   ├── editor.js             Vorschläge, Tab-Vervollständigung und Fehlermarkierung beim Tippen
+│   │   ├── stepper.js            Stepper: Auswertung Schritt für Schritt im Substitutionsmodell
+│   │   └── playground.js         der Playground (Ausführen, Animationen, universe, Bilder, Stepper-Fenster)
+│   └── katex/                    Schrift und CSS für die Formeln der Lernübersicht (KaTeX, MIT-Lizenz)
+├── src/                          Quellen: daraus entstehen die Seiten
+│   ├── build.py                  Generator – erzeugt die sieben HTML-Seiten
+│   ├── beginner.py               Einsteigerhilfen: „Ausprobieren“-Knöpfe, Fachwort-Erklärungen
+│   ├── erste_schritte.py         Kapitel „Erste Schritte“ (mit DrRacket-Installation)
+│   ├── check_try.js              entfernt „Ausprobieren“-Knöpfe, deren Code nicht läuft
+│   ├── katex_render.js           rendert die Formeln beim Erstellen
+│   └── inhalt/                   die Inhalte
+│       ├── lernuebersicht.html   Erklärungen Kapitel für Kapitel
+│       ├── uebungen.html         Aufgaben mit Musterlösungen
+│       ├── befehle.html, glossar.html, fehlermeldungen.html
+│       ├── tipps.py              Tipps zu allen 125 Aufgaben
+│       └── aufgaben_extra.py     Auswahlfragen, Eingabefelder und Sonderregeln für die Prüfung
+├── tests/                        automatische Tests (siehe unten)
+├── package.json                  Befehle: npm run build, npm test, npm run test:browser
+└── .nojekyll                     GitHub Pages liefert die Dateien unverändert aus
+```
 
-Die Seite ist rein statisch: kein Server, keine Datenbank, kein Build-Schritt, keine Cookies, kein Tracking. Fortschritt, Code und Antworten speichert nur der eigene Browser (`localStorage`). Sie funktioniert auch offline, wenn man `index.html` direkt öffnet.
+Die Seite ist rein statisch: kein Server, keine Datenbank, keine Cookies, kein Tracking. Fortschritt, Code und Antworten speichert nur der eigene Browser (`localStorage`). Sie funktioniert auch offline, wenn man `index.html` direkt öffnet.
+
+## Ändern, erstellen, testen
+
+- **Texte, Aufgaben oder Tipps ändern:** Dateien in `src/inhalt/` bearbeiten, dann `npm run build` (bzw. `python3 src/build.py`). Braucht Python 3, Node.js und das npm-Paket `katex` (`npm install`).
+- **JavaScript oder CSS ändern:** direkt in `assets/` – danach trotzdem `npm run build`, damit die Seiten die neue Version laden (Versionsnummer `?v=…` gegen alte Browser-Caches).
+- **Tests:** `npm test` prüft ohne Browser den Interpreter, die Online-Prüfung aller 125 Musterlösungen, die Fehlermarkierung, den Stepper, alle Codebeispiele und alle Links und Anker. `npm run test:browser` (braucht Playwright) prüft die Seiten im echten Browser am Computer und auf dem Handy: Laden ohne Fehler, Suche, alle Übungen richtig und falsch abgeben, Playground mit allen Beispielen, Stepper, Animationen, `universe` und Bild einfügen.
 
 ## So wird bei den Übungen geprüft
 

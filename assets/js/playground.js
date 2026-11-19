@@ -1,4 +1,6 @@
-/* Playground: Racket-Code im Browser ausführen. Braucht racket.js und pruefer.js. */
+/* Playground: Racket-Code im Browser ausführen – mit Sprachebenen, Signaturprüfung, Tests, Bildern,
+   Animationen (big-bang, universe), Stepper und Editor-Hilfen.
+   Braucht racket.js, pruefer.js (Fehlerhinweise), editor.js und stepper.js. */
 (function () {
   "use strict";
   var M = window.MiniRacket, P = window.Pruefer;
@@ -132,7 +134,6 @@
     }
     if (window.__pgAnimDone) window.__pgAnimDone(a);
   }
-  function startAnim(spec) { startWorld(spec); }
 
   // ---- Universe (Server)
   function uLog(t) { if (!U) return; var d = document.createElement("div"); d.textContent = t; U.log.appendChild(d); while (U.log.childNodes.length > 40) U.log.removeChild(U.log.firstChild); U.log.scrollTop = U.log.scrollHeight; }
@@ -291,6 +292,7 @@
       } catch (e) {
         e = wrapErr(e);
         line("err", P ? P.unparse(f) : "", e.message + (e.line ? " (Zeile " + e.line + ")" : ""), P && P.errorHint(e));
+        showViolations();   // bis zum Fehler gefundene Signaturverletzungen trotzdem zeigen
         return;
       }
     }
@@ -298,7 +300,7 @@
     var res = interp.tests.map(function (t) { try { interp.steps = 0; return interp.runTest(t); } catch (e) { return { ok: false, error: wrapErr(e), form: t.form }; } });
     if (res.length) {
       var bad = res.filter(function (r) { return !r.ok; });
-      var head = line(bad.length ? "testbad" : "testok", null, bad.length ? bad.length + " von " + res.length + " Tests fehlgeschlagen" : (res.length === 1 ? "Der Test wurde bestanden!" : "Alle " + res.length + " Tests bestanden!"));
+      line(bad.length ? "testbad" : "testok", null, bad.length ? bad.length + " von " + res.length + " Tests fehlgeschlagen" : (res.length === 1 ? "Der Test wurde bestanden!" : "Alle " + res.length + " Tests bestanden!"));
       bad.forEach(function (r) {
         var src = P ? P.unparse(r.form) : "";
         var msg = r.error ? "Fehler: " + r.error.message : r.noError ? "erwartet einen Fehler, bekommt " + M.show(r.actual) : r.wrongMsg ? "Die Fehlermeldung war „" + r.errorMsg + "“, erwartet war „" + r.expectedMsg + "“." : r.memberOf ? "Der tatsächliche Wert " + M.show(r.actual) + " ist keiner der erwarteten Werte " + r.expected.map(M.show).join(", ") + "." : r.range ? "Der tatsächliche Wert " + M.show(r.actual) + " liegt nicht zwischen " + M.show(r.range[0]) + " und " + M.show(r.range[1]) + "." : r.counter ? "Eigenschaft falsifizierbar mit " + r.counter.join(", ") : "Der tatsächliche Wert " + M.show(r.actual) + " ist nicht der erwartete Wert " + M.show(r.expected) + ".";
@@ -306,14 +308,17 @@
       });
     }
     var sv = interp.sigViolations;
-    if (sv.length) {
-      line("testbad", null, sv.length === 1 ? "1 Signaturverletzung" : sv.length + " Signaturverletzungen");
-      sv.forEach(function (v) { line("err sig", null, v.msg + (v.count > 1 ? " – " + v.count + "-mal" : "")); });
-    }
+    showViolations();
     if (pendingAnim.length) { shown += launchPending(); }
     if (!shown && !res.length && !sv.length && !interp.output.length) line("info", null, "Keine Ausgabe – nur Definitionen. Schreib einen Ausdruck oder probier unten in der Zeile „>“ etwas aus.");
 
     out.scrollTop = out.scrollHeight;
+  }
+  function showViolations() {
+    var sv = interp.sigViolations;
+    if (!sv.length) return;
+    line("testbad", null, sv.length === 1 ? "1 Signaturverletzung" : sv.length + " Signaturverletzungen");
+    sv.forEach(function (v) { line("err sig", null, v.msg + (v.count > 1 ? " – " + v.count + "-mal" : "")); });
   }
   function evalRepl() {
     var src = repl.value.trim(); if (!src) return;
@@ -415,7 +420,9 @@
     stBox.querySelector(".st-prev").addEventListener("click", function () { if (ST.i > 0) { ST.i--; stShow(); } });
     stBox.querySelector(".st-next").addEventListener("click", function () { if (ST.i < ST.steps.length - 1) { ST.i++; stShow(); } });
     stBox.querySelector(".st-last").addEventListener("click", function () { ST.i = Math.max(0, ST.steps.length - 1); stShow(); });
-    stBox.addEventListener("keydown", function (e) {
+    // Tastatur auf der ganzen Seite, solange der Stepper offen ist (der Fokus kann auf einem deaktivierten Knopf verloren gehen)
+    document.addEventListener("keydown", function (e) {
+      if (stBox.hidden) return;
       if (e.key === "Escape") { e.preventDefault(); stClose(); }
       else if (e.key === "ArrowRight") { e.preventDefault(); stBox.querySelector(".st-next").click(); }
       else if (e.key === "ArrowLeft") { e.preventDefault(); stBox.querySelector(".st-prev").click(); }

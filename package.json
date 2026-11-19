@@ -1,0 +1,13 @@
+{
+  "name": "racket-lernen",
+  "private": true,
+  "description": "Lernhilfe für Racket mit „Schreibe Dein Programm!“ – statische Website",
+  "scripts": {
+    "build": "python3 src/build.py",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "python3 tests/browser/e2e.py"
+  },
+  "devDependencies": {
+    "katex": "^0.16.0"
+  }
+}

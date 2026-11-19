@@ -813,7 +813,6 @@
     do { var a = -Math.PI / 2 + 2 * Math.PI * i / n; pts.push([R * Math.cos(a), R * Math.sin(a)]); i = (i + k) % n; cnt++; } while (i !== 0 && cnt <= n);
     return pts;
   }
-  function wrapImg(base, draw, w, h, key) { return new Img(w, h, draw, key); }
   function imageArgs(name, list) { list.forEach(function (x) { if (!(x instanceof Img)) throw new RacketError(name + ": Bild erwartet, " + show(x) + " (" + typeName(x) + ") bekommen", "type"); }); }
   function alignOff(al, total, size, horiz) {
     al = String(al);
@@ -864,7 +863,12 @@
     def("/", 1, -1, function (a) { cnum("/", a, "erstes Argument"); if (arguments.length === 1) return div(R(1), a); var s = a; for (var i = 1; i < arguments.length; i++) s = div(s, cnum("/", arguments[i], ord(i) + " Argument")); return s; });
     ["=", "<", ">", "<=", ">="].forEach(function (op) {
       def(op, 1, -1, function () {
-        if (op === "=") { for (var j = 0; j < arguments.length; j++) cnum(op, arguments[j], ord(j) + " Argument"); for (j = 0; j + 1 < arguments.length; j++) if (!equal(arguments[j], arguments[j + 1]) || (isExact(arguments[j]) !== isExact(arguments[j + 1]) && !equal(arguments[j], arguments[j + 1]))) return false; if (Array.prototype.some.call(arguments, function (v) { return v instanceof Cx; })) return true; }
+        if (op === "=" && Array.prototype.some.call(arguments, function (v) { return v instanceof Cx; })) {
+          // komplexe Zahlen: Real- und Imaginärteil vergleichen
+          for (var j = 0; j < arguments.length; j++) cnum(op, arguments[j], ord(j) + " Argument");
+          for (j = 0; j + 1 < arguments.length; j++) { var x = arguments[j], y = arguments[j + 1]; if (cmp(reP(x), reP(y)) !== 0 || cmp(imP(x), imP(y)) !== 0) return false; }
+          return true;
+        }
         for (var i = 0; i < arguments.length; i++) num(op, arguments[i], ord(i) + " Argument");
         for (i = 0; i + 1 < arguments.length; i++) {
           var c = cmp(arguments[i], arguments[i + 1]);
@@ -902,7 +906,7 @@
     function csin(z) { var p = fparts(z); return C(Math.sin(p[0]) * Math.cosh(p[1]), Math.cos(p[0]) * Math.sinh(p[1])); }
     function ccos(z) { var p = fparts(z); return C(Math.cos(p[0]) * Math.cosh(p[1]), -Math.sin(p[0]) * Math.sinh(p[1])); }
     function casin(z) { return mul(sub(R(0), I), clog(add(mul(I, z), csqrt(sub(R(1), mul(z, z)))))); }     // -i·log(iz + √(1−z²))
-    function cacos(z) { return sub(R(0) instanceof Rat ? Math.PI / 2 : 0, casin(z)); }
+    function cacos(z) { return sub(Math.PI / 2, casin(z)); }                                                  // π/2 − asin z
     function catan(z) { return mul(div(I, R(2)), sub(clog(sub(R(1), mul(I, z))), clog(add(R(1), mul(I, z))))); }
     function bsqrt(n) { if (n < 0n) return null; if (n < 2n) return n; var x = BigInt(Math.floor(Math.sqrt(Number(n)))); while (x * x > n) x--; while ((x + 1n) * (x + 1n) <= n) x++; return x * x === n ? x : null; }
     def("sqrt", 1, 1, function (a) {
@@ -1168,14 +1172,15 @@
       return new Img(img.w, img.h, function (ctx, ox, oy) { img.draw(ctx, ox, oy); ctx.save(); ctx.beginPath(); ctx.rect(ox, oy, img.w, img.h); ctx.clip(); ctx.strokeStyle = col; ctx.beginPath(); ctx.moveTo(ox + X1 + .5, oy + Y1 + .5); ctx.lineTo(ox + X2 + .5, oy + Y2 + .5); ctx.stroke(); ctx.restore(); }, "sceneline(" + img.key() + "," + [X1, Y1, X2, Y2] + "," + col + ")");
     });
     def("place-images", 3, 3, function (is, ps, sc) {
-      var I = toArr(lst("place-images", is)), P = toArr(lst("place-images", ps)), r = sc;
-      if (I.length !== P.length) throw new RacketError("place-images: Bilder- und Positionsliste müssen gleich lang sein", "type");
-      for (var i = 0; i < I.length; i++) r = place("place-images", I[i], P[i].vals[0], P[i].vals[1], r, "center", "center");
+      var bilder = toArr(lst("place-images", is)), orte = toArr(lst("place-images", ps)), r = sc;
+      if (bilder.length !== orte.length) throw new RacketError("place-images: Bilder- und Positionsliste müssen gleich lang sein", "type");
+      for (var i = 0; i < bilder.length; i++) r = place("place-images", bilder[i], orte[i].vals[0], orte[i].vals[1], r, "center", "center");
       return r;
     });
     def("place-images/align", 5, 5, function (is, ps, ax, ay, sc) {
-      var I = toArr(lst("place-images/align", is)), P = toArr(lst("place-images/align", ps)), r = sc;
-      for (var i = 0; i < I.length; i++) r = place("place-images/align", I[i], P[i].vals[0], P[i].vals[1], r, String(ax), String(ay));
+      var bilder = toArr(lst("place-images/align", is)), orte = toArr(lst("place-images/align", ps)), r = sc;
+      if (bilder.length !== orte.length) throw new RacketError("place-images/align: Bilder- und Positionsliste müssen gleich lang sein", "type");
+      for (var i = 0; i < bilder.length; i++) r = place("place-images/align", bilder[i], orte[i].vals[0], orte[i].vals[1], r, String(ax), String(ay));
       return r;
     });
     def("put-image", 4, 4, function (img, x, y, sc) { imageArgs("put-image", [img, sc]); return place("put-image", img, x, sub(R(Math.round(sc.h)), num("put-image", y)), sc, "center", "center"); });
@@ -1257,12 +1262,12 @@
       if (!cl.some(function (c) { return c.kind === "to-draw"; })) throw new RacketError("big-bang: es fehlt die Klausel (to-draw zeichne-funktion)", "syntax");
       cl.forEach(function (c) { if (["on-new", "on-msg", "on-disconnect", "to-string"].indexOf(c.kind) >= 0) throw new RacketError("big-bang: (" + c.kind + " …) gehört zu universe, nicht zu big-bang", "syntax"); });
       if (it.onBigBang) { it.onBigBang({ init: init, clauses: cl }); return Void; }
-      it.animSkipped = true; return init;
+      return init;   // ohne Browser (z. B. beim Prüfen der Übungen): Anfangszustand zurückgeben
     });
     def("animate", 1, 1, function (f) {
       proc("animate", f);
       if (it.onBigBang) { it.onBigBang({ init: R(0), clauses: [new Clause("to-draw", [f]), new Clause("on-tick", [new Prim("add1", function (n) { return add(n, R(1)); }, 1)])] }); return Void; }
-      it.animSkipped = true; return R(0);
+      return R(0);
     });
     // ---------- universe: mehrere Welten, die über einen Server Nachrichten austauschen
     clause("on-new", 1, 1); clause("on-msg", 1, 1); clause("on-disconnect", 1, 1); clause("on-receive", 1, 1); clause("to-string", 1, 1);
@@ -1300,7 +1305,7 @@
       cl.forEach(function (c) { if (!(c instanceof Clause)) throw new RacketError("universe: nach dem Anfangszustand kommen nur Klauseln wie (on-new …) oder (on-msg …), nicht " + show(c), "type"); });
       ["on-new", "on-msg"].forEach(function (k) { if (!cl.some(function (c) { return c.kind === k; })) throw new RacketError("universe: es fehlt die Klausel (" + k + " …)", "syntax"); });
       if (it.onUniverse) { it.onUniverse({ init: init, clauses: cl }); return Void; }
-      it.animSkipped = true; return init;
+      return init;   // ohne Browser (z. B. beim Prüfen der Übungen): Anfangszustand zurückgeben
     });
     def("launch-many-worlds", 0, -1, function () { return Void; });
     def("launch-many-worlds/proc", 0, -1, function () { var me = this; Array.prototype.forEach.call(arguments, function (f) { me.apply(proc("launch-many-worlds/proc", f), []); }); return Void; });

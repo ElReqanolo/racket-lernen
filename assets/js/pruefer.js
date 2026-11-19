@@ -364,7 +364,6 @@
 
     // eigene Tests des Nutzers
     var ownResults = ui.tests.map(function (t) { var r = safe(function () { return ui.runTest(t); }); return r.e ? { ok: false, error: r.e, form: t.form } : r.v; });
-    var ownFailed = ownResults.filter(function (r) { return !r.ok; });
 
     function compareItem(title, act, exp, eps) {
       var ok = M.equal(act, exp, eps);
