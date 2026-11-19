@@ -6,7 +6,7 @@
 <title>Playground · Racket lernen</title>
 <meta name="description" content="Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
-<link rel="stylesheet" href="assets/style.css?v=f306c09b">
+<link rel="stylesheet" href="assets/style.css?v=9afb4bbc">
 <script>try{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 </head>
 <body>
@@ -18,16 +18,19 @@
 <main>
 
 <h1 class="page-title">Playground</h1>
-<p class="lead">Programmiere direkt im Browser – fast wie in DrRacket: mit Sprachebene, Signaturprüfung, Tests, Bildern und Animationen (<code>big-bang</code>). <strong>Ausführen</strong> (oder Strg+Enter) zeigt die Ergebnisse, Bilder und Testergebnisse; in der Zeile mit „&gt;“ kannst du danach weitere Ausdrücke eintippen wie im Interaktionsfenster. Schon beim Tippen erscheinen passende Befehle als Vorschlag – mit <kbd>Tab</kbd> übernimmst du den markierten. Fehler wie fehlende Klammern, unbekannte Befehle oder fehlende Angaben werden schon beim Tippen rot unterstrichen.</p>
+<p class="lead">Programmiere direkt im Browser – fast wie in DrRacket: mit Sprachebene, Signaturprüfung, Stepper, Tests, Bildern und Animationen (<code>big-bang</code>, <code>universe</code>). <strong>Ausführen</strong> (oder Strg+Enter) zeigt die Ergebnisse, Bilder und Testergebnisse; in der Zeile mit „&gt;“ kannst du danach weitere Ausdrücke eintippen wie im Interaktionsfenster. Schon beim Tippen erscheinen passende Befehle als Vorschlag – mit <kbd>Tab</kbd> übernimmst du den markierten. Fehler wie fehlende Klammern, unbekannte Befehle oder fehlende Angaben werden schon beim Tippen rot unterstrichen.</p>
 <div class="pg">
 <div class="pg-left">
 <div class="pg-bar">
 <button type="button" id="pg-run" class="pg-run">▶ Ausführen</button><span class="kbd">Strg+Enter</span>
+<button type="button" id="pg-step" class="chip" title="Auswertung Schritt für Schritt ansehen – wie der Stepper in DrRacket">👣 Stepper</button>
 <select id="pg-level" aria-label="Sprachebene" title="Sprachebene wie in DrRacket unter Sprache → Sprache auswählen…"><option value="beginner">Schreibe Dein Programm! – Anfänger</option><option value="vanilla" selected>Schreibe Dein Programm!</option><option value="advanced">Schreibe Dein Programm! – fortgeschritten</option></select>
 <select id="pg-ex" aria-label="Beispiel laden"><option value="">Beispiel laden …</option></select>
 <button type="button" id="pg-share" class="chip">🔗 Link teilen</button>
 <button type="button" id="pg-dl" class="chip" title="Programm als .rkt-Datei speichern – lässt sich in DrRacket öffnen">⬇ Herunterladen</button>
 <button type="button" id="pg-open" class="chip" title="Eine .rkt-Datei von deinem Gerät in den Playground laden">📂 Öffnen</button>
+<button type="button" id="pg-img" class="chip" title="Ein Bild (PNG, JPG, GIF …) von deinem Gerät einfügen – wie Einfügen → Bild einfügen… in DrRacket">🖼 Bild einfügen</button>
+<input type="file" id="pg-imgfile" accept="image/*" hidden>
 <input type="file" id="pg-file" accept=".rkt,.scm,.txt,text/plain" hidden>
 <button type="button" id="pg-clear" class="chip">Leeren</button>
 </div>
@@ -40,6 +43,13 @@
 <div class="pg-replrow"><span>&gt;</span><input id="pg-repl" type="text" spellcheck="false" autocomplete="off" placeholder="Ausdruck eintippen und Enter drücken, z. B. (* 6 7)" aria-label="Ausdruck auswerten"></div>
 </div>
 </div>
+<div id="pg-stepper" class="st-overlay" hidden role="dialog" aria-modal="true" aria-label="Stepper">
+<div class="st-panel">
+<div class="st-head"><strong>👣 Stepper</strong><span class="st-form"></span><button type="button" class="chip st-close" aria-label="Stepper schließen">✕ Schließen</button></div>
+<div class="st-ctrl"><button type="button" class="chip st-first" title="Zum Anfang (Pos1)">⏮</button><button type="button" class="chip st-prev" title="Schritt zurück (←)">◀ Zurück</button><span class="st-pos"></span><button type="button" class="chip st-next" title="Nächster Schritt (→)">Weiter ▶</button><button type="button" class="chip st-last" title="Zum Ende (Ende)">⏭</button></div>
+<div class="st-note"></div>
+<div class="st-panes"><div><div class="st-label">vorher</div><pre class="st-before"></pre></div><div><div class="st-label">nachher</div><pre class="st-after"></pre></div></div>
+</div></div>
 <details class="loesung" style="border-left-color:var(--accent);margin-top:22px"><summary style="color:var(--accent)">Was geht hier – und was nicht?</summary>
 <ul>
 <li><strong>Sprachebene</strong> oben wählen wie in DrRacket: „Anfänger“ (Kapitel 1–5), „Schreibe Dein Programm!“ (ab Kapitel 6, mit Listen und <code>let</code>) oder „fortgeschritten“ (mit Symbolen, <code>'</code>, <code>begin</code>, <code>apply</code> und Restparametern). Was es in der gewählten Ebene nicht gibt, wird wie in DrRacket abgelehnt – mit Hinweis, ab welcher Ebene es geht.</li>
@@ -51,12 +61,17 @@
 <li><kbd>Tab</kbd> und Vorschläge beim Tippen vervollständigen Befehle und deine eigenen Namen (ƒ = eingebaute Funktion, { } = Sonderform wie <code>define</code>, T = Signatur, abc = selbst definiert). ↑/↓ wählt, Tab oder nach ↑/↓ auch Enter übernimmt, Esc schließt.</li>
 <li>Schon beim Tippen markiert: fehlende oder überzählige Klammern, nicht geschlossene Zeichenketten, unbekannte Befehle (mit Vorschlag bei Tippfehlern), Befehle aus einer anderen Sprachebene, zu wenige oder zu viele Angaben, leere Klammern und Werte an der Stelle eines Befehls. Ein Klick auf die Meldung springt zur Stelle.</li>
 <li>Der Code bleibt in deinem Browser gespeichert. „Link teilen“ erzeugt einen Link mit Code und Sprachebene; „⬇ Herunterladen“ speichert eine <code>.rkt</code>-Datei für DrRacket (<em>Datei → Öffnen…</em>, vorher Sprachebene und Teachpacks wie in der Datei angegeben einstellen), „📂 Öffnen“ lädt eine <code>.rkt</code>-Datei – auch eine, die DrRacket gespeichert hat; die Sprachebene wird dann übernommen.</li>
-<li><strong>Was fehlt:</strong> der Stepper, eingefügte Bilder aus Dateien (<code>bitmap</code>), Bilder in Farblisten zerlegen (<code>image-&gt;color-list</code>) und Netzwerkspiele mit mehreren Welten (<code>universe</code>). Komplexe Zahlen gibt es nicht. Das ist ein Nachbau im Browser – im Zweifel gilt, was DrRacket sagt.</li>
+<li><strong>👣 Stepper</strong> wie in DrRacket: zeigt Schritt für Schritt, wie Racket rechnet (Substitutionsmodell) – links „vorher“ mit dem markierten Teil, der als Nächstes ausgerechnet wird, rechts „nachher“. Mit ← und → blätterst du. Funktionen mit internen Definitionen und Restparametern rechnet er in einem Schritt aus.</li>
+<li><strong>Bilder aus Dateien:</strong> „🖼 Bild einfügen“ fügt ein Bild von deinem Gerät als <code>(bitmap "name.png")</code> ein – wie <em>Einfügen → Bild einfügen…</em> in DrRacket. Es bleibt in deinem Browser gespeichert; beim Herunterladen kommt es als eigene Datei mit (in denselben Ordner wie die <code>.rkt</code>-Datei legen). <code>bitmap/url</code> lädt ein Bild von einer Adresse, <code>image-&gt;color-list</code> und <code>color-list-&gt;bitmap</code> zerlegen bzw. bauen Bilder aus Farben.</li>
+<li><strong>universe:</strong> Ein Server (<code>universe</code> mit <code>on-new</code>, <code>on-msg</code>, <code>on-tick</code>, <code>on-disconnect</code>, <code>to-string</code>) und mehrere Welten (<code>big-bang</code> mit <code>register</code>, <code>name</code>, <code>on-receive</code>, <code>make-package</code>) laufen gleichzeitig nebeneinander in der Ausgabe; Nachrichten (<code>make-mail</code>, <code>make-bundle</code>) siehst du im Protokoll des Servers. Statt über das Netz laufen alle Welten in diesem Browserfenster.</li>
+<li><strong>Komplexe Zahlen</strong> wie <code>3+4i</code> und <code>(sqrt -1)</code> mit <code>real-part</code>, <code>imag-part</code>, <code>magnitude</code>, <code>angle</code>, <code>make-polar</code>.</li>
+<li>Das ist ein Nachbau im Browser – im Zweifel gilt, was DrRacket sagt. Mit „Link teilen“ werden eingefügte Bilder nicht mitgeschickt.</li>
 </ul></details>
-<script src="assets/racket.js?v=ebf53903"></script>
+<script src="assets/racket.js?v=b37103de"></script>
 <script src="assets/pruefer.js?v=46c14757"></script>
-<script src="assets/editor.js?v=66853563"></script>
-<script src="assets/playground.js?v=4a187470"></script>
+<script src="assets/editor.js?v=ce0a5cf8"></script>
+<script src="assets/stepper.js?v=fb517f38"></script>
+<script src="assets/playground.js?v=b8b45ed1"></script>
 </main>
 <footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
 <script src="assets/app.js?v=e33e48d3"></script>

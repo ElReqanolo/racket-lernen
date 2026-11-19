@@ -26,6 +26,7 @@
   function Locked(name, msg) { this.name = name; this.msg = msg; }        // Name gibt es in der gewählten Sprachebene nicht
   function Clause(kind, args) { this.kind = kind; this.args = args; }      // big-bang-Klausel (to-draw, on-tick, …)
   function Singleton(name) { this.name = name; }
+  function IWorld(name) { this.name = name; }
 
   // ------------------------------------------------------------------ exakte Zahlen
   function bgcd(a, b) { a = a < 0n ? -a : a; b = b < 0n ? -b : b; while (b) { var t = a % b; a = b; b = t; } return a; }
@@ -36,15 +37,26 @@
     var g = bgcd(n, d); if (g > 1n) { n /= g; d /= g; }
     this.n = n; this.d = d;
   }
-  function isNum(x) { return x instanceof Rat || typeof x === "number"; }
-  function isExact(x) { return x instanceof Rat; }
+  function isNum(x) { return x instanceof Rat || typeof x === "number"; }          // reelle Zahl
+  // komplexe Zahl: re, im jeweils Rat oder float; mk() vereinfacht exakte 0 als Imaginärteil zur reellen Zahl
+  function Cx(re, im) { this.re = re; this.im = im; }
+  function mkC(re, im) { if (im instanceof Rat && im.n === 0n) return re; if (!(re instanceof Rat) && im instanceof Rat) im = Number(im.n) / Number(im.d); if (re instanceof Rat && re.n !== 0n && !(im instanceof Rat)) re = Number(re.n) / Number(re.d); return new Cx(re, im); }
+  function isNumber(x) { return isNum(x) || x instanceof Cx; }
+  function reP(x) { return x instanceof Cx ? x.re : x; }
+  function imP(x) { return x instanceof Cx ? x.im : (x instanceof Rat ? new Rat(0n) : 0); }
+  function isExact(x) { return x instanceof Rat || (x instanceof Cx && x.re instanceof Rat && x.im instanceof Rat); }
   function toF(x) { return x instanceof Rat ? Number(x.n) / Number(x.d) : x; }
   function isInt(x) { return x instanceof Rat ? x.d === 1n : (Number.isFinite(x) && Math.floor(x) === x); }
   function R(i) { return new Rat(BigInt(i)); }
-  function add(a, b) { if (a instanceof Rat && b instanceof Rat) return new Rat(a.n * b.d + b.n * a.d, a.d * b.d); return toF(a) + toF(b); }
-  function sub(a, b) { if (a instanceof Rat && b instanceof Rat) return new Rat(a.n * b.d - b.n * a.d, a.d * b.d); return toF(a) - toF(b); }
-  function mul(a, b) { if (a instanceof Rat && b instanceof Rat) return new Rat(a.n * b.n, a.d * b.d); return toF(a) * toF(b); }
+  function add(a, b) { if (a instanceof Cx || b instanceof Cx) return mkC(add(reP(a), reP(b)), add(imP(a), imP(b))); if (a instanceof Rat && b instanceof Rat) return new Rat(a.n * b.d + b.n * a.d, a.d * b.d); return toF(a) + toF(b); }
+  function sub(a, b) { if (a instanceof Cx || b instanceof Cx) return mkC(sub(reP(a), reP(b)), sub(imP(a), imP(b))); if (a instanceof Rat && b instanceof Rat) return new Rat(a.n * b.d - b.n * a.d, a.d * b.d); return toF(a) - toF(b); }
+  function mul(a, b) { if (a instanceof Cx || b instanceof Cx) { var ar = reP(a), ai = imP(a), br = reP(b), bi = imP(b); return mkC(sub(mul(ar, br), mul(ai, bi)), add(mul(ar, bi), mul(ai, br))); } if (a instanceof Rat && b instanceof Rat) return new Rat(a.n * b.n, a.d * b.d); return toF(a) * toF(b); }
   function div(a, b) {
+    if (a instanceof Cx || b instanceof Cx) {
+      var ar = reP(a), ai = imP(a), br = reP(b), bi = imP(b), den = add(mul(br, br), mul(bi, bi));
+      if (den instanceof Rat && den.n === 0n) throw new RacketError("/: durch 0 geteilt");
+      return mkC(div(add(mul(ar, br), mul(ai, bi)), den), div(sub(mul(ai, br), mul(ar, bi)), den));
+    }
     if (b instanceof Rat && b.n === 0n) throw new RacketError("/: durch 0 geteilt");
     if (a instanceof Rat && b instanceof Rat) return new Rat(a.n * b.d, a.d * b.n);
     return toF(a) / toF(b);
@@ -64,6 +76,12 @@
       return new Rat(n, 10n ** BigInt(scale));
     }
     if ((m = /^([+-]?\d+(?:\.\d+)?)e([+-]?\d+)$/i.exec(t))) return parseFloat(t);
+    if ((m = /^([+-]?[\d.\/]+(?:e[+-]?\d+)?)?([+-])([\d.\/]*(?:e[+-]?\d+)?)i$/i.exec(t))) {
+      var re = m[1] ? parseNumber(m[1]) : new Rat(0n), im = m[3] ? parseNumber(m[3]) : new Rat(1n);
+      if (re === null || im === null) return null;
+      if (m[2] === "-") im = sub(new Rat(0n), im);
+      return mkC(re, im);
+    }
     return null;
   }
   function ratToString(x) {
@@ -80,6 +98,13 @@
     return x.n.toString() + "/" + x.d.toString();
   }
   function numToString(x) {
+    if (x instanceof Cx) {
+      var ex = isExact(x), part = function (v) { return v instanceof Rat ? ratToString(v) : (Number.isInteger(v) ? v.toFixed(1) : String(v)); };
+      var reZero = x.re instanceof Rat && x.re.n === 0n, ims = part(x.im);
+      if (ims.charAt(0) !== "-") ims = "+" + ims;
+      if (x.im instanceof Rat && (x.im.n === 1n || x.im.n === -1n) && x.im.d === 1n) ims = ims.charAt(0);
+      return (ex ? "" : "#i") + (reZero ? "" : part(x.re)) + ims + "i";
+    }
     if (x instanceof Rat) return ratToString(x);
     if (Number.isInteger(x)) return "#i" + x.toFixed(1);
     return "#i" + String(x);
@@ -172,7 +197,7 @@
     if (depth > 40) return "…";
     if (v === true) return "#t";
     if (v === false) return "#f";
-    if (isNum(v)) return numToString(v);
+    if (isNumber(v)) return numToString(v);
     if (v instanceof String || typeof v === "string") return JSON.stringify(String(v));
     if (v === Empty) return "empty";
     if (v instanceof Sym) return "'" + v.name;
@@ -189,12 +214,13 @@
     if (v instanceof Sig || v instanceof LazySig) return "#<signature>";
     if (v instanceof Property) return "#<property>";
     if (v instanceof Singleton) return v.name;
+    if (v instanceof IWorld) return "#<iworld:" + v.name + ">";
     if (v instanceof Clause) return "#<" + v.kind + ">";
     if (v === Void || v === undefined) return "";
     return String(v);
   }
   function typeName(v) {
-    if (isNum(v)) return "Zahl"; if (v instanceof String || typeof v === "string") return "Zeichenkette";
+    if (isNumber(v)) return "Zahl"; if (v instanceof String || typeof v === "string") return "Zeichenkette";
     if (v === true || v === false) return "Wahrheitswert"; if (v === Empty) return "leere Liste";
     if (v instanceof Pair) return "Liste"; if (v instanceof Closure || v instanceof Prim) return "Funktion";
     if (v instanceof RecordVal) return "Record " + v.type.name; if (v instanceof Img) return "Bild";
@@ -204,6 +230,7 @@
   // ------------------------------------------------------------------ Gleichheit
   var imageEqualHook = null; // im Browser: Pixelvergleich
   function equal(a, b, eps) {
+    if ((a instanceof Cx || b instanceof Cx) && isNumber(a) && isNumber(b)) return equal(reP(a), reP(b), eps) && equal(imP(a), imP(b), eps);
     if (isNum(a) && isNum(b)) {
       if (eps !== undefined) return Math.abs(toF(a) - toF(b)) <= toF(eps);
       if (isExact(a) && isExact(b)) return cmp(a, b) === 0;
@@ -426,7 +453,7 @@
     var rest = x.slice(3), pred = null;
     if (rest.length && !Array.isArray(rest[0])) { pred = symName(rest[0]); rest = rest.slice(1); }
     var fields = rest.map(function (f) { return symName(f[0]); });
-    var rt = new RecordType(typeName, fields);
+    var rt = new RecordType(typeName, fields); rt.ctorName = ctor;
     rt.fieldSigs = rest.map(function (f) { return f[1]; }); rt.env = env; rt.params = Array.isArray(tn) ? tn.length - 1 : 0;
     var sigv = new Sig("record", rt);
     env.define(typeName, Array.isArray(tn) ? new Prim(typeName, function () { return sigv; }, 0, -1) : sigv);
@@ -494,7 +521,8 @@
     switch (sg.kind) {
       case "base":
         switch (sg.data) {
-          case "number": case "real": return isNum(v);
+          case "number": return isNumber(v);
+          case "real": return isNum(v);
           case "rational": return isNum(v) && (isExact(v) || Number.isFinite(v));
           case "integer": return isNum(v) && isInt(v);
           case "natural": return isNum(v) && isInt(v) && cmp(v, R(0)) >= 0;
@@ -750,7 +778,7 @@
   function Img(w, h, draw, key) { this.w = w; this.h = h; this.draw = draw; this._key = key; }
   Img.prototype.key = function () { return this._key; };
   function colorOf(c) {
-    if (c instanceof RecordVal) return "rgb(" + c.vals.slice(0, 3).map(toF).join(",") + ")";
+    if (c instanceof RecordVal) return c.vals[3] !== undefined ? "rgba(" + c.vals.slice(0, 3).map(toF).join(",") + "," + (toF(c.vals[3]) / 255) + ")" : "rgb(" + c.vals.slice(0, 3).map(toF).join(",") + ")";
     return String(c).replace(/\s+/g, "").toLowerCase();
   }
   function modeStyle(ctx, mode, color) {
@@ -818,7 +846,8 @@
   function installPrims(it) {
     var g = it.global;
     function def(name, min, max, fn) { g.define(name, new Prim(name, fn, min, max)); }
-    function num(name, v, pos) { if (!isNum(v)) throw new RacketError(name + ": Zahl als " + (pos || "Argument") + " erwartet, " + show(v) + " bekommen", "type"); return v; }
+    function num(name, v, pos) { if (v instanceof Cx) throw new RacketError(name + ": reelle Zahl als " + (pos || "Argument") + " erwartet, die komplexe Zahl " + show(v) + " bekommen", "type"); if (!isNum(v)) throw new RacketError(name + ": Zahl als " + (pos || "Argument") + " erwartet, " + show(v) + " bekommen", "type"); return v; }
+    function cnum(name, v, pos) { if (!isNumber(v)) throw new RacketError(name + ": Zahl als " + (pos || "Argument") + " erwartet, " + show(v) + " bekommen", "type"); return v; }
     function intg(name, v) { num(name, v); if (!isInt(v)) throw new RacketError(name + ": ganze Zahl erwartet, " + show(v) + " bekommen", "type"); return v; }
     function str(name, v, pos) { if (!(typeof v === "string" || v instanceof String)) throw new RacketError(name + ": Zeichenkette als " + (pos || "Argument") + " erwartet, " + show(v) + " bekommen", "type"); return String(v); }
     function lst(name, v) { if (!(v === Empty || v instanceof Pair)) throw new RacketError(name + ": Liste erwartet, " + show(v) + " bekommen", "type"); return v; }
@@ -829,12 +858,13 @@
     it.toArr = toArr; it.fromArr = fromArr;
 
     // Zahlen
-    def("+", 0, -1, function () { var s = R(0); for (var i = 0; i < arguments.length; i++) s = add(s, num("+", arguments[i], ord(i) + " Argument")); return s; });
-    def("*", 0, -1, function () { var s = R(1); for (var i = 0; i < arguments.length; i++) s = mul(s, num("*", arguments[i], ord(i) + " Argument")); return s; });
-    def("-", 1, -1, function (a) { num("-", a, "erstes Argument"); if (arguments.length === 1) return sub(R(0), a); var s = a; for (var i = 1; i < arguments.length; i++) s = sub(s, num("-", arguments[i], ord(i) + " Argument")); return s; });
-    def("/", 1, -1, function (a) { num("/", a, "erstes Argument"); if (arguments.length === 1) return div(R(1), a); var s = a; for (var i = 1; i < arguments.length; i++) s = div(s, num("/", arguments[i], ord(i) + " Argument")); return s; });
+    def("+", 0, -1, function () { var s = R(0); for (var i = 0; i < arguments.length; i++) s = add(s, cnum("+", arguments[i], ord(i) + " Argument")); return s; });
+    def("*", 0, -1, function () { var s = R(1); for (var i = 0; i < arguments.length; i++) s = mul(s, cnum("*", arguments[i], ord(i) + " Argument")); return s; });
+    def("-", 1, -1, function (a) { cnum("-", a, "erstes Argument"); if (arguments.length === 1) return sub(R(0), a); var s = a; for (var i = 1; i < arguments.length; i++) s = sub(s, cnum("-", arguments[i], ord(i) + " Argument")); return s; });
+    def("/", 1, -1, function (a) { cnum("/", a, "erstes Argument"); if (arguments.length === 1) return div(R(1), a); var s = a; for (var i = 1; i < arguments.length; i++) s = div(s, cnum("/", arguments[i], ord(i) + " Argument")); return s; });
     ["=", "<", ">", "<=", ">="].forEach(function (op) {
       def(op, 1, -1, function () {
+        if (op === "=") { for (var j = 0; j < arguments.length; j++) cnum(op, arguments[j], ord(j) + " Argument"); for (j = 0; j + 1 < arguments.length; j++) if (!equal(arguments[j], arguments[j + 1]) || (isExact(arguments[j]) !== isExact(arguments[j + 1]) && !equal(arguments[j], arguments[j + 1]))) return false; if (Array.prototype.some.call(arguments, function (v) { return v instanceof Cx; })) return true; }
         for (var i = 0; i < arguments.length; i++) num(op, arguments[i], ord(i) + " Argument");
         for (i = 0; i + 1 < arguments.length; i++) {
           var c = cmp(arguments[i], arguments[i + 1]);
@@ -862,19 +892,36 @@
     def("abs", 1, 1, function (a) { num("abs", a); return cmp(a, R(0)) < 0 ? sub(R(0), a) : a; });
     def("min", 1, -1, function () { var m = num("min", arguments[0]); for (var i = 1; i < arguments.length; i++) if (cmp(num("min", arguments[i]), m) < 0) m = arguments[i]; return m; });
     def("max", 1, -1, function () { var m = num("max", arguments[0]); for (var i = 1; i < arguments.length; i++) if (cmp(num("max", arguments[i]), m) > 0) m = arguments[i]; return m; });
+    // komplexe Hilfsfunktionen (Gleitkomma)
+    function C(re, im) { return mkC(re, im); }
+    function fparts(z) { return [toF(reP(z)), toF(imP(z))]; }
+    function cexp(z) { var p = fparts(z), e = Math.exp(p[0]); return C(e * Math.cos(p[1]), e * Math.sin(p[1])); }
+    function clog(z) { var p = fparts(z); return C(Math.log(Math.hypot(p[0], p[1])), Math.atan2(p[1], p[0])); }
+    function csqrt(z) { var p = fparts(z), r = Math.hypot(p[0], p[1]), a = Math.sqrt((r + p[0]) / 2), b = Math.sqrt((r - p[0]) / 2); return C(a, p[1] < 0 ? -b : b); }
+    var I = new Cx(new Rat(0n), new Rat(1n));
+    function csin(z) { var p = fparts(z); return C(Math.sin(p[0]) * Math.cosh(p[1]), Math.cos(p[0]) * Math.sinh(p[1])); }
+    function ccos(z) { var p = fparts(z); return C(Math.cos(p[0]) * Math.cosh(p[1]), -Math.sin(p[0]) * Math.sinh(p[1])); }
+    function casin(z) { return mul(sub(R(0), I), clog(add(mul(I, z), csqrt(sub(R(1), mul(z, z)))))); }     // -i·log(iz + √(1−z²))
+    function cacos(z) { return sub(R(0) instanceof Rat ? Math.PI / 2 : 0, casin(z)); }
+    function catan(z) { return mul(div(I, R(2)), sub(clog(sub(R(1), mul(I, z))), clog(add(R(1), mul(I, z))))); }
     function bsqrt(n) { if (n < 0n) return null; if (n < 2n) return n; var x = BigInt(Math.floor(Math.sqrt(Number(n)))); while (x * x > n) x--; while ((x + 1n) * (x + 1n) <= n) x++; return x * x === n ? x : null; }
     def("sqrt", 1, 1, function (a) {
-      num("sqrt", a);
-      if (isExact(a) && a.n >= 0n) { var sn = bsqrt(a.n), sd = bsqrt(a.d); if (sn !== null && sd !== null) return new Rat(sn, sd); }
-      if (toF(a) < 0) throw new RacketError("sqrt: nicht-negative Zahl erwartet, " + show(a) + " bekommen", "type");
+      cnum("sqrt", a);
+      if (a instanceof Cx) return csqrt(a);
+      if (isExact(a)) { var neg = a.n < 0n, an = neg ? -a.n : a.n, sn = bsqrt(an), sd = bsqrt(a.d); if (sn !== null && sd !== null) return neg ? mkC(new Rat(0n), new Rat(sn, sd)) : new Rat(sn, sd); }
+      if (toF(a) < 0) return mkC(new Rat(0n), Math.sqrt(-toF(a)));
       return Math.sqrt(toF(a));
     });
     def("expt", 2, 2, function (a, b) {
-      num("expt", a); num("expt", b);
-      if (isExact(a) && isExact(b) && b.d === 1n) {
+      cnum("expt", a); cnum("expt", b);
+      if (b instanceof Rat && b.d === 1n && (a instanceof Rat || a instanceof Cx)) {
         var e = b.n, neg = e < 0n; if (neg) e = -e;
-        var r = new Rat(a.n ** e, a.d ** e); return neg ? div(R(1), r) : r;
+        var r;
+        if (a instanceof Rat) r = new Rat(a.n ** e, a.d ** e);
+        else { r = R(1); var base = a; while (e > 0n) { if (e & 1n) r = mul(r, base); base = mul(base, base); e >>= 1n; } }
+        return neg ? div(R(1), r) : r;
       }
+      if (a instanceof Cx || b instanceof Cx || (toF(a) < 0 && !isInt(b))) { if (isNum(a) && toF(a) === 0) return isExact(a) ? R(0) : 0; return cexp(mul(b, clog(a))); }
       return Math.pow(toF(a), toF(b));
     });
     function rounder(name, fn) {
@@ -897,20 +944,20 @@
     rounder("round", function (x) { var r = Math.round(x); if (Math.abs(x % 1) === 0.5 && r % 2 !== 0) r -= 1; return r; });
     def("gcd", 0, -1, function () { var r = 0n; for (var i = 0; i < arguments.length; i++) { intg("gcd", arguments[i]); r = bgcd(r, arguments[i].n); } return new Rat(r); });
     def("lcm", 0, -1, function () { var r = 1n; for (var i = 0; i < arguments.length; i++) { intg("lcm", arguments[i]); var x = arguments[i].n < 0n ? -arguments[i].n : arguments[i].n; if (x === 0n) return R(0); r = r * x / bgcd(r, x); } return new Rat(r); });
-    def("exact->inexact", 1, 1, function (a) { return toF(num("exact->inexact", a)); });
+    def("exact->inexact", 1, 1, function (a) { cnum("exact->inexact", a); if (a instanceof Cx) return new Cx(toF(a.re), toF(a.im)); return toF(a); });
     def("inexact->exact", 1, 1, function (a) { num("inexact->exact", a); if (isExact(a)) return a; var p = parseNumber(String(a)); return p || R(Math.round(a)); });
-    def("zero?", 1, 1, function (a) { return cmp(num("zero?", a), R(0)) === 0; });
+    def("zero?", 1, 1, function (a) { if (a instanceof Cx) return false; return cmp(num("zero?", a), R(0)) === 0; });
     def("positive?", 1, 1, function (a) { return cmp(num("positive?", a), R(0)) > 0; });
     def("negative?", 1, 1, function (a) { return cmp(num("negative?", a), R(0)) < 0; });
     def("even?", 1, 1, function (a) { intg("even?", a); return isExact(a) ? a.n % 2n === 0n : a % 2 === 0; });
     def("odd?", 1, 1, function (a) { intg("odd?", a); return isExact(a) ? a.n % 2n !== 0n : Math.abs(a % 2) === 1; });
-    def("number?", 1, 1, isNum); def("real?", 1, 1, isNum);
+    def("number?", 1, 1, isNumber); def("real?", 1, 1, isNum);
     def("rational?", 1, 1, function (a) { return isNum(a) && (isExact(a) || Number.isFinite(a)); });
     def("integer?", 1, 1, function (a) { return isNum(a) && isInt(a); });
     def("natural?", 1, 1, function (a) { return isNum(a) && isInt(a) && cmp(a, R(0)) >= 0; });
-    def("exact?", 1, 1, function (a) { return isExact(num("exact?", a)); });
-    def("inexact?", 1, 1, function (a) { return !isExact(num("inexact?", a)); });
-    def("number->string", 1, 1, function (a) { num("number->string", a); return numToString(a); });
+    def("exact?", 1, 1, function (a) { return isExact(cnum("exact?", a)); });
+    def("inexact?", 1, 1, function (a) { return !isExact(cnum("inexact?", a)); });
+    def("number->string", 1, 1, function (a) { cnum("number->string", a); return numToString(a).replace(/^#i/, ""); });
     def("string->number", 1, 1, function (s) { var n = parseNumber(str("string->number", s).trim()); return n === null ? false : n; });
     def("add1", 1, 1, function (a) { return add(num("add1", a), R(1)); });
     def("sub1", 1, 1, function (a) { return sub(num("sub1", a), R(1)); });
@@ -1032,32 +1079,38 @@
     def("make-posn", 2, 2, function (x, y) { return new RecordVal(POSN, [x, y]); });
     def("posn-x", 1, 1, function (p) { return p.vals[0]; }); def("posn-y", 1, 1, function (p) { return p.vals[1]; });
     def("polygon", 3, 3, function (pts, m, c) { var a = toArr(lst("polygon", pts)).map(function (p) { return [toF(p.vals[0]), toF(p.vals[1])]; }); return polyImg("polygon", a, m, c, "poly(" + JSON.stringify(a) + "," + m + "," + colorOf(c) + ")"); });
-    def("make-color", 3, 4, function (r, g2, b) { return new RecordVal(COLOR, [r, g2, b]); });
+    def("make-color", 3, 4, function (r, g2, b, a) { return new RecordVal(COLOR, a === undefined ? [r, g2, b] : [r, g2, b, a]); });
 
     // ---------- weitere Zahlenfunktionen (Sprachebenen „Schreibe Dein Programm!“)
-    function fl(name, f, exactZeroIn, exactOut) {
+    function fl(name, f, exactZeroIn, exactOut, cf) {
       def(name, 1, 1, function (a) {
-        num(name, a);
+        cnum(name, a);
+        if (a instanceof Cx) return cf(a);
         if (exactZeroIn !== undefined && isExact(a) && cmp(a, exactZeroIn) === 0) return exactOut;
         var r = f(toF(a));
-        if (Number.isNaN(r)) throw new RacketError(name + ": Das Ergebnis wäre eine komplexe Zahl – die kann der Playground nicht darstellen", "type");
+        if (Number.isNaN(r)) return cf(a);
         return r;
       });
     }
-    fl("sin", Math.sin, R(0), R(0)); fl("cos", Math.cos, R(0), R(1)); fl("tan", Math.tan, R(0), R(0));
-    fl("asin", Math.asin, R(0), R(0)); fl("acos", Math.acos, R(1), R(0)); fl("exp", Math.exp, R(0), R(1));
-    def("log", 1, 1, function (a) { num("log", a); if (isExact(a) && cmp(a, R(1)) === 0) return R(0); if (cmp(a, R(0)) === 0) throw new RacketError("log: Logarithmus von 0 ist nicht definiert", "type"); if (toF(a) < 0) throw new RacketError("log: Das Ergebnis wäre eine komplexe Zahl – die kann der Playground nicht darstellen", "type"); return Math.log(toF(a)); });
-    def("atan", 1, 2, function (a, b) { num("atan", a); if (b === undefined) return isExact(a) && cmp(a, R(0)) === 0 ? R(0) : Math.atan(toF(a)); num("atan", b); return Math.atan2(toF(a), toF(b)); });
+    fl("sin", Math.sin, R(0), R(0), csin); fl("cos", Math.cos, R(0), R(1), ccos); fl("tan", Math.tan, R(0), R(0), function (z) { return div(csin(z), ccos(z)); });
+    fl("asin", Math.asin, R(0), R(0), casin); fl("acos", Math.acos, R(1), R(0), cacos); fl("exp", Math.exp, R(0), R(1), cexp);
+    def("log", 1, 1, function (a) { cnum("log", a); if (a instanceof Cx) return clog(a); if (isExact(a) && cmp(a, R(1)) === 0) return R(0); if (cmp(a, R(0)) === 0) throw new RacketError("log: Logarithmus von 0 ist nicht definiert", "type"); if (toF(a) < 0) return clog(a); return Math.log(toF(a)); });
+    def("atan", 1, 2, function (a, b) { cnum("atan", a); if (b === undefined) { if (a instanceof Cx) return catan(a); return isExact(a) && cmp(a, R(0)) === 0 ? R(0) : Math.atan(toF(a)); } num("atan", a); num("atan", b); return Math.atan2(toF(a), toF(b)); });
     def("numerator", 1, 1, function (a) { num("numerator", a); if (isExact(a)) return new Rat(a.n); var p = parseNumber(String(a)); return p ? toF(new Rat(p.n)) : a; });
     def("denominator", 1, 1, function (a) { num("denominator", a); if (isExact(a)) return new Rat(a.d); var p = parseNumber(String(a)); return p ? toF(new Rat(p.d)) : 1; });
     def("random", 1, 1, function (n) { intg("random", n); if (cmp(n, R(1)) < 0) throw new RacketError("random: positive natürliche Zahl erwartet, " + show(n) + " bekommen", "type"); return R(Math.floor(Math.random() * toF(n))); });
     def("current-seconds", 0, 0, function () { return R(Math.floor(Date.now() / 1000)); });
-    def("real-part", 1, 1, function (a) { return num("real-part", a); });
-    def("imag-part", 1, 1, function (a) { num("imag-part", a); return R(0); });
-    def("magnitude", 1, 1, function (a) { num("magnitude", a); return cmp(a, R(0)) < 0 ? sub(R(0), a) : a; });
-    def("angle", 1, 1, function (a) { num("angle", a); if (cmp(a, R(0)) === 0) throw new RacketError("angle: für 0 nicht definiert", "type"); return cmp(a, R(0)) > 0 ? (isExact(a) ? R(0) : 0) : Math.PI; });
-    def("make-polar", 2, 2, function (r, t) { num("make-polar", r); num("make-polar", t); var y = toF(r) * Math.sin(toF(t)); if (Math.abs(y) > 1e-12) throw new RacketError("make-polar: Das Ergebnis wäre eine komplexe Zahl – die kann der Playground nicht darstellen", "type"); return toF(r) * Math.cos(toF(t)); });
-    def("complex?", 1, 1, isNum);
+    def("real-part", 1, 1, function (a) { return reP(cnum("real-part", a)); });
+    def("imag-part", 1, 1, function (a) { return imP(cnum("imag-part", a)); });
+    def("magnitude", 1, 1, function (a) {
+      cnum("magnitude", a);
+      if (a instanceof Cx) { var sq = add(mul(a.re, a.re), mul(a.im, a.im)); if (sq instanceof Rat) { var sn = bsqrt(sq.n), sd = bsqrt(sq.d); if (sn !== null && sd !== null) return new Rat(sn, sd); } return Math.sqrt(toF(sq)); }
+      return cmp(a, R(0)) < 0 ? sub(R(0), a) : a;
+    });
+    def("angle", 1, 1, function (a) { cnum("angle", a); if (a instanceof Cx) return Math.atan2(toF(a.im), toF(a.re)); if (cmp(a, R(0)) === 0) throw new RacketError("angle: für 0 nicht definiert", "type"); return cmp(a, R(0)) > 0 ? (isExact(a) ? R(0) : 0) : Math.PI; });
+    def("make-polar", 2, 2, function (r, t) { num("make-polar", r); num("make-polar", t); var R1 = toF(r), T = toF(t); if (isExact(t) && t.n === 0n) return r; return mkC(R1 * Math.cos(T), R1 * Math.sin(T)); });
+    def("make-rectangular", 2, 2, function (a, b) { return mkC(num("make-rectangular", a), num("make-rectangular", b)); });
+    def("complex?", 1, 1, isNumber);
     def("false?", 1, 1, function (x) { return x === false; });
     def("true?", 1, 1, function (x) { return x === true; });
     def("signature?", 1, 1, function (x) { return x instanceof Sig || x instanceof LazySig; });
@@ -1172,6 +1225,25 @@
     def("angle?", 1, 1, function (x) { return isNum(x) && toF(x) >= 0 && toF(x) < 360; });
     def("side-count?", 1, 1, function (x) { return isNum(x) && isInt(x) && toF(x) >= 3; });
     def("step-count?", 1, 1, function (x) { return isNum(x) && isInt(x) && toF(x) >= 1; });
+    // Bilder aus Dateien: der Playground lädt sie vorher und liefert sie über it.onBitmap
+    function bitmapImg(name, src, isUrl) {
+      var key = String(src);
+      if (!(typeof src === "string" || src instanceof String)) throw new RacketError(name + ": erwartet den Dateinamen als Zeichenkette, z. B. (bitmap \"katze.png\")", "type");
+      var b = it.onBitmap ? it.onBitmap(key, isUrl) : null;
+      if (!b) throw new RacketError(name + ": Das Bild „" + key + "“ ist " + (isUrl ? "nicht geladen (Adresse falsch oder der Server erlaubt das Laden nicht)" : "nicht eingefügt – füge es oben mit „🖼 Bild einfügen“ ein") , "type");
+      return new Img(b.w, b.h, function (ctx, ox, oy) { ctx.drawImage(b.el, ox, oy, b.w, b.h); }, "bitmap(" + key + ")");
+    }
+    def("bitmap", 1, 1, function (f) { return bitmapImg("bitmap", f, false); });
+    def("bitmap/url", 1, 1, function (u) { return bitmapImg("bitmap/url", u, true); });
+    def("bitmap/file", 1, 1, function (f) { return bitmapImg("bitmap/file", f, false); });
+    def("freeze", 1, 3, function (img) { imageArgs("freeze", [img]); return img; });
+    def("image->color-list", 1, 1, function (img) {
+      imageArgs("image->color-list", [img]);
+      if (!it.onPixels) throw new RacketError("image->color-list: geht nur im Browser", "type");
+      var px = it.onPixels(img), out = [];
+      for (var i = 0; i < px.length; i += 4) out.push(new RecordVal(COLOR, [R(px[i]), R(px[i + 1]), R(px[i + 2]), R(px[i + 3])]));
+      return fromArr(out);
+    });
     def("image=?", 2, 2, function (a, b) { imageArgs("image=?", [a, b]); return equal(a, b); });
 
     // ---------- Animationen (2htdp/universe)
@@ -1183,6 +1255,7 @@
       var cl = Array.prototype.slice.call(arguments, 1);
       cl.forEach(function (c) { if (!(c instanceof Clause)) throw new RacketError("big-bang: nach dem Anfangszustand kommen nur Klauseln wie (to-draw …) oder (on-tick …), nicht " + show(c), "type"); });
       if (!cl.some(function (c) { return c.kind === "to-draw"; })) throw new RacketError("big-bang: es fehlt die Klausel (to-draw zeichne-funktion)", "syntax");
+      cl.forEach(function (c) { if (["on-new", "on-msg", "on-disconnect", "to-string"].indexOf(c.kind) >= 0) throw new RacketError("big-bang: (" + c.kind + " …) gehört zu universe, nicht zu big-bang", "syntax"); });
       if (it.onBigBang) { it.onBigBang({ init: init, clauses: cl }); return Void; }
       it.animSkipped = true; return init;
     });
@@ -1191,12 +1264,53 @@
       if (it.onBigBang) { it.onBigBang({ init: R(0), clauses: [new Clause("to-draw", [f]), new Clause("on-tick", [new Prim("add1", function (n) { return add(n, R(1)); }, 1)])] }); return Void; }
       it.animSkipped = true; return R(0);
     });
+    // ---------- universe: mehrere Welten, die über einen Server Nachrichten austauschen
+    clause("on-new", 1, 1); clause("on-msg", 1, 1); clause("on-disconnect", 1, 1); clause("on-receive", 1, 1); clause("to-string", 1, 1);
+    def("register", 1, 1, function (ip) { return new Clause("register", [ip]); });
+    def("port", 1, 1, function (p) { return new Clause("port", [p]); });
+    g.define("LOCALHOST", "127.0.0.1");
+    function isSexp(v, d) {
+      if ((d || 0) > 200) return false;
+      if (isNumber(v) || typeof v === "string" || v instanceof String || v === true || v === false || v instanceof Sym || v === Empty) return true;
+      if (v instanceof Pair) { while (v instanceof Pair) { if (!isSexp(v.car, (d || 0) + 1)) return false; v = v.cdr; } return v === Empty; }
+      return false;
+    }
+    it.isSexp = isSexp;
+    def("sexp?", 1, 1, function (v) { return isSexp(v); });
+    def("make-package", 2, 2, function (w, m) { if (!isSexp(m)) throw new RacketError("make-package: Die Nachricht muss ein S-Ausdruck sein (Zahl, Zeichenkette, Wahrheitswert, Symbol oder Liste daraus), ist aber " + show(m), "type"); return new RecordVal(PACKAGE, [w, m]); });
+    def("package?", 1, 1, function (v) { return v instanceof RecordVal && v.type === PACKAGE; });
+    def("make-bundle", 3, 3, function (st, mails, disc) {
+      toArr(lst("make-bundle", mails)).forEach(function (m) { if (!(m instanceof RecordVal && m.type === MAIL)) throw new RacketError("make-bundle: Die zweite Angabe muss eine Liste von Mails (make-mail …) sein", "type"); });
+      toArr(lst("make-bundle", disc)).forEach(function (w) { if (!(w instanceof IWorld)) throw new RacketError("make-bundle: Die dritte Angabe muss eine Liste von iworlds sein", "type"); });
+      return new RecordVal(BUNDLE, [st, mails, disc]);
+    });
+    def("bundle?", 1, 1, function (v) { return v instanceof RecordVal && v.type === BUNDLE; });
+    def("make-mail", 2, 2, function (w, m) {
+      if (!(w instanceof IWorld)) throw new RacketError("make-mail: Die erste Angabe muss eine iworld sein, ist aber " + show(w), "type");
+      if (!isSexp(m)) throw new RacketError("make-mail: Die Nachricht muss ein S-Ausdruck sein, ist aber " + show(m), "type");
+      return new RecordVal(MAIL, [w, m]);
+    });
+    def("mail?", 1, 1, function (v) { return v instanceof RecordVal && v.type === MAIL; });
+    def("iworld?", 1, 1, function (v) { return v instanceof IWorld; });
+    def("iworld=?", 2, 2, function (a, b) { return a === b; });
+    def("iworld-name", 1, 1, function (w) { if (!(w instanceof IWorld)) throw new RacketError("iworld-name: iworld erwartet, " + show(w) + " bekommen", "type"); return w.name; });
+    g.define("iworld1", new IWorld("iworld1")); g.define("iworld2", new IWorld("iworld2")); g.define("iworld3", new IWorld("iworld3"));
+    def("universe", 1, -1, function (init) {
+      var cl = Array.prototype.slice.call(arguments, 1);
+      cl.forEach(function (c) { if (!(c instanceof Clause)) throw new RacketError("universe: nach dem Anfangszustand kommen nur Klauseln wie (on-new …) oder (on-msg …), nicht " + show(c), "type"); });
+      ["on-new", "on-msg"].forEach(function (k) { if (!cl.some(function (c) { return c.kind === k; })) throw new RacketError("universe: es fehlt die Klausel (" + k + " …)", "syntax"); });
+      if (it.onUniverse) { it.onUniverse({ init: init, clauses: cl }); return Void; }
+      it.animSkipped = true; return init;
+    });
+    def("launch-many-worlds", 0, -1, function () { return Void; });
+    def("launch-many-worlds/proc", 0, -1, function () { var me = this; Array.prototype.forEach.call(arguments, function (f) { me.apply(proc("launch-many-worlds/proc", f), []); }); return Void; });
     def("key-event?", 1, 1, function (k) { return typeof k === "string" || k instanceof String; });
     def("key=?", 2, 2, function (a, b) { return String(str("key=?", a)) === String(str("key=?", b)); });
     def("mouse-event?", 1, 1, function (k) { return ["button-down", "button-up", "drag", "move", "enter", "leave"].indexOf(String(k)) >= 0; });
     def("mouse=?", 2, 2, function (a, b) { return String(str("mouse=?", a)) === String(str("mouse=?", b)); });
   }
-  var POSN = new RecordType("posn", ["x", "y"]), COLOR = new RecordType("color", ["red", "green", "blue", "alpha"]), PEN = new RecordType("pen", ["color", "width", "style", "cap", "join"]);
+  var POSN = new RecordType("posn", ["x", "y"]), COLOR = new RecordType("color", ["red", "green", "blue", "alpha"]), PEN = new RecordType("pen", ["color", "width", "style", "cap", "join"]),
+    PACKAGE = new RecordType("package", ["world", "message"]), BUNDLE = new RecordType("bundle", ["state", "mails", "low-to-remove"]), MAIL = new RecordType("mail", ["to", "content"]);
 
   // ------------------------------------------------------------------ Sprachebenen
   // Was es in welcher Sprachebene gibt (laut Doku „Sprachebenen und Material zu Schreibe Dein Programm!“)
@@ -1223,9 +1337,9 @@
 
   var api = {
     Interp: Interp, RacketError: RacketError, readAll: readAll, show: show, equal: equal, typeName: typeName,
-    isNum: isNum, isExact: isExact, toF: toF, Img: Img, Pair: Pair, Empty: Empty, Rat: Rat, Sym: Sym, sym: sym, symName: symName, RecordVal: RecordVal,
+    isNum: isNum, isNumber: isNumber, Cx: Cx, isExact: isExact, toF: toF, Img: Img, Pair: Pair, Empty: Empty, Rat: Rat, Sym: Sym, sym: sym, symName: symName, RecordVal: RecordVal,
     Closure: Closure, Prim: Prim, Void: Void, RecordType: RecordType, Sig: Sig, quoteData: quoteData,
-    Locked: Locked, Clause: Clause, Singleton: Singleton, LEVELS: LV_NAMES, unparse: unparse,
+    Locked: Locked, Clause: Clause, IWorld: IWorld, PACKAGE: function () { return PACKAGE; }, BUNDLE: function () { return BUNDLE; }, MAIL: function () { return MAIL; }, Singleton: Singleton, LEVELS: LV_NAMES, unparse: unparse,
     setImageEqual: function (f) { imageEqualHook = f; },
     setTextMeasure: function (f) { textMeasure = f; }
   };

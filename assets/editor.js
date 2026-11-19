@@ -77,7 +77,7 @@
       var tok = src.slice(s, i);
       if (/^#(t|f|true|false)$/.test(tok)) return { t: "bool", s: s, e: i };
       if (tok.indexOf("#\\") === 0) return { t: "char", s: s, e: i };
-      if (/^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$|^[+-]?\d+\/\d+$/i.test(tok)) return { t: "num", s: s, e: i, v: tok };
+      if (/^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$|^[+-]?\d+\/\d+$|^#[ie][+-]?[\d.\/]+$/i.test(tok) || /^([+-]?[\d.\/]+(e[+-]?\d+)?)?[+-][\d.\/]*(e[+-]?\d+)?i$/i.test(tok)) return { t: "num", s: s, e: i, v: tok };
       if (tok[0] === "#") { err(s, i, "„" + tok + "“ verstehe ich nicht. Gemeint ist vielleicht #t oder #f."); return { t: "bad", s: s, e: i }; }
       return { t: "sym", s: s, e: i, v: tok };
     }

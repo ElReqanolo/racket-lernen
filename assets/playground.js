@@ -21,9 +21,11 @@
     "Animation (big-bang)": '; Ein Ball fliegt nach rechts. Pfeiltasten ← → ändern die Position,\n; ein Mausklick setzt ihn an die Klickstelle. Am rechten Rand ist Schluss.\n(: zeichne (natural -> image))\n(define zeichne\n  (lambda (x)\n    (place-image (circle 15 "solid" "red") x 60\n                 (empty-scene 300 120))))\n\n(: weiter (natural -> natural))\n(define weiter (lambda (x) (+ x 2)))\n\n(define taste\n  (lambda (x k)\n    (cond\n      ((key=? k "left") (max 0 (- x 20)))\n      ((key=? k "right") (+ x 20))\n      (else x))))\n\n(define maus\n  (lambda (x mx my ereignis)\n    (if (mouse=? ereignis "button-down") mx x)))\n\n(define fertig? (lambda (x) (> x 300)))\n\n(big-bang 0\n  (to-draw zeichne)\n  (on-tick weiter)\n  (on-key taste)\n  (on-mouse maus)\n  (stop-when fertig?))',
     "Signaturen prüfen": '; Wie in DrRacket: Passt ein Wert nicht zur Signatur,\n; meldet der Playground eine Signaturverletzung.\n(: verdoppeln (number -> number))\n(define verdoppeln\n  (lambda (x)\n    (* 2 x)))\n\n(verdoppeln 21)\n\n(: begruessung (string -> string))\n(define begruessung\n  (lambda (name)\n    (string-length name)))   ; Fehler: liefert eine Zahl\n\n(begruessung "Ada")',
     "Pattern-Matching (match)": '(define-record dillo\n  make-dillo\n  dillo?\n  (dillo-weight natural)\n  (dillo-alive? boolean))\n\n(define beschreibe\n  (lambda (d)\n    (match d\n      ((make-dillo w #t) (string-append "lebt, wiegt " (number->string w) " g"))\n      ((make-dillo ... #f) "überfahren"))))\n\n(beschreibe (make-dillo 55000 #t))\n(beschreibe (make-dillo 58000 #f))',
+    "Universe: zwei Welten": '; Zwei Welten und ein Server. Klickt man in eine Welt, zählt der Server\n; hoch und schickt den neuen Stand an alle angemeldeten Welten.\n(define zeichne\n  (lambda (n)\n    (overlay (text (number->string n) 48 "black")\n             (empty-scene 200 120))))\n\n(define klick\n  (lambda (n x y ereignis)\n    (if (mouse=? ereignis "button-down")\n        (make-package n "plus")\n        n)))\n\n(define empfange (lambda (n nachricht) nachricht))\n\n; Zustand des Servers: (list zähler welten)\n(define neu\n  (lambda (u welt)\n    (make-bundle (list (first u) (cons welt (first (rest u))))\n                 (list (make-mail welt (first u)))\n                 empty)))\n\n(define nachricht\n  (lambda (u welt msg)\n    (define z (+ (first u) 1))\n    (make-bundle (list z (first (rest u)))\n                 (map (lambda (w) (make-mail w z)) (first (rest u)))\n                 empty)))\n\n(universe (list 0 empty)\n  (on-new neu)\n  (on-msg nachricht))\n\n(big-bang 0 (to-draw zeichne) (on-mouse klick) (on-receive empfange)\n  (register LOCALHOST) (name "Anna"))\n(big-bang 0 (to-draw zeichne) (on-mouse klick) (on-receive empfange)\n  (register LOCALHOST) (name "Ben"))',
+    "Komplexe Zahlen": '(sqrt -1)\n(* 3+4i 3-4i)\n(magnitude 3+4i)\n(expt +i 2)\n(real-part (make-polar 2 0))',
     "Ausgabe mit write-string": '(write-string "Hallo, ")\n(write-string "Welt!")\n(write-newline)\n(write-string (number->string (* 6 7)))'
   };
-  var BEISPIEL_LEVEL = { "Listen": "vanilla", "Eigenschaften (check-property)": "vanilla" };
+  var BEISPIEL_LEVEL = { "Listen": "vanilla", "Eigenschaften (check-property)": "vanilla", "Universe: zwei Welten": "vanilla" };
   Object.keys(BEISPIELE).forEach(function (k) { var o = document.createElement("option"); o.value = k; o.textContent = k; ex.appendChild(o); });
 
   // Bilder: Text messen und zeichnen
@@ -68,40 +70,142 @@
       var v = outLine.querySelector(".pg-val"); v.textContent += t; out.scrollTop = out.scrollHeight;
     };
     it.onRead = function () { return window.prompt("read: Eingabe für dein Programm (z. B. eine Zahl oder \"Text\")", ""); };
-    it.onBigBang = function (spec) { pendingAnim = spec; };
+    it.onBigBang = function (spec) { pendingAnim.push({ world: spec }); };
+    it.onUniverse = function (spec) { pendingAnim.push({ universe: spec }); };
+    it.onBitmap = function (name, isUrl) { return BITMAPS[(isUrl ? "url:" : "file:") + name] || null; };
+    it.onPixels = function (img) {
+      var w = Math.max(1, Math.round(img.w)), h = Math.max(1, Math.round(img.h)), cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+      var c = cv.getContext("2d"); img.draw(c, 0, 0);
+      try { return c.getImageData(0, 0, w, h).data; }
+      catch (e) { throw new M.RacketError("image->color-list: Die Farben dieses Bildes dürfen nicht ausgelesen werden (Bild von einer fremden Adresse ohne Freigabe)", "type"); }
+    };
     return it;
   }
-  var pendingAnim = null;
 
-  // ---------- Animationen (big-bang)
-  var A = null; // laufende Animation
+  // ---------- Bilder aus Dateien (bitmap)
+  var BITMAPS = {};
+  function imgKey(name) { return "sdp-pg-img:" + name; }
+  function loadBitmap(key, src, cors, done) {
+    var el = new Image();
+    if (cors) el.crossOrigin = "anonymous";
+    el.onload = function () { BITMAPS[key] = { w: el.naturalWidth, h: el.naturalHeight, el: el }; done(); };
+    el.onerror = function () { if (cors) loadBitmap(key, src, false, done); else done(); };
+    el.src = src;
+  }
+  function preload(code, cb) {
+    var need = [], m, rx = /\(bitmap(?:\/file)?\s+"([^"]+)"/g, rxu = /\(bitmap\/url\s+"([^"]+)"/g;
+    while ((m = rx.exec(code))) if (!BITMAPS["file:" + m[1]]) { var d = store.get(imgKey(m[1])); if (d) need.push(["file:" + m[1], d, false]); }
+    while ((m = rxu.exec(code))) if (!BITMAPS["url:" + m[1]]) need.push(["url:" + m[1], m[1], true]);
+    if (!need.length) return cb();
+    var left = need.length;
+    need.forEach(function (n) { loadBitmap(n[0], n[1], n[2], function () { if (--left === 0) cb(); }); });
+  }
+  var pendingAnim = [];
+  function launchPending() {
+    var list = pendingAnim; pendingAnim = [];
+    // erst der Server, dann die Welten (damit register ihn findet)
+    list.filter(function (p) { return p.universe; }).forEach(function (p) { if (U) stopUniverse(); startUniverse(p.universe); });
+    list.filter(function (p) { return p.world; }).forEach(function (p) { startWorld(p.world); });
+    return list.length;
+  }
+
+  // ---------- Animationen (big-bang) und universe – mehrere Welten gleichzeitig möglich
+  var WORLDS = [], U = null, worldCount = 0;
+  function isRec(v, T) { return v instanceof M.RecordVal && v.type === T(); }
+  function animArea() { anim.hidden = false; return anim; }
   function stopAnim(reason) {
-    if (!A) return;
-    var a = A; A = null;
+    WORLDS.slice().forEach(function (w) { stopWorld(w, reason, true); });
+    if (U) stopUniverse();
+  }
+  function stopWorld(a, reason, quiet) {
+    var i = WORLDS.indexOf(a); if (i < 0) return;
+    WORLDS.splice(i, 1);
     clearInterval(a.timer); a.box.classList.add("stopped");
     a.status.textContent = reason || "Angehalten.";
     a.stopBtn.textContent = "↻ Neu starten";
-    a.stopBtn.onclick = function () { a.box.remove(); startAnim(a.spec); };
-    if (a.state !== undefined) line("ok", "Endzustand der Animation", M.show(a.state));
+    a.stopBtn.onclick = function () { a.box.remove(); startWorld(a.spec); };
+    line("ok", "Endzustand" + (a.name ? " von „" + a.name + "“" : " der Animation"), M.show(a.state));
+    if (U && a.iw && U.worlds.indexOf(a) >= 0) {
+      U.worlds.splice(U.worlds.indexOf(a), 1);
+      if (U.C["on-disconnect"]) uCall(U.C["on-disconnect"][0], [U.state, a.iw]);
+      uRender();
+    }
     if (window.__pgAnimDone) window.__pgAnimDone(a);
   }
-  function startAnim(spec) {
-    stopAnim();
+  function startAnim(spec) { startWorld(spec); }
+
+  // ---- Universe (Server)
+  function uLog(t) { if (!U) return; var d = document.createElement("div"); d.textContent = t; U.log.appendChild(d); while (U.log.childNodes.length > 40) U.log.removeChild(U.log.firstChild); U.log.scrollTop = U.log.scrollHeight; }
+  function uRender() { if (!U) return; try { U.stateEl.textContent = U.C["to-string"] ? String(interp.apply(U.C["to-string"][0], [U.state])) : M.show(U.state); } catch (e) { U.stateEl.textContent = M.show(U.state); } U.who.textContent = U.worlds.length ? U.worlds.map(function (w) { return w.iw.name; }).join(", ") : "noch keine"; }
+  function uFail(e) { e = wrapErr(e); line("err", "Fehler im Universe-Server", e.message, P && P.errorHint(e)); stopUniverse("Abgebrochen wegen eines Fehlers."); }
+  function uCall(f, args) {
+    if (!U) return;
+    try {
+      interp.steps = 0;
+      var b = interp.apply(f, args);
+      if (!isRec(b, M.BUNDLE)) throw new M.RacketError("universe: Die Funktion muss ein Bundle liefern, z. B. (make-bundle zustand (list (make-mail welt nachricht)) empty), lieferte aber " + M.show(b), "type");
+      U.state = b.vals[0];
+      if (U.C["check-with"] && interp.apply(U.C["check-with"][0], [U.state]) !== true) throw new M.RacketError("check-with: Der Zustand " + M.show(U.state) + " ist kein gültiger Universe-Zustand", "type");
+      interp.toArr(b.vals[1]).forEach(function (m) {
+        var to = m.vals[0], msg = m.vals[1], w = U.worlds.filter(function (x) { return x.iw === to; })[0];
+        uLog("→ an " + to.name + ": " + M.show(msg));
+        if (w) setTimeout(function () { deliver(w, msg); }, 0);
+      });
+      interp.toArr(b.vals[2]).forEach(function (iw) {
+        var w = U.worlds.filter(function (x) { return x.iw === iw; })[0];
+        if (w) { U.worlds.splice(U.worlds.indexOf(w), 1); uLog("✕ " + iw.name + " getrennt"); stopWorld(w, "Vom Universe-Server getrennt."); }
+      });
+      uRender();
+    } catch (e) { uFail(e); }
+  }
+  function startUniverse(spec) {
+    var C = {}; spec.clauses.forEach(function (c) { C[c.kind] = c.args; });
+    var box = document.createElement("div"); box.className = "pg-anim pg-univ";
+    box.innerHTML = '<div class="pg-animhead"><span class="pg-animstatus"><strong>Universe-Server</strong> läuft</span><button type="button" class="chip">■ Stopp</button></div>' +
+      '<div class="pg-ustate"><span>Zustand:</span> <code></code></div><div class="pg-uwho"><span>Verbunden:</span> <em></em></div><div class="pg-ulog" aria-live="polite"></div>';
+    animArea().insertBefore(box, anim.firstChild);
+    U = { C: C, state: spec.init, worlds: [], box: box, stateEl: box.querySelector("code"), who: box.querySelector("em"), log: box.querySelector(".pg-ulog"), timer: null, status: box.querySelector(".pg-animstatus") };
+    box.querySelector("button").onclick = function () { stopUniverse("Angehalten."); };
+    uRender();
+    if (C["on-tick"]) {
+      var rate = C["on-tick"][1] !== undefined ? M.toF(C["on-tick"][1]) : 1 / 28;
+      U.timer = setInterval(function () { if (U) uCall(C["on-tick"][0], [U.state]); }, Math.max(10, rate * 1000));
+    }
+  }
+  function stopUniverse(reason) {
+    if (!U) return;
+    var u = U; U = null; clearInterval(u.timer);
+    u.status.innerHTML = "<strong>Universe-Server</strong> – " + (reason || "beendet.");
+    u.box.classList.add("stopped");
+    line("ok", "Endzustand des Universe-Servers", M.show(u.state));
+  }
+  function deliver(w, msg) {
+    if (WORLDS.indexOf(w) < 0 || !w.C["on-receive"]) return;
+    w.step(w.C["on-receive"][0], [msg]);
+  }
+
+  // ---- Welt (big-bang)
+  function startWorld(spec) {
     var it = interp, C = {};
     spec.clauses.forEach(function (c) { C[c.kind] = c.args; });
+    worldCount++;
+    var name = C.name ? String(C.name[0]) : (C.register ? "Welt " + worldCount : null);
     var box = document.createElement("div"); box.className = "pg-anim";
     var head = document.createElement("div"); head.className = "pg-animhead";
-    var status = document.createElement("span"); status.className = "pg-animstatus"; status.textContent = "Läuft – klick ins Bild, damit Tasten ankommen.";
+    var status = document.createElement("span"); status.className = "pg-animstatus";
+    status.textContent = (name ? name + ": " : "") + "Läuft – klick ins Bild, damit Tasten ankommen.";
     var stopBtn = document.createElement("button"); stopBtn.type = "button"; stopBtn.className = "chip"; stopBtn.textContent = "■ Stopp";
     head.appendChild(status); head.appendChild(stopBtn);
     var cv = document.createElement("canvas"); cv.tabIndex = 0; cv.className = "pg-animcv";
     box.appendChild(head); box.appendChild(cv);
-    anim.innerHTML = ""; anim.appendChild(box); anim.hidden = false;
-    var a = A = { spec: spec, state: spec.init, box: box, status: status, stopBtn: stopBtn, timer: null, ticks: 0, cv: cv };
-    stopBtn.onclick = function () { stopAnim("Angehalten."); };
+    animArea().appendChild(box);
+    var a = { spec: spec, state: spec.init, box: box, status: status, stopBtn: stopBtn, timer: null, ticks: 0, cv: cv, C: C, name: name, iw: null };
+    WORLDS.push(a);
+    stopBtn.onclick = function () { stopWorld(a, "Angehalten."); };
     var ctx = cv.getContext("2d");
+    function alive() { return WORLDS.indexOf(a) >= 0; }
     function call(f, args) { it.steps = 0; return it.apply(f, args); }
-    function fail(e) { e = wrapErr(e); line("err", "Fehler in der Animation", e.message, P && P.errorHint(e)); stopAnim("Abgebrochen wegen eines Fehlers."); }
+    function fail(e) { e = wrapErr(e); line("err", "Fehler in der Animation" + (name ? " „" + name + "“" : ""), e.message, P && P.errorHint(e)); stopWorld(a, "Abgebrochen wegen eines Fehlers."); }
     function draw(fn) {
       var img = call(fn || C["to-draw"][0], [a.state]);
       if (!(img instanceof M.Img)) throw new M.RacketError("to-draw: Die Zeichenfunktion muss ein Bild liefern, lieferte aber " + M.show(img), "type");
@@ -112,35 +216,49 @@
     }
     function check() {
       if (C["check-with"] && call(C["check-with"][0], [a.state]) !== true) throw new M.RacketError("check-with: Der Zustand " + M.show(a.state) + " ist kein gültiger Zustand", "type");
-      if (C["stop-when"] && call(C["stop-when"][0], [a.state]) === true) {
-        draw(C["stop-when"][1]); stopAnim("Fertig – stop-when hat #t geliefert."); return true;
-      }
+      if (C["stop-when"] && call(C["stop-when"][0], [a.state]) === true) { draw(C["stop-when"][1]); stopWorld(a, "Fertig – stop-when hat #t geliefert."); return true; }
       return false;
     }
-    function step(fn, args) {
-      if (A !== a) return;
-      try { a.state = call(fn, [a.state].concat(args)); if (!check()) draw(); } catch (e) { fail(e); }
-    }
+    a.step = function (fn, args) {
+      if (!alive()) return;
+      try {
+        var r = call(fn, [a.state].concat(args));
+        if (isRec(r, M.PACKAGE)) {
+          a.state = r.vals[0];
+          var msg = r.vals[1];
+          if (U && a.iw && U.worlds.indexOf(a) >= 0) { uLog("← von " + a.iw.name + ": " + M.show(msg)); setTimeout(function () { if (U && U.C["on-msg"]) uCall(U.C["on-msg"][0], [U.state, a.iw, msg]); }, 0); }
+        } else a.state = r;
+        if (!check()) draw();
+      } catch (e) { fail(e); }
+    };
     try { if (check()) return; draw(); } catch (e) { fail(e); return; }
+    // beim Universe anmelden
+    if (C.register) {
+      if (U) {
+        a.iw = new M.IWorld(name);
+        U.worlds.push(a); uLog("＋ " + name + " meldet sich an");
+        setTimeout(function () { if (U && alive()) uCall(U.C["on-new"][0], [U.state, a.iw]); }, 0);
+      } else status.textContent = (name ? name + ": " : "") + "Läuft – aber kein Universe-Server gestartet (register ohne universe).";
+    }
     if (C["on-tick"]) {
       var rate = C["on-tick"][1] !== undefined ? M.toF(C["on-tick"][1]) : 1 / 28, limit = C["on-tick"][2] !== undefined ? M.toF(C["on-tick"][2]) : Infinity;
       a.timer = setInterval(function () {
-        if (A !== a) return;
-        step(C["on-tick"][0], []); a.ticks++;
-        if (A === a && a.ticks >= limit) stopAnim("Fertig – Tick-Grenze erreicht.");
+        if (!alive()) return;
+        a.step(C["on-tick"][0], []); a.ticks++;
+        if (alive() && a.ticks >= limit) stopWorld(a, "Fertig – Tick-Grenze erreicht.");
       }, Math.max(10, rate * 1000));
     }
     var KEYS = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down", Enter: "\r", Backspace: "\b", Escape: "escape", Tab: "\t", Delete: "\u007F",
       Shift: "shift", Control: "control", Alt: "menu", Home: "home", End: "end", PageUp: "prior", PageDown: "next", Insert: "insert", CapsLock: "capital" };
     function keyName(e) { return KEYS[e.key] || (/^F\d+$/.test(e.key) ? e.key.toLowerCase() : e.key.length === 1 ? e.key : null); }
-    cv.addEventListener("keydown", function (e) { var k = keyName(e); if (k === null || A !== a) return; e.preventDefault(); if (C["on-key"]) step(C["on-key"][0], [k]); if (C["on-pad"] && /^(left|right|up|down| |shift|w|a|s|d)$/.test(k)) step(C["on-pad"][0], [k]); });
-    cv.addEventListener("keyup", function (e) { var k = keyName(e); if (k === null || A !== a || !C["on-release"]) return; e.preventDefault(); step(C["on-release"][0], [k]); });
+    cv.addEventListener("keydown", function (e) { var k = keyName(e); if (k === null || !alive()) return; e.preventDefault(); if (C["on-key"]) a.step(C["on-key"][0], [k]); if (C["on-pad"] && /^(left|right|up|down| |shift|w|a|s|d)$/.test(k)) a.step(C["on-pad"][0], [k]); });
+    cv.addEventListener("keyup", function (e) { var k = keyName(e); if (k === null || !alive() || !C["on-release"]) return; e.preventDefault(); a.step(C["on-release"][0], [k]); });
     if (C["on-mouse"]) {
       var down = false;
       var mouse = function (e, kind) {
-        if (A !== a) return;
+        if (!alive()) return;
         var r = cv.getBoundingClientRect(), x = Math.round((e.clientX - r.left) * cv.width / r.width), y = Math.round((e.clientY - r.top) * cv.height / r.height);
-        step(C["on-mouse"][0], [new M.Rat(BigInt(x)), new M.Rat(BigInt(y)), kind]);
+        a.step(C["on-mouse"][0], [new M.Rat(BigInt(x)), new M.Rat(BigInt(y)), kind]);
       };
       cv.addEventListener("mousedown", function (e) { down = true; cv.focus(); mouse(e, "button-down"); });
       cv.addEventListener("mouseup", function (e) { down = false; mouse(e, "button-up"); });
@@ -148,13 +266,14 @@
       cv.addEventListener("mouseenter", function (e) { mouse(e, "enter"); });
       cv.addEventListener("mouseleave", function (e) { mouse(e, "leave"); });
     }
-    cv.focus({ preventScroll: true });
+    if (WORLDS.length === 1) cv.focus({ preventScroll: true });
   }
 
   var interp = null;
-  function run() {
+  function run() { preload(ta.value, runNow); }
+  function runNow() {
     stopAnim(); if (anim) { anim.innerHTML = ""; anim.hidden = true; }
-    out.innerHTML = ""; outLine = null; pendingAnim = null;
+    out.innerHTML = ""; outLine = null; pendingAnim = []; worldCount = 0;
     interp = newInterp();
     var forms;
     try { forms = M.readAll(ta.value); }
@@ -191,7 +310,7 @@
       line("testbad", null, sv.length === 1 ? "1 Signaturverletzung" : sv.length + " Signaturverletzungen");
       sv.forEach(function (v) { line("err sig", null, v.msg + (v.count > 1 ? " – " + v.count + "-mal" : "")); });
     }
-    if (pendingAnim) { var spec = pendingAnim; pendingAnim = null; startAnim(spec); shown++; }
+    if (pendingAnim.length) { shown += launchPending(); }
     if (!shown && !res.length && !sv.length && !interp.output.length) line("info", null, "Keine Ausgabe – nur Definitionen. Schreib einen Ausdruck oder probier unten in der Zeile „>“ etwas aus.");
 
     out.scrollTop = out.scrollHeight;
@@ -203,7 +322,7 @@
       var forms = M.readAll(src), v;
       forms.forEach(function (f) { interp.steps = 0; v = interp.eval(f, interp.global); });
       line("ok repl", "> " + src, v === M.Void || v === undefined ? "" : (v instanceof M.Img ? v : M.show(v)));
-      if (pendingAnim) { var sp = pendingAnim; pendingAnim = null; startAnim(sp); }
+      if (pendingAnim.length) launchPending();
     } catch (e) { e = wrapErr(e); line("err repl", "> " + src, e.message, P && P.errorHint(e)); }
     hist.unshift(src); hpos = -1; repl.value = "";
     out.scrollTop = out.scrollHeight;
@@ -258,6 +377,73 @@
     if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done); else done();
   });
 
+  // ---------- Stepper
+  var stBtn = document.getElementById("pg-step"), stBox = document.getElementById("pg-stepper");
+  var ST = { steps: [], i: 0 };
+  function stRenderInto(el, tree, path, cls) {
+    var r = window.RacketStepper.render(tree, path, cls);
+    el.innerHTML = r.html;
+    el.querySelectorAll(".st-img").forEach(function (sp) { var img = r.imgs[+sp.dataset.k]; if (img) sp.appendChild(renderImg(img)); });
+  }
+  function stShow() {
+    var n = ST.steps.length, s = ST.steps[ST.i];
+    var pos = stBox.querySelector(".st-pos"), note = stBox.querySelector(".st-note"), b = stBox.querySelector(".st-before"), a = stBox.querySelector(".st-after");
+    stBox.querySelector(".st-prev").disabled = stBox.querySelector(".st-first").disabled = ST.i <= 0;
+    stBox.querySelector(".st-next").disabled = stBox.querySelector(".st-last").disabled = ST.i >= n - 1;
+    if (!n) { pos.textContent = "keine Schritte"; note.textContent = ST.error || "Es gibt nichts auszuwerten – schreib einen Ausdruck, z. B. (+ 1 2)."; b.innerHTML = a.innerHTML = ""; return; }
+    pos.textContent = "Schritt " + (ST.i + 1) + " von " + n + (ST.error ? " (abgebrochen)" : "");
+    stBox.querySelector(".st-form").textContent = "Ausdruck " + (s.form + 1) + " von " + s.total;
+    note.textContent = s.error ? "" : (s.note || "");
+    note.className = "st-note" + (s.test === true ? " ok" : s.test === false ? " bad" : "");
+    stRenderInto(b, s.before, s.bpath, "st-redex");
+    if (s.error) { a.innerHTML = '<span class="st-err">Fehler: ' + esc(s.error) + "</span>"; }
+    else stRenderInto(a, s.after, s.apath, "st-contr");
+    if (ST.i === n - 1 && ST.error) note.textContent = ST.error;
+  }
+  function stOpen() {
+    if (!window.RacketStepper) return;
+    var r = window.RacketStepper.build(ta.value, level());
+    ST = { steps: r.steps, i: 0, error: r.error };
+    stBox.hidden = false; document.body.classList.add("st-open"); stShow();
+    stBox.querySelector(".st-next").focus();
+  }
+  function stClose() { stBox.hidden = true; document.body.classList.remove("st-open"); ta.focus(); }
+  if (stBtn && stBox) {
+    stBtn.addEventListener("click", stOpen);
+    stBox.querySelector(".st-close").addEventListener("click", stClose);
+    stBox.querySelector(".st-first").addEventListener("click", function () { ST.i = 0; stShow(); });
+    stBox.querySelector(".st-prev").addEventListener("click", function () { if (ST.i > 0) { ST.i--; stShow(); } });
+    stBox.querySelector(".st-next").addEventListener("click", function () { if (ST.i < ST.steps.length - 1) { ST.i++; stShow(); } });
+    stBox.querySelector(".st-last").addEventListener("click", function () { ST.i = Math.max(0, ST.steps.length - 1); stShow(); });
+    stBox.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") { e.preventDefault(); stClose(); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); stBox.querySelector(".st-next").click(); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); stBox.querySelector(".st-prev").click(); }
+      else if (e.key === "Home") { e.preventDefault(); stBox.querySelector(".st-first").click(); }
+      else if (e.key === "End") { e.preventDefault(); stBox.querySelector(".st-last").click(); }
+    });
+    stBox.addEventListener("click", function (e) { if (e.target === stBox) stClose(); });
+  }
+
+  // Bild einfügen
+  var imgBtn = document.getElementById("pg-img"), imgIn = document.getElementById("pg-imgfile");
+  if (imgBtn) imgBtn.addEventListener("click", function () { imgIn.value = ""; imgIn.click(); });
+  if (imgIn) imgIn.addEventListener("change", function () {
+    var f = imgIn.files[0]; if (!f) return;
+    if (f.size > 1500000) { alert("Das Bild ist zu groß (über 1,5 MB). Nimm bitte ein kleineres Bild."); return; }
+    var name = f.name.replace(/[^\w.\-äöüÄÖÜß]/g, "_");
+    var r = new FileReader();
+    r.onload = function () {
+      store.set(imgKey(name), r.result);
+      loadBitmap("file:" + name, r.result, false, function () {
+        ta.focus();
+        var t = '(bitmap "' + name + '")';
+        if (!document.execCommand || !document.execCommand("insertText", false, t)) { var p0 = ta.selectionStart; ta.value = ta.value.slice(0, p0) + t + ta.value.slice(ta.selectionEnd); ta.dispatchEvent(new Event("input")); }
+      });
+    };
+    r.readAsDataURL(f);
+  });
+
   // Herunterladen als .rkt
   var dlBtn = document.getElementById("pg-dl"), openBtn = document.getElementById("pg-open"), fileIn = document.getElementById("pg-file");
   function fileName() {
@@ -273,6 +459,10 @@
     var head = "; Erstellt im Racket-Playground (elreqanolo.github.io/racket-lernen)\n" +
       "; In DrRacket öffnen: Datei -> Öffnen...\n" +
       "; Sprache: \"" + M.LEVELS[level()].replace("–", "-") + "\"" + (tp.length ? ", Teachpack" + (tp.length > 1 ? "s " : " ") + tp.join(" und ") : "") + "\n\n";
+    var bm = [], mm, rxb = /\(bitmap(?:\/file)?\s+"([^"]+)"/g;
+    while ((mm = rxb.exec(code))) if (bm.indexOf(mm[1]) < 0) bm.push(mm[1]);
+    if (bm.length) head = head.replace(/\n\n$/, "\n; Bilder: " + bm.join(", ") + " – liegen als eigene Dateien bei; in denselben Ordner wie diese Datei legen\n\n");
+    bm.forEach(function (n, k) { var d = store.get(imgKey(n)); if (!d) return; setTimeout(function () { var a2 = document.createElement("a"); a2.href = d; a2.download = n; document.body.appendChild(a2); a2.click(); a2.remove(); }, 300 * (k + 1)); });
     var blob = new Blob([head + code], { type: "text/plain;charset=utf-8" });
     var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = fileName();
     document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
