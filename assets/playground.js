@@ -142,6 +142,39 @@
     if (navigator.clipboard) navigator.clipboard.writeText(url).then(done, done); else done();
   });
 
+  // Herunterladen als .rkt
+  var dlBtn = document.getElementById("pg-dl"), openBtn = document.getElementById("pg-open"), fileIn = document.getElementById("pg-file");
+  function fileName() {
+    var m = /\(define\s+([^\s()]+)\s*\(\s*(?:lambda|λ)\b/.exec(ta.value);
+    var n = m ? m[1].replace(/[^A-Za-z0-9\-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") : "";
+    return (n || "programm") + ".rkt";
+  }
+  if (dlBtn) dlBtn.addEventListener("click", function () {
+    var code = ta.value.replace(/\s+$/, "") + "\n";
+    var listen = /\b(list|empty\?|cons\?|first|rest|filter|map|fold|list-of)\b/.test(code);
+    var head = "; Erstellt im Racket-Playground (elreqanolo.github.io/racket-lernen)\n" +
+      "; In DrRacket öffnen: Datei -> Öffnen...\n" +
+      "; Sprache: " + (listen ? "\"Schreibe Dein Programm!\" (wegen Listen)" : "\"Schreibe Dein Programm! - Anfänger\"") +
+      (/\b(square|circle|rectangle|above|beside|overlay|place-image|empty-scene|star-polygon|text|triangle|ellipse)\b/.test(code) ? ", Teachpack image.rkt" : "") + "\n\n";
+    var blob = new Blob([head + code], { type: "text/plain;charset=utf-8" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = fileName();
+    document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  });
+  if (openBtn) openBtn.addEventListener("click", function () { fileIn.value = ""; fileIn.click(); });
+  if (fileIn) fileIn.addEventListener("change", function () {
+    var f = fileIn.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      var t = String(r.result);
+      if (/^#reader\(lib "read\.(ss|rkt)" "wxme"\)/.test(t) || t.indexOf("WXME") === 0) { out.innerHTML = ""; line("err", null, "Diese Datei enthält eingefügte Bilder oder Sonderformate aus DrRacket und kann hier nicht gelesen werden."); return; }
+      // Kopfzeilen, die DrRacket beim Speichern einfügt, entfernen
+      t = t.replace(/^;; The first three lines of this file were inserted by DrRacket\.[^\n]*\n;;[^\n]*\n#reader[^\n]*\n/, "").replace(/^#lang [^\n]*\n/, "");
+      if (ta.value.trim() && !confirm("Dein Code im Playground wird durch „" + f.name + "“ ersetzt. Weiter?")) return;
+      ta.value = t; ta.dispatchEvent(new Event("input")); run();
+    };
+    r.readAsText(f, "utf-8");
+  });
+
   // Start: Code aus Link, sonst gespeicherter Code, sonst Beispiel
   var m = /#code=([^&]+)/.exec(location.hash), start = null;
   if (m) { try { start = decodeURIComponent(escape(atob(m[1]))); } catch (e) {} }

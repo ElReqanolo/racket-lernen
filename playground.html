@@ -25,6 +25,9 @@
 <button type="button" id="pg-run" class="pg-run">▶ Ausführen</button><span class="kbd">Strg+Enter</span>
 <select id="pg-ex" aria-label="Beispiel laden"><option value="">Beispiel laden …</option></select>
 <button type="button" id="pg-share" class="chip">🔗 Link teilen</button>
+<button type="button" id="pg-dl" class="chip" title="Programm als .rkt-Datei speichern – lässt sich in DrRacket öffnen">⬇ Herunterladen</button>
+<button type="button" id="pg-open" class="chip" title="Eine .rkt-Datei von deinem Gerät in den Playground laden">📂 Öffnen</button>
+<input type="file" id="pg-file" accept=".rkt,.scm,.txt,text/plain" hidden>
 <button type="button" id="pg-clear" class="chip">Leeren</button>
 </div>
 <textarea id="pg-code" spellcheck="false" autocapitalize="off" autocomplete="off" aria-label="Racket-Code"></textarea>
@@ -43,12 +46,13 @@
 <li>Schon beim Tippen markiert: fehlende oder überzählige Klammern, nicht geschlossene Zeichenketten, unbekannte Befehle (mit Vorschlag bei Tippfehlern), zu wenige oder zu viele Angaben, leere Klammern und Werte an der Stelle eines Befehls, z. B. <code>(5 3)</code>. Ein Klick auf die Meldung springt zur Stelle. Fehler, die erst beim Ausführen auffallen (z. B. falsche Sorte von Wert), zeigt „Ausführen“.</li>
 <li>Nicht möglich: Animationen mit <code>big-bang</code>. Signaturen werden nicht geprüft.</li>
 <li>Der Code bleibt in deinem Browser gespeichert. Mit „Link teilen“ bekommst du einen Link, der deinen Code enthält.</li>
+<li>„⬇ Herunterladen“ speichert dein Programm als <code>.rkt</code>-Datei. Die öffnest du in DrRacket mit <em>Datei → Öffnen…</em> – vorher wie gewohnt die Sprache „Schreibe Dein Programm! – Anfänger“ (bzw. „Schreibe Dein Programm!“ ab Kapitel 6) und die Teachpacks einstellen. „📂 Öffnen“ lädt umgekehrt eine <code>.rkt</code>-Datei in den Playground. Dateien, in die in DrRacket Bilder eingefügt wurden, kann der Playground nicht lesen.</li>
 <li>Das ist ein Nachbau im Browser. Im Zweifel gilt, was DrRacket sagt.</li>
 </ul></details>
 <script src="assets/racket.js?v=58aa2ed3"></script>
 <script src="assets/pruefer.js?v=46c14757"></script>
 <script src="assets/editor.js?v=f73435bd"></script>
-<script src="assets/playground.js?v=e873dd65"></script>
+<script src="assets/playground.js?v=fc0fc314"></script>
 </main>
 <footer>Lernhilfe zum Buch „Schreibe Dein Programm!“ von Michael Sperber und Herbert Klaeren · kein offizielles Material · Beispiele bitte selbst in DrRacket ausprobieren</footer>
 <script src="assets/app.js?v=f2927685"></script>
