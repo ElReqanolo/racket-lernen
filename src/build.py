@@ -76,7 +76,7 @@ def page(fname, title, body, katex=False, desc=""):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} · Racket lernen</title>
 <meta name="description" content="{html.escape(desc or 'Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.')}">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c2552f'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='sans-serif'%3Eλ%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/css/style.css">{kx}
 <script>try{{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}}catch(e){{}}</script>
 </head>
@@ -614,7 +614,7 @@ def _highlight_pages(pgs):
 pages = _highlight_pages(pages)
 def _ver(path):
     return hashlib.md5(open(path, "rb").read()).hexdigest()[:8]
-ASSETS = ["css/style.css"] + ["js/" + j + ".js" for j in ("app", "racket", "pruefer", "uebungen", "editor", "stepper", "playground")]
+ASSETS = ["css/style.css", "favicon.svg"] + ["js/" + j + ".js" for j in ("app", "racket", "pruefer", "uebungen", "editor", "stepper", "playground")]
 _assets = {a: _ver(f"{OUT}/assets/{a}") for a in ASSETS}
 def _bust(htmltext):
     for a, v in _assets.items():

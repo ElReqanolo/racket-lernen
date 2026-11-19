@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- (λ) wie das Logo oben links: Klammern grau, λ in Racket-Rot -->
+  <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8.5 4.5 Q2.5 16 8.5 27.5" stroke="#8a91a3" stroke-width="2.6"/>
+    <path d="M23.5 4.5 Q29.5 16 23.5 27.5" stroke="#8a91a3" stroke-width="2.6"/>
+    <path d="M11.2 7.2 H12.8 Q14.3 7.2 15 8.8 L21 24.8" stroke="#c4262e" stroke-width="2.9"/>
+    <path d="M16.2 13.6 L11 24.8" stroke="#c4262e" stroke-width="2.9"/>
+  </g>
+</svg>
