@@ -7,13 +7,8 @@
   };
 
   /* ---------- Hell/Dunkel und Einstellungen (angewendet von sdpApply im <head>) ---------- */
-  var root = document.documentElement;
   var apply = window.sdpApply || function () {};
   function setOpt(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} apply(); }
-  document.addEventListener("click", function (e) {
-    if (!e.target.closest(".themebtn")) return;
-    setOpt("sdp-theme", root.getAttribute("data-theme") === "dark" ? "light" : "dark");
-  });
   var settings = document.querySelector(".settings");
   if (settings) {
     var KEYS = ["sdp-theme", "sdp-accent", "sdp-font", "sdp-motion"];
