@@ -78,7 +78,7 @@ def page(fname, title, body, katex=False, desc=""):
 <meta name="description" content="{html.escape(desc or 'Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.')}">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/css/style.css">{kx}
-<script>window.sdpApply=function(){{try{{var d=document.documentElement,g=function(k){{return localStorage.getItem(k)}},t=g('sdp-theme'),a=g('sdp-accent'),f=g('sdp-font');d.setAttribute('data-theme',t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));if(a){{d.setAttribute('data-acc','');d.style.setProperty('--acc',a)}}else d.removeAttribute('data-acc');d.style.setProperty('--fs',f||1);if(g('sdp-motion')==='off')d.setAttribute('data-motion','off');else d.removeAttribute('data-motion')}}catch(e){{}}}};sdpApply()</script>
+<script>window.sdpApply=function(){{try{{var d=document.documentElement,g=function(k){{return localStorage.getItem(k)}},t=g('sdp-design'),a=g('sdp-accent'),f=g('sdp-font');d.setAttribute('data-theme',t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));if(a){{d.setAttribute('data-acc','');d.style.setProperty('--acc',a)}}else d.removeAttribute('data-acc');d.style.setProperty('--fs',f||1);if(g('sdp-motion')==='off')d.setAttribute('data-motion','off');else d.removeAttribute('data-motion')}}catch(e){{}}}};sdpApply();try{{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',sdpApply)}}catch(e){{}}</script>
 </head>
 <body>
 <header class="top"><div class="inner">
@@ -517,7 +517,7 @@ einstellungen_body = f"""
 <p class="lead">Passe die Seite an dich an. Die Einstellungen gelten für alle Seiten und werden nur in deinem Browser gespeichert.</p>
 <div class="settings doc">
 <h3>Design</h3>
-<div class="seg" data-set="sdp-theme"><button type="button" data-v="">Wie System</button><button type="button" data-v="light">Hell</button><button type="button" data-v="dark">Dunkel</button></div>
+<div class="seg" data-set="sdp-design"><button type="button" data-v="">Wie System</button><button type="button" data-v="light">Hell</button><button type="button" data-v="dark">Dunkel</button></div>
 <h3>Akzentfarbe</h3>
 <p class="hint">Farbe für Links, Knöpfe, Markierungen und die hellen Flächen.</p>
 <div class="swatches" data-set="sdp-accent">{"".join(f'<button type="button" data-v="{v}" style="--c:{v or '#3e5ba9'}" title="{n}" aria-label="{n}"></button>' for v, n in _ACC)}<label class="custom" title="Eigene Farbe">Eigene: <input type="color" value="#3e5ba9" aria-label="Eigene Akzentfarbe"></label></div>
