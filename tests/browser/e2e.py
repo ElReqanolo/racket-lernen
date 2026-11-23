@@ -64,7 +64,7 @@ async def main():
         await pg.fill(".filters input[type=search]", "lambda"); await pg.wait_for_timeout(300)
         treffer = await pg.evaluate("[...document.querySelectorAll('.fi')].filter(e => e.offsetParent).length")
         check(0 < treffer < alle, f"Glossar-Suche filtert ({alle} → {treffer})")
-        await pg.click(".themebtn"); await pg.wait_for_load_state()
+        await pg.click(".setbtn"); await pg.wait_for_load_state()
         await pg.click('[data-set="sdp-design"] button[data-v="dark"]')
         check(await pg.evaluate("document.documentElement.getAttribute('data-theme')") == "dark", "Dunkles Design schaltet um")
         await pg.close()

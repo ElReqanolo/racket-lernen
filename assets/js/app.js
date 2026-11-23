@@ -6,12 +6,11 @@
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
 
-  /* ---------- Hell/Dunkel und Einstellungen (angewendet von sdpApply im <head>) ---------- */
+  /* ---------- Einstellungen (angewendet von sdpApply im <head>) ---------- */
   var apply = window.sdpApply || function () {};
   function setOpt(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} apply(); }
   var settings = document.querySelector(".settings");
   if (settings) {
-    var KEYS = ["sdp-design", "sdp-accent", "sdp-font", "sdp-motion"];
     var show = function () {
       settings.querySelectorAll("[data-set]").forEach(function (g) {
         var cur = store.get(g.dataset.set) || "", hit = false;
@@ -27,7 +26,7 @@
       if (r.dataset.reset === "all") {
         if (!confirm("Alle gespeicherten Daten löschen?\n\nFortschritt, Häkchen, Code und Antworten werden gelöscht. Das lässt sich nicht rückgängig machen.")) return;
         try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf("sdp-") === 0) localStorage.removeItem(k); }); } catch (e2) {}
-      } else KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e2) {} });
+      } else settings.querySelectorAll("[data-set]").forEach(function (g) { setOpt(g.dataset.set, ""); });
       apply(); show();
     });
     settings.querySelector(".custom input").addEventListener("input", function (e) { setOpt("sdp-accent", e.target.value); show(); });

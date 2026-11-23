@@ -80,8 +80,8 @@ nav.main a{position:relative;padding:7px 11px;text-decoration:none;color:var(--m
 nav.main a:hover{color:var(--text);background:var(--ink-soft)}
 nav.main a.active{color:var(--ink);font-weight:700}
 nav.main a.active::after{content:"";position:absolute;left:11px;right:11px;bottom:1px;height:2px;border-radius:2px;background:var(--ink)}
-.themebtn{display:inline-flex;align-items:center;justify-content:center;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:18px;text-decoration:none}
-.themebtn:hover,.themebtn.active{border-color:var(--ink);color:var(--ink)}
+.setbtn{display:inline-flex;align-items:center;justify-content:center;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:8px;width:36px;height:36px;font-size:18px;text-decoration:none}
+.setbtn:hover,.setbtn.active{border-color:var(--ink);color:var(--ink)}
 
 main{max-width:none;margin:0 auto;padding:24px clamp(18px,3.5vw,72px) 64px}
 .page-title{margin:8px 0 6px;font-size:2.3em;line-height:1.08;letter-spacing:-.025em}
@@ -498,4 +498,6 @@ li.task.just-done .status::after{animation:haken .35s .1s ease-out both}
 .swatches button{width:36px;height:36px;border-radius:50%;border:3px solid var(--panel);background:var(--c);box-shadow:0 0 0 1px var(--line);cursor:pointer}
 .swatches button.on,.swatches .custom.on{box-shadow:0 0 0 2px var(--text)}
 .swatches .custom{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;font-size:.9em;color:var(--muted)}
+.settings .chip.danger{color:var(--red);border-color:var(--red)}
+.settings .chip.danger:hover{background:var(--red);color:#fff}
 .swatches input[type=color]{width:36px;height:30px;border:0;padding:0;background:none;cursor:pointer}
