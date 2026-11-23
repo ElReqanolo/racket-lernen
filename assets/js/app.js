@@ -6,18 +6,38 @@
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   };
 
-  /* ---------- Hell/Dunkel ---------- */
+  /* ---------- Hell/Dunkel und Einstellungen (angewendet von sdpApply im <head>) ---------- */
   var root = document.documentElement;
-  var saved = store.get("sdp-theme");
-  if (saved) root.setAttribute("data-theme", saved);
-  else if (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches) root.setAttribute("data-theme", "dark");
+  var apply = window.sdpApply || function () {};
+  function setOpt(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} apply(); }
   document.addEventListener("click", function (e) {
-    var b = e.target.closest(".themebtn");
-    if (!b) return;
-    var next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    root.setAttribute("data-theme", next);
-    store.set("sdp-theme", next);
+    if (!e.target.closest(".themebtn")) return;
+    setOpt("sdp-theme", root.getAttribute("data-theme") === "dark" ? "light" : "dark");
   });
+  var settings = document.querySelector(".settings");
+  if (settings) {
+    var KEYS = ["sdp-theme", "sdp-accent", "sdp-font", "sdp-motion"];
+    var show = function () {
+      settings.querySelectorAll("[data-set]").forEach(function (g) {
+        var cur = store.get(g.dataset.set) || "", hit = false;
+        g.querySelectorAll("button").forEach(function (b) { var on = b.dataset.v === cur; hit = hit || on; b.classList.toggle("on", on); b.setAttribute("aria-pressed", on); });
+        var c = g.querySelector(".custom"); if (c) { c.classList.toggle("on", !hit); if (cur) c.querySelector("input").value = cur; }
+      });
+    };
+    settings.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-set] button");
+      if (b) { setOpt(b.closest("[data-set]").dataset.set, b.dataset.v); show(); return; }
+      var r = e.target.closest("[data-reset]");
+      if (!r) return;
+      if (r.dataset.reset === "all") {
+        if (!confirm("Alle gespeicherten Daten löschen?\n\nFortschritt, Häkchen, Code und Antworten werden gelöscht. Das lässt sich nicht rückgängig machen.")) return;
+        try { Object.keys(localStorage).forEach(function (k) { if (k.indexOf("sdp-") === 0) localStorage.removeItem(k); }); } catch (e2) {}
+      } else KEYS.forEach(function (k) { try { localStorage.removeItem(k); } catch (e2) {} });
+      apply(); show();
+    });
+    settings.querySelector(".custom input").addEventListener("input", function (e) { setOpt("sdp-accent", e.target.value); show(); });
+    show();
+  }
 
   /* ---------- Beim Runterscrollen Kopfzeile ausblenden und Filterleiste einklappen (nur Suche bleibt) ---------- */
   (function () {

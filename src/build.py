@@ -15,7 +15,8 @@ from tipps import H as HINTS
 
 LINKS = {}   # frühere Links auf Dokumente → Seitennamen (die Inhalte nutzen bereits die Seitennamen)
 NAV = [("index.html", "Start"), ("lernen.html", "Lernübersicht"), ("befehle.html", "Befehle"),
-       ("glossar.html", "Glossar"), ("fehler.html", "Fehler"), ("uebungen.html", "Übungen"), ("playground.html", "Playground")]
+       ("glossar.html", "Glossar"), ("fehler.html", "Fehler"), ("uebungen.html", "Übungen"), ("playground.html", "Playground"),
+       ("einstellungen.html", "Einstellungen")]
 
 
 def slug(s):
@@ -78,7 +79,7 @@ def page(fname, title, body, katex=False, desc=""):
 <meta name="description" content="{html.escape(desc or 'Racket lernen mit „Schreibe Dein Programm!“: Erklärungen, Befehle, Glossar, Fehlermeldungen und Übungen.')}">
 <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="assets/css/style.css">{kx}
-<script>try{{var t=localStorage.getItem('sdp-theme');if(t)document.documentElement.setAttribute('data-theme',t);else if(matchMedia('(prefers-color-scheme: dark)').matches)document.documentElement.setAttribute('data-theme','dark')}}catch(e){{}}</script>
+<script>window.sdpApply=function(){{try{{var d=document.documentElement,g=function(k){{return localStorage.getItem(k)}},t=g('sdp-theme'),a=g('sdp-accent'),f=g('sdp-font');d.setAttribute('data-theme',t||(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'));if(a){{d.setAttribute('data-acc','');d.style.setProperty('--acc',a)}}else d.removeAttribute('data-acc');d.style.setProperty('--fs',f||1);if(g('sdp-motion')==='off')d.setAttribute('data-motion','off');else d.removeAttribute('data-motion')}}catch(e){{}}}};sdpApply()</script>
 </head>
 <body>
 <header class="top"><div class="inner">
@@ -510,6 +511,26 @@ index_body = f"""
 <p><strong>Zum Nachschlagen:</strong> <a href="befehle.html">Befehle</a> (was macht <code>above</code>?), <a href="glossar.html">Glossar</a> (was heißt „Signatur“?) und <a href="fehler.html">Fehlermeldungen</a> (was will DrRacket von mir?). In der Lernübersicht kannst du unterstrichene Fachwörter antippen.</p>
 <p><strong>Tipp:</strong> Lies nicht nur – tippe die Beispiele selbst ab (nicht kopieren!), führe sie aus und verändere sie. Fehler sind normal und gehören dazu. So lernt man Programmieren am schnellsten.</p>"""
 
+# ------------------------------------------------------------------ Einstellungen (gespeichert nur im eigenen Browser, angewendet von sdpApply im <head>)
+_ACC = [("", "Racket-Blau"), ("#0f7c86", "Türkis"), ("#2f7d32", "Grün"), ("#7b3fb5", "Lila"), ("#c4262e", "Racket-Rot"), ("#b85a12", "Orange"), ("#4a5466", "Graphit")]
+einstellungen_body = f"""
+<h1 class="page-title">Einstellungen</h1>
+<p class="lead">Passe die Seite an dich an. Die Einstellungen gelten für alle Seiten und werden nur in deinem Browser gespeichert.</p>
+<div class="settings doc">
+<h3>Design</h3>
+<div class="seg" data-set="sdp-theme"><button type="button" data-v="">Wie System</button><button type="button" data-v="light">Hell</button><button type="button" data-v="dark">Dunkel</button></div>
+<h3>Akzentfarbe</h3>
+<p class="hint">Farbe für Links, Knöpfe, Markierungen und die hellen Flächen.</p>
+<div class="swatches" data-set="sdp-accent">{"".join(f'<button type="button" data-v="{v}" style="--c:{v or '#3e5ba9'}" title="{n}" aria-label="{n}"></button>' for v, n in _ACC)}<label class="custom" title="Eigene Farbe">Eigene: <input type="color" value="#3e5ba9" aria-label="Eigene Akzentfarbe"></label></div>
+<h3>Schriftgröße</h3>
+<div class="seg" data-set="sdp-font"><button type="button" data-v="0.9">Klein</button><button type="button" data-v="">Normal</button><button type="button" data-v="1.12">Groß</button><button type="button" data-v="1.25">Sehr groß</button></div>
+<h3>Animationen</h3>
+<div class="seg" data-set="sdp-motion"><button type="button" data-v="">An</button><button type="button" data-v="off">Aus</button></div>
+<h3>Zurücksetzen</h3>
+<p><button type="button" class="chip" data-reset="design">Einstellungen auf Standard</button> <button type="button" class="chip" data-reset="all">Alle gespeicherten Daten löschen</button></p>
+<p class="hint">„Alle gespeicherten Daten löschen“ entfernt auch deinen Fortschritt, deinen Code und deine Antworten bei den Übungen und im Playground.</p>
+</div>"""
+
 # ------------------------------------------------------------------ Playground
 playground_body = """
 <h1 class="page-title">Playground</h1>
@@ -594,7 +615,8 @@ uebungen_body = beginner.add_glossary(uebungen_body, _GT, r'<li class="task')
 print("Glossar-Begriffe für Tooltips:", len(_GT), "Markierungen:", lernen_body.count('class="gl"'), "+", uebungen_body.count('class="gl"'))
 pages = [("index.html", "Start", index_body, False), ("lernen.html", "Lernübersicht", lernen_body, True),
          ("befehle.html", "Befehle", befehle_body, False), ("glossar.html", "Glossar", glossar_body, False),
-         ("fehler.html", "Fehlermeldungen", fehler_body, False), ("uebungen.html", "Übungen", uebungen_body, False), ("playground.html", "Playground", playground_body, False)]
+         ("fehler.html", "Fehlermeldungen", fehler_body, False), ("uebungen.html", "Übungen", uebungen_body, False), ("playground.html", "Playground", playground_body, False),
+         ("einstellungen.html", "Einstellungen", einstellungen_body, False)]
 def _fix_sig(t):
     return t.replace("nonempty-list-of", "cons-list-of")
 pages = [(fn, t, _fix_sig(b), kx) for fn, t, b, kx in pages]

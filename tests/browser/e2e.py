@@ -10,7 +10,7 @@ from playwright.async_api import async_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
-SEITEN = ["index.html", "lernen.html", "befehle.html", "glossar.html", "fehler.html", "uebungen.html", "playground.html"]
+SEITEN = ["index.html", "lernen.html", "befehle.html", "glossar.html", "fehler.html", "uebungen.html", "playground.html", "einstellungen.html"]
 fehler = []
 
 

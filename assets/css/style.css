@@ -30,9 +30,12 @@
   --s-key:#8ea8ff;--s-str:#8fd694;--s-com:#c9a35f;--s-num:#d29bf0;--s-con:#f0a37a;--s-quo:#ff8a8f;
   --p0:#7d879c;--p1:#8ea8ff;--p2:#ff8a8f;--p3:#8fd694;--shadow:0 1px 2px rgba(0,0,0,.4);
 }
+/* eigene Akzentfarbe aus den Einstellungen; im Dunkeln aufgehellt, damit sie lesbar bleibt */
+[data-acc]{--ink:var(--acc);--ink-soft:color-mix(in srgb,var(--acc) 11%,#fff)}
+[data-theme="dark"][data-acc]{--ink:color-mix(in srgb,var(--acc) 55%,#fff);--ink-soft:color-mix(in srgb,var(--acc) 24%,#0f131b)}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:76px}
-body{margin:0;background:var(--bg);color:var(--text);font:16.5px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+body{margin:0;background:var(--bg);color:var(--text);font:calc(16.5px * var(--fs,1))/1.6 var(--sans);-webkit-font-smoothing:antialiased}
 input,select,button,textarea{font-family:inherit}
 a{color:var(--ink);text-decoration-thickness:1px;text-underline-offset:3px}
 a:hover{text-decoration-thickness:2px}
@@ -483,4 +486,15 @@ li.task.just-done .status::after{animation:haken .35s .1s ease-out both}
 /* Prüfergebnis erscheint */
 .abgabe-res .res-head{animation:auftauchen .3s var(--ease)}
 @keyframes auftauchen{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+[data-motion="off"] *,[data-motion="off"] *::before,[data-motion="off"] *::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+
+/* Einstellungen */
+.settings{max-width:720px}
+.settings h3:first-child{margin-top:0}
+.settings .hint{color:var(--muted);font-size:.9em;margin:4px 0 8px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.swatches button{width:36px;height:36px;border-radius:50%;border:3px solid var(--panel);background:var(--c);box-shadow:0 0 0 1px var(--line);cursor:pointer}
+.swatches button.on,.swatches .custom.on{box-shadow:0 0 0 2px var(--text)}
+.swatches .custom{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border-radius:999px;font-size:.9em;color:var(--muted)}
+.swatches input[type=color]{width:36px;height:30px;border:0;padding:0;background:none;cursor:pointer}

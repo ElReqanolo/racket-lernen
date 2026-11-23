@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { ROOT, seite } = require('./hilfen');
 
-const SEITEN = ['index.html', 'lernen.html', 'befehle.html', 'glossar.html', 'fehler.html', 'uebungen.html', 'playground.html'];
+const SEITEN = ['index.html', 'lernen.html', 'befehle.html', 'glossar.html', 'fehler.html', 'uebungen.html', 'playground.html', 'einstellungen.html'];
 const ids = {};
 for (const s of SEITEN) ids[s] = new Set([...seite(s).matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
 
