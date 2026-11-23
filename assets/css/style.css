@@ -80,7 +80,8 @@ nav.main a{position:relative;padding:7px 11px;text-decoration:none;color:var(--m
 nav.main a:hover{color:var(--text);background:var(--ink-soft)}
 nav.main a.active{color:var(--ink);font-weight:700}
 nav.main a.active::after{content:"";position:absolute;left:11px;right:11px;bottom:1px;height:2px;border-radius:2px;background:var(--ink)}
-.themebtn{border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:16px}
+.themebtn{display:inline-flex;align-items:center;justify-content:center;flex:none;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:8px;width:36px;height:36px;cursor:pointer;font-size:18px;text-decoration:none}
+.themebtn:hover,.themebtn.active{border-color:var(--ink);color:var(--ink)}
 
 main{max-width:none;margin:0 auto;padding:24px clamp(18px,3.5vw,72px) 64px}
 .page-title{margin:8px 0 6px;font-size:2.3em;line-height:1.08;letter-spacing:-.025em}

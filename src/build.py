@@ -15,8 +15,7 @@ from tipps import H as HINTS
 
 LINKS = {}   # frühere Links auf Dokumente → Seitennamen (die Inhalte nutzen bereits die Seitennamen)
 NAV = [("index.html", "Start"), ("lernen.html", "Lernübersicht"), ("befehle.html", "Befehle"),
-       ("glossar.html", "Glossar"), ("fehler.html", "Fehler"), ("uebungen.html", "Übungen"), ("playground.html", "Playground"),
-       ("einstellungen.html", "Einstellungen")]
+       ("glossar.html", "Glossar"), ("fehler.html", "Fehler"), ("uebungen.html", "Übungen"), ("playground.html", "Playground")]
 
 
 def slug(s):
@@ -85,7 +84,7 @@ def page(fname, title, body, katex=False, desc=""):
 <header class="top"><div class="inner">
 <a class="brand" href="index.html"><span class="lam">λ</span><span>Racket lernen</span></a>
 <nav class="main">{nav}</nav>
-<button class="themebtn" type="button" title="Hell/Dunkel umschalten" aria-label="Hell/Dunkel umschalten">☾</button>
+<a class="themebtn{" active" if fname == "einstellungen.html" else ""}" href="einstellungen.html" title="Einstellungen" aria-label="Einstellungen">⚙</a>
 </div></header>
 <main>
 {body}
