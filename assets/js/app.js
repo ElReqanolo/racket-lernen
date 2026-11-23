@@ -11,7 +11,7 @@
   function setOpt(k, v) { try { if (v) localStorage.setItem(k, v); else localStorage.removeItem(k); } catch (e) {} apply(); }
   var settings = document.querySelector(".settings");
   if (settings) {
-    var KEYS = ["sdp-theme", "sdp-accent", "sdp-font", "sdp-motion"];
+    var KEYS = ["sdp-design", "sdp-accent", "sdp-font", "sdp-motion"];
     var show = function () {
       settings.querySelectorAll("[data-set]").forEach(function (g) {
         var cur = store.get(g.dataset.set) || "", hit = false;

@@ -65,7 +65,7 @@ async def main():
         treffer = await pg.evaluate("[...document.querySelectorAll('.fi')].filter(e => e.offsetParent).length")
         check(0 < treffer < alle, f"Glossar-Suche filtert ({alle} → {treffer})")
         await pg.click(".themebtn"); await pg.wait_for_load_state()
-        await pg.click('[data-set="sdp-theme"] button[data-v="dark"]')
+        await pg.click('[data-set="sdp-design"] button[data-v="dark"]')
         check(await pg.evaluate("document.documentElement.getAttribute('data-theme')") == "dark", "Dunkles Design schaltet um")
         await pg.close()
         pg = await neu(b, base + "lernen.html")
