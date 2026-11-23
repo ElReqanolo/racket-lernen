@@ -84,7 +84,7 @@ def page(fname, title, body, katex=False, desc=""):
 <header class="top"><div class="inner">
 <a class="brand" href="index.html"><span class="lam">λ</span><span>Racket lernen</span></a>
 <nav class="main">{nav}</nav>
-<a class="themebtn{" active" if fname == "einstellungen.html" else ""}" href="einstellungen.html" title="Einstellungen" aria-label="Einstellungen">⚙</a>
+<a class="setbtn{" active" if fname == "einstellungen.html" else ""}" href="einstellungen.html" title="Einstellungen" aria-label="Einstellungen">⚙</a>
 </div></header>
 <main>
 {body}
@@ -514,7 +514,7 @@ index_body = f"""
 _ACC = [("", "Racket-Blau"), ("#0f7c86", "Türkis"), ("#2f7d32", "Grün"), ("#7b3fb5", "Lila"), ("#c4262e", "Racket-Rot"), ("#b85a12", "Orange"), ("#4a5466", "Graphit")]
 einstellungen_body = f"""
 <h1 class="page-title">Einstellungen</h1>
-<p class="lead">Passe die Seite an dich an. Die Einstellungen gelten für alle Seiten und werden nur in deinem Browser gespeichert.</p>
+<p class="lead">Passe die Seite an dich an. Änderungen gelten sofort auf allen Seiten und werden nur in deinem Browser gespeichert.</p>
 <div class="settings doc">
 <h3>Design</h3>
 <div class="seg" data-set="sdp-design"><button type="button" data-v="">Wie System</button><button type="button" data-v="light">Hell</button><button type="button" data-v="dark">Dunkel</button></div>
@@ -524,9 +524,9 @@ einstellungen_body = f"""
 <h3>Schriftgröße</h3>
 <div class="seg" data-set="sdp-font"><button type="button" data-v="0.9">Klein</button><button type="button" data-v="">Normal</button><button type="button" data-v="1.12">Groß</button><button type="button" data-v="1.25">Sehr groß</button></div>
 <h3>Animationen</h3>
-<div class="seg" data-set="sdp-motion"><button type="button" data-v="">An</button><button type="button" data-v="off">Aus</button></div>
+<div class="seg" data-set="sdp-motion"><button type="button" data-v="">Wie System</button><button type="button" data-v="off">Aus</button></div>
 <h3>Zurücksetzen</h3>
-<p><button type="button" class="chip" data-reset="design">Einstellungen auf Standard</button> <button type="button" class="chip" data-reset="all">Alle gespeicherten Daten löschen</button></p>
+<p><button type="button" class="chip" data-reset="design">Einstellungen auf Standard</button> <button type="button" class="chip danger" data-reset="all">Alle gespeicherten Daten löschen</button></p>
 <p class="hint">„Alle gespeicherten Daten löschen“ entfernt auch deinen Fortschritt, deinen Code und deine Antworten bei den Übungen und im Playground.</p>
 </div>"""
 
