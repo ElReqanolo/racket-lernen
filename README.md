@@ -14,6 +14,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `glossar.html` | Glossar A–Z, filterbar nach Kapitel |
 | `fehler.html` | Fehlermeldungen und typische Fehler, nach Kapitel |
 | `uebungen.html` | Übungen Kapitel für Kapitel: jede Aufgabe wird direkt abgegeben (Code-Editor, Auswahlfragen oder Eingabefelder) und bei richtiger Lösung automatisch abgehakt; gestufte Tipps, Link zur Lernübersicht, Musterlösung pro Aufgabe |
+| `einstellungen.html` | Einstellungen: Design (hell/dunkel/wie System), Akzentfarbe (Vorgaben oder eigene), Schriftgröße, Animationen aus, alles zurücksetzen |
 | `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile; Sprachebenen wie in DrRacket, Signaturprüfung, Stepper, Animationen mit `big-bang` und `universe`, Bilder aus Dateien, komplexe Zahlen, Tab-Vervollständigung und Fehlermarkierung beim Tippen |
 
 ## Ordnerstruktur
@@ -33,7 +34,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 │   ├── fonts/                    Schriften Bricolage Grotesque, Instrument Sans, JetBrains Mono (SIL OFL, liegt bei)
 │   └── katex/                    Schrift und CSS für die Formeln der Lernübersicht (KaTeX, MIT-Lizenz)
 ├── src/                          Quellen: daraus entstehen die Seiten
-│   ├── build.py                  Generator – erzeugt die sieben HTML-Seiten
+│   ├── build.py                  Generator – erzeugt die acht HTML-Seiten
 │   ├── beginner.py               Einsteigerhilfen: „Ausprobieren“-Knöpfe, Fachwort-Erklärungen
 │   ├── erste_schritte.py         Kapitel „Erste Schritte“ (mit DrRacket-Installation)
 │   ├── check_try.js              entfernt „Ausprobieren“-Knöpfe, deren Code nicht läuft
