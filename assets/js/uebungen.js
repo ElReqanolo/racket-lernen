@@ -213,6 +213,7 @@
       ta.placeholder = "; Dein Racket-Code …";
       ta.value = store.get("sdp-code-" + id) || "";
       work.appendChild(ta);
+      if (window.RacketEditor) window.RacketEditor.lineNumbers(ta);
     }
     if (quizBox) work.appendChild(quizBox);
 
