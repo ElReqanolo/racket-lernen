@@ -23,17 +23,6 @@
     if (scaleMax) { var f = Math.min(1, scaleMax / Math.max(w, h)); cv.style.width = Math.round(w * f) + "px"; cv.style.height = Math.round(h * f) + "px"; }
     return cv;
   }
-  M.setImageEqual(function (a, b) {
-    if (Math.round(a.w) !== Math.round(b.w) || Math.round(a.h) !== Math.round(b.h)) return false;
-    if (a.key() === b.key()) return true;
-    var ca = renderImg(a).getContext("2d"), cb = renderImg(b).getContext("2d");
-    var w = Math.max(1, Math.ceil(a.w)), h = Math.max(1, Math.ceil(a.h));
-    var da = ca.getImageData(0, 0, w, h).data, db = cb.getImageData(0, 0, w, h).data, diff = 0;
-    for (var i = 0; i < da.length; i += 4) {
-      if (Math.abs(da[i] - db[i]) + Math.abs(da[i + 1] - db[i + 1]) + Math.abs(da[i + 2] - db[i + 2]) + Math.abs(da[i + 3] - db[i + 3]) > 96) diff++;
-    }
-    return diff <= Math.max(4, w * h * 0.004);
-  });
 
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   function el(tag, cls, html) { var e = document.createElement(tag); if (cls) e.className = cls; if (html !== undefined) e.innerHTML = html; return e; }
@@ -213,7 +202,7 @@
       ta.placeholder = "; Dein Racket-Code …";
       ta.value = store.get("sdp-code-" + id) || "";
       work.appendChild(ta);
-      if (window.RacketEditor) window.RacketEditor.lineNumbers(ta);
+      window.RacketEditor.lineNumbers(ta);
     }
     if (quizBox) work.appendChild(quizBox);
 
@@ -244,9 +233,9 @@
     li.appendChild(work);
 
     if (ta) {
-      var autosize = function () { ta.style.height = "auto"; ta.style.height = Math.min(700, Math.max(170, ta.scrollHeight + 4)) + "px"; };
+      var autosize = function () { window.RacketEditor.fit(ta, 170, 700); };
       setTimeout(autosize, 0);
-      var insert = function (t) { var s = ta.selectionStart, en = ta.selectionEnd; ta.value = ta.value.slice(0, s) + t + ta.value.slice(en); ta.selectionStart = ta.selectionEnd = s + t.length; ta.dispatchEvent(new Event("input")); };
+      var insert = function (t) { window.RacketEditor.insertText(ta, t); };
       ta.addEventListener("input", function () { store.set("sdp-code-" + id, ta.value); autosize(); });
       ta.addEventListener("keydown", function (e) {
         if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); check(); return; }

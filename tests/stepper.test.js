@@ -8,7 +8,7 @@ function schritte(code, lv) { const r = S.build(code, lv || 'vanilla'); return r
 
 test('Substitutionsmodell: einfache Funktion', () => {
   assert.deepEqual(schritte('(define verdoppeln (lambda (x) (* 2 x))) (verdoppeln (+ 1 2))'),
-    ['(verdoppeln 3)', '(* 2 3)', '6']);
+    ['((lambda (x) (* 2 x)) (+ 1 2))', '((lambda (x) (* 2 x)) 3)', '(* 2 3)', '6']);  // wie im Buch: erst der Name → lambda, dann die Operanden
 });
 
 test('if, cond, and, let werden Schritt für Schritt reduziert', () => {

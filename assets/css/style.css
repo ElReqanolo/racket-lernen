@@ -243,7 +243,7 @@ footer{border-top:1px solid var(--line);color:var(--muted);font-size:.85em;paddi
 .res-note{font-size:.9em;margin-top:8px;padding:6px 10px;border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:4px}
 .res-imgs{display:flex;gap:14px;flex-wrap:wrap;margin-top:6px}
 .res-imgs figure{margin:0;text-align:center}
-.res-imgs canvas{background:#fff;border:1px solid var(--line);border-radius:4px;display:block}
+.res-imgs canvas{border:1px solid var(--line);border-radius:4px;display:block}
 .res-imgs figcaption{font-size:12px;color:var(--muted)}
 
 /* Hilfen bei den Übungen */
@@ -295,7 +295,9 @@ aside.toc a.kaplink .kp.full::after{content:" ✓"}
 .pg-line.testbad .pg-val{color:var(--red);font-family:inherit;font-weight:600}
 .pg-line.info .pg-val{color:var(--muted);font-family:inherit;font-size:.9em}
 .pg-hint{font-size:.9em;margin-top:5px;background:var(--accent-soft);padding:5px 9px;border-radius:6px}
-.pg-img canvas{background:#fff;border:1px solid var(--line);border-radius:4px;margin-top:4px;display:block}
+.pg-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:5px}
+.pg-acts .chip{font-size:12px;padding:2px 9px;color:var(--muted)}
+.pg-img canvas{border:1px solid var(--line);border-radius:4px;margin-top:4px;display:block}
 .pg-replrow{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding:8px 12px}
 .pg-replrow span{font-family:var(--mono);color:var(--accent);font-weight:700}
 #pg-repl{flex:1;border:0;background:transparent;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;padding:4px 0}
