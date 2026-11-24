@@ -391,8 +391,13 @@ ol.pfad>li>a{text-decoration:none}
 .kapitem{min-width:0}.kapitem .kh .t{min-width:0;overflow-wrap:anywhere}main table{display:block;max-width:100%;overflow-x:auto}
 /* Editor: Fehlermarkierung und Vervollständigung */
 .ed-wrap{position:relative}
-.ed-hl{position:absolute;inset:0;margin:0;border-style:solid;border-color:transparent;white-space:pre-wrap;overflow-wrap:break-word;word-wrap:break-word;color:var(--text);overflow:hidden;pointer-events:none;background:var(--code-bg);box-sizing:border-box}
+.ed-hl{position:absolute;inset:0;margin:0;border-style:solid;border-color:transparent;white-space:pre;color:var(--text);overflow:hidden;pointer-events:none;background:var(--code-bg);box-sizing:border-box}
 .ed-measure{visibility:hidden;bottom:auto}
+/* Zeilennummern links neben den Code-Feldern */
+.ln-box{display:flex;align-items:stretch}
+.ln-box > textarea,.ln-box > .ed-wrap{flex:1;min-width:0}
+.ln-box textarea{border-top-left-radius:0;border-bottom-left-radius:0}
+.ln-gutter{margin:0;flex:none;min-width:3em;padding:12px 10px 0;font:14.5px/1.55 var(--mono);text-align:right;white-space:pre;overflow:hidden;color:var(--muted);opacity:.75;background:var(--code-bg);border:1px solid var(--line);border-right:0;border-radius:10px 0 0 10px;user-select:none}
 textarea.ed-ta{position:relative;z-index:1;background:transparent!important;color:transparent!important;caret-color:var(--text)}
 textarea.ed-ta::selection{background:color-mix(in srgb,var(--ink) 28%,transparent)}
 textarea.ed-ta::placeholder{color:var(--muted)}

@@ -325,14 +325,34 @@
   function esc(s) { return s.replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
   function lineOf(src, pos) { return src.slice(0, pos).split("\n").length; }
 
+  // Zeilennummern links neben dem Textfeld (wie in DrRacket); ohne Zeilenumbruch, damit Nummer und Zeile zusammenpassen
+  function lineNumbers(ta) {
+    var box = document.createElement("div"); box.className = "ln-box";
+    ta.parentNode.insertBefore(box, ta);
+    var g = document.createElement("pre"); g.className = "ln-gutter"; g.setAttribute("aria-hidden", "true");
+    box.appendChild(g); box.appendChild(ta);
+    ta.setAttribute("wrap", "off");
+    var cs = getComputedStyle(ta);
+    ["fontFamily", "fontSize", "lineHeight", "paddingTop", "borderTopWidth", "borderBottomWidth"].forEach(function (k) { g.style[k] = cs[k]; });
+    var n = 0;
+    function upd() {
+      var m = ta.value.split("\n").length;
+      if (m !== n) { n = m; var s = ""; for (var i = 1; i <= m; i++) s += i + "\n"; g.textContent = s + "\n\n"; }
+      g.scrollTop = ta.scrollTop;
+    }
+    ta.addEventListener("input", upd); ta.addEventListener("scroll", upd); upd();
+    return box;
+  }
+
   function attach(ta, opts) {
     opts = opts || {};
+    var box = lineNumbers(ta);
     var wrap = document.createElement("div"); wrap.className = "ed-wrap";
     ta.parentNode.insertBefore(wrap, ta);
     var hl = document.createElement("pre"); hl.className = "ed-hl"; hl.setAttribute("aria-hidden", "true");
     wrap.appendChild(hl); wrap.appendChild(ta); ta.classList.add("ed-ta");
     var list = document.createElement("div"); list.className = "ed-lint"; list.setAttribute("aria-live", "polite");
-    wrap.parentNode.insertBefore(list, wrap.nextSibling);
+    box.parentNode.insertBefore(list, box.nextSibling);
     var ac = document.createElement("div"); ac.className = "ed-ac"; ac.setAttribute("role", "listbox"); wrap.appendChild(ac);
     var state = { errs: [], globals: new Map() }, timer = null;
     var COPY = ["fontFamily", "fontSize", "fontWeight", "lineHeight", "letterSpacing", "tabSize", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth", "borderRadius"];
@@ -359,7 +379,7 @@
       if (inErr >= 0) out += "</mark>";
       ranges.forEach(function (r) { if (r.s >= src.length) out += '<mark class="ed-err ed-eof" data-k="' + r.k + '"> </mark>'; });
       hl.innerHTML = out + "\n";
-      hl.scrollTop = ta.scrollTop;
+      hl.scrollTop = ta.scrollTop; hl.scrollLeft = ta.scrollLeft;
     }
     function render() {
       var src = ta.value;
@@ -425,7 +445,7 @@
       });
       var hint = document.createElement("div"); hint.className = "ed-hint"; hint.textContent = "Tab übernehmen · ↑↓ auswählen · Esc schließen"; ac.appendChild(hint);
       var xy = caretXY(start);
-      ac.style.left = Math.min(xy.x, Math.max(0, wrap.clientWidth - 260)) + "px"; ac.style.top = (xy.y - ta.scrollTop + 2) + "px";
+      ac.style.left = Math.min(xy.x - ta.scrollLeft, Math.max(0, wrap.clientWidth - 260)) + "px"; ac.style.top = (xy.y - ta.scrollTop + 2) + "px";
       ac.classList.add("on");
     }
     function moveAc(d) {
@@ -479,7 +499,7 @@
       else if (ac.classList.contains("on")) { if (/^delete/.test(e.inputType || "")) refreshAc(); else if (e.inputType) closeAc(); }
     });
     ta.addEventListener("blur", function () { setTimeout(closeAc, 120); });
-    ta.addEventListener("scroll", function () { hl.scrollTop = ta.scrollTop; closeAc(); });
+    ta.addEventListener("scroll", function () { hl.scrollTop = ta.scrollTop; hl.scrollLeft = ta.scrollLeft; closeAc(); });
     ta.addEventListener("click", function () { closeAc(); markCur(); });
     ta.addEventListener("keyup", markCur);
     lint();
@@ -487,5 +507,5 @@
   }
 
   function names(src, lv) { var g = analyse(src, lv).globals, r = Array.from(g.keys()); SPECIAL.concat(Array.from(PRIMS.keys())).forEach(function (k) { if (r.indexOf(k) < 0) r.push(k); }); return r.sort(function (a, b) { return a.length - b.length || (a < b ? -1 : 1); }); }
-  window.RacketEditor = { attach: attach, analyse: analyse, parse: parse, names: names, highlight: highlight, tokens: tokens };
+  window.RacketEditor = { attach: attach, lineNumbers: lineNumbers, analyse: analyse, parse: parse, names: names, highlight: highlight, tokens: tokens };
 })();
