@@ -49,6 +49,37 @@
     if (extra) { var h = document.createElement("div"); h.className = "pg-hint"; h.textContent = "💡 " + extra; d.appendChild(h); }
     out.appendChild(d); return d;
   }
+  // Ergebnis aus der Ausgabe in den Code übernehmen (wie Kopieren aus dem Interaktionsfenster in DrRacket)
+  function addActions(d, src, v) {
+    var txt = v instanceof M.Img ? null : M.show(v);
+    if (txt !== null && txt.indexOf("#<") >= 0) return;   // Funktionen, Records … lassen sich nicht als Code schreiben
+    var imgName = null;
+    function asCode() {
+      if (txt !== null) return txt;
+      if (!imgName) {
+        var url; try { url = d.querySelector(".pg-img canvas").toDataURL("image/png"); } catch (e) { alert("Dieses Bild (von einer fremden Adresse) lässt sich nicht kopieren."); return null; }
+        for (var k = 1; store.get(imgKey("ausgabe-" + k + ".png")); k++);
+        imgName = "ausgabe-" + k + ".png";
+        try { localStorage.setItem(imgKey(imgName), url); } catch (e) { alert("Das Bild ist zu groß, um es zu speichern."); imgName = null; return null; }
+        loadBitmap("file:" + imgName, url, false, function () {});
+      }
+      return '(bitmap "' + imgName + '")';
+    }
+    var bar = document.createElement("div"); bar.className = "pg-acts";
+    function btn(label, title, atEnd, make) {
+      var b = document.createElement("button"); b.type = "button"; b.className = "chip"; b.textContent = label; b.title = title;
+      b.addEventListener("click", function () {
+        var c = asCode(); if (c === null) return;
+        ta.focus();
+        if (atEnd) { ta.setSelectionRange(ta.value.length, ta.value.length); insert((/(^|\n)$/.test(ta.value) ? "" : "\n") + make(c) + "\n"); }
+        else insert(make(c));
+      });
+      bar.appendChild(b);
+    }
+    btn("In Code einfügen", "Das Ergebnis an der Cursorstelle in den Code einfügen", false, function (c) { return c; });
+    if (src) btn("Als check-expect einfügen", "Am Ende des Codes einen Test mit diesem Ergebnis einfügen", true, function (c) { return "(check-expect " + src + " " + c + ")"; });
+    d.appendChild(bar);
+  }
   function wrapErr(e) {
     if (e instanceof RangeError) return new M.RacketError("Zu tiefe Rekursion – vermutlich eine Endlosrekursion.", "loop");
     if (e instanceof M.RacketError) return e;
@@ -288,7 +319,7 @@
         var h = headName(f);
         if (h === "define" || h === "define-record" || h === "define-singleton" || h === ":" || (h && h.indexOf("check-") === 0)) continue;
         if (v === M.Void || v === undefined) continue;
-        line("ok", P ? P.unparse(f) : "", v instanceof M.Img ? v : M.show(v)); shown++;
+        addActions(line("ok", P ? P.unparse(f) : "", v instanceof M.Img ? v : M.show(v)), P ? P.unparse(f) : "", v); shown++;
       } catch (e) {
         e = wrapErr(e);
         line("err", P ? P.unparse(f) : "", e.message + (e.line ? " (Zeile " + e.line + ")" : ""), P && P.errorHint(e));
@@ -326,7 +357,8 @@
     try {
       var forms = M.readAll(src), v;
       forms.forEach(function (f) { interp.steps = 0; v = interp.eval(f, interp.global); });
-      line("ok repl", "> " + src, v === M.Void || v === undefined ? "" : (v instanceof M.Img ? v : M.show(v)));
+      var rl = line("ok repl", "> " + src, v === M.Void || v === undefined ? "" : (v instanceof M.Img ? v : M.show(v)));
+      if (v !== M.Void && v !== undefined) addActions(rl, src.trim(), v);
       if (pendingAnim.length) launchPending();
     } catch (e) { e = wrapErr(e); line("err repl", "> " + src, e.message, P && P.errorHint(e)); }
     hist.unshift(src); hpos = -1; repl.value = "";
@@ -335,8 +367,8 @@
   var hist = [], hpos = -1;
 
   // Editor-Komfort
-  function autosize() { ta.style.height = "auto"; ta.style.height = Math.max(320, ta.scrollHeight + 4) + "px"; }
-  function insert(t) { var s = ta.selectionStart, e = ta.selectionEnd; ta.value = ta.value.slice(0, s) + t + ta.value.slice(e); ta.selectionStart = ta.selectionEnd = s + t.length; ta.dispatchEvent(new Event("input")); }
+  function autosize() { window.RacketEditor.fit(ta, 320); }
+  function insert(t) { window.RacketEditor.insertText(ta, t); }
   ta.addEventListener("keydown", function (e) {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); run(); return; }
     if (e.key === "Tab") { e.preventDefault(); insert("  "); return; }
@@ -446,7 +478,7 @@
       loadBitmap("file:" + name, r.result, false, function () {
         ta.focus();
         var t = '(bitmap "' + name + '")';
-        if (!document.execCommand || !document.execCommand("insertText", false, t)) { var p0 = ta.selectionStart; ta.value = ta.value.slice(0, p0) + t + ta.value.slice(ta.selectionEnd); ta.dispatchEvent(new Event("input")); }
+        insert(t);
       });
     };
     r.readAsDataURL(f);

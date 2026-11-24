@@ -34,7 +34,7 @@
     if (isLit(n) || n instanceof SV) return true;
     if (isSym(n)) {
       var nm = n.sym.name;
-      if (this.defs[nm]) return true;
+      if (this.defs[nm]) return false;   // eigene Funktion: wird erst durch ihren lambda-Ausdruck ersetzt (wie im Buch)
       var v = this.bound(nm);
       return v instanceof M.Prim || v instanceof M.Closure || v instanceof M.Sig || v === M.Empty;
     }
@@ -115,6 +115,7 @@
   Stepper.prototype.reduce = function (n) {
     var it = this.it, self = this;
     if ((this.count = (this.count || 0) + 1) > 6000) throw new StepError("Nach sehr vielen Schritten angehalten – läuft das Programm endlos?");
+    if (isSym(n) && this.defs[n.sym.name]) return { node: this.defs[n.sym.name], note: n.sym.name + " durch seinen lambda-Ausdruck ersetzen" };
     if (isSym(n)) return { node: this.fromVal(it.global.lookup(n.sym.name)), note: n.sym.name + " durch seinen Wert ersetzen" };
     var h = head(n);
     switch (h) {

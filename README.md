@@ -15,7 +15,7 @@ Eine Lernhilfe für DrRacket mit der Sprachebene „Schreibe Dein Programm! – 
 | `fehler.html` | Fehlermeldungen und typische Fehler, nach Kapitel |
 | `uebungen.html` | Übungen Kapitel für Kapitel: jede Aufgabe wird direkt abgegeben (Code-Editor, Auswahlfragen oder Eingabefelder) und bei richtiger Lösung automatisch abgehakt; gestufte Tipps, Link zur Lernübersicht, Musterlösung pro Aufgabe |
 | `einstellungen.html` | Einstellungen: Design (hell/dunkel/wie System), Akzentfarbe (Vorgaben oder eigene), Schriftgröße, Animationen aus, alles zurücksetzen |
-| `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile; Sprachebenen wie in DrRacket, Signaturprüfung, Stepper, Animationen mit `big-bang` und `universe`, Bilder aus Dateien, komplexe Zahlen, Tab-Vervollständigung und Fehlermarkierung beim Tippen |
+| `playground.html` | Racket-Code direkt im Browser ausführen, mit Bildern, Tests und Eingabezeile; Sprachebenen wie in DrRacket, Signaturprüfung, Stepper, Animationen mit `big-bang` und `universe`, Bilder aus Dateien, komplexe Zahlen, Tab-Vervollständigung und Fehlermarkierung beim Tippen; Zeilennummern; Ergebnisse (auch Bilder) per Knopf in den Code oder als `check-expect` übernehmen |
 
 ## Ordnerstruktur
 

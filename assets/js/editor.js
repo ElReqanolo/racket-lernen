@@ -6,6 +6,19 @@
   var M = window.MiniRacket;
   if (!M) return;
 
+  // Bilder Pixel für Pixel vergleichen (für check-expect in Übungen und Playground, wie in DrRacket)
+  function pixels(img, w, h) { var cv = document.createElement("canvas"); cv.width = w; cv.height = h; var c = cv.getContext("2d"); img.draw(c, 0, 0); return c.getImageData(0, 0, w, h).data; }
+  M.setImageEqual(function (a, b) {
+    if (Math.round(a.w) !== Math.round(b.w) || Math.round(a.h) !== Math.round(b.h)) return false;
+    if (a.key() === b.key()) return true;
+    var w = Math.max(1, Math.ceil(a.w)), h = Math.max(1, Math.ceil(a.h));
+    var da = pixels(a, w, h), db = pixels(b, w, h), diff = 0;
+    for (var i = 0; i < da.length; i += 4) {
+      if (Math.abs(da[i] - db[i]) + Math.abs(da[i + 1] - db[i + 1]) + Math.abs(da[i + 2] - db[i + 2]) + Math.abs(da[i + 3] - db[i + 3]) > 96) diff++;
+    }
+    return diff <= Math.max(4, w * h * 0.004);
+  });
+
   // ---------------------------------------------------------------- Syntaxfarben
   var KEYWORDS = new Set(["define", "lambda", "λ", "cond", "else", "if", "and", "or", "let", "let*", "letrec", "quote", "begin",
     "define-record", "define-record-procedures", "define-singleton", "check-expect", "check-within", "check-error", "check-property",
@@ -325,6 +338,25 @@
   function esc(s) { return s.replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; }); }
   function lineOf(src, pos) { return src.slice(0, pos).split("\n").length; }
 
+  // Text an der Cursorstelle einfügen – über insertText, damit Strg+Z funktioniert
+  function insertText(ta, t) {
+    if (document.execCommand && document.execCommand("insertText", false, t)) return;
+    var s = ta.selectionStart; ta.value = ta.value.slice(0, s) + t + ta.value.slice(ta.selectionEnd);
+    ta.selectionStart = ta.selectionEnd = s + t.length; ta.dispatchEvent(new Event("input"));
+  }
+  // Textfeld an den Inhalt anpassen, ohne dass die Seite springt, und die Seite mitscrollen, damit der Cursor sichtbar bleibt
+  function fit(ta, min, max) {
+    var y = window.scrollY;
+    ta.style.height = "auto";
+    ta.style.height = Math.min(max || Infinity, Math.max(min, ta.scrollHeight + 4)) + "px";
+    window.scrollTo(window.scrollX, y);
+    if (document.activeElement !== ta) return;
+    var cs = getComputedStyle(ta), lh = parseFloat(cs.lineHeight) || 22;
+    var line = ta.value.slice(0, ta.selectionEnd).split("\n").length;
+    var bottom = ta.getBoundingClientRect().top + parseFloat(cs.paddingTop) + line * lh - ta.scrollTop;
+    if (bottom > window.innerHeight - 16) window.scrollBy(0, bottom - window.innerHeight + 16 + lh);
+  }
+
   // Zeilennummern links neben dem Textfeld (wie in DrRacket); ohne Zeilenumbruch, damit Nummer und Zeile zusammenpassen
   function lineNumbers(ta) {
     var box = document.createElement("div"); box.className = "ln-box";
@@ -424,7 +456,7 @@
       return res;
     }
     function common(arr) { var c = arr[0]; arr.forEach(function (x) { while (x.indexOf(c) !== 0) c = c.slice(0, -1); }); return c; }
-    function replaceRange(s, e, t) { ta.setSelectionRange(s, e); if (!document.execCommand || !document.execCommand("insertText", false, t)) { ta.value = ta.value.slice(0, s) + t + ta.value.slice(e); ta.selectionStart = ta.selectionEnd = s + t.length; ta.dispatchEvent(new Event("input")); } }
+    function replaceRange(s, e, t) { ta.setSelectionRange(s, e); insertText(ta, t); }
     function closeAc() { ac.classList.remove("on"); acItems = []; }
     function caretXY(pos) {
       var m = document.createElement("pre"); m.className = "ed-hl ed-measure"; styleLike(m); m.style.height = "auto";
@@ -507,5 +539,5 @@
   }
 
   function names(src, lv) { var g = analyse(src, lv).globals, r = Array.from(g.keys()); SPECIAL.concat(Array.from(PRIMS.keys())).forEach(function (k) { if (r.indexOf(k) < 0) r.push(k); }); return r.sort(function (a, b) { return a.length - b.length || (a < b ? -1 : 1); }); }
-  window.RacketEditor = { attach: attach, lineNumbers: lineNumbers, analyse: analyse, parse: parse, names: names, highlight: highlight, tokens: tokens };
+  window.RacketEditor = { attach: attach, lineNumbers: lineNumbers, insertText: insertText, fit: fit, analyse: analyse, parse: parse, names: names, highlight: highlight, tokens: tokens };
 })();
